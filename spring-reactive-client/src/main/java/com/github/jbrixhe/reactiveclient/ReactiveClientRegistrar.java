@@ -52,12 +52,6 @@ public class ReactiveClientRegistrar implements
             }
         }
 
-        for (String pkg : (String[]) attributes.get("basePackages")) {
-            if (StringUtils.hasText(pkg)) {
-                basePackages.add(pkg);
-            }
-        }
-
         if (basePackages.isEmpty()) {
             basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
         }

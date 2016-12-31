@@ -26,12 +26,6 @@ public class ReactiveClientRegistrarTest {
     }
 
     @Test
-    public void getPackagesToScan_withBoth() {
-        assertThat(getPackage(ConfigurationWithBoth.class))
-                .containsExactly("packageValue1", "packageValue2","basePackage1", "basePackage2");
-    }
-
-    @Test
     public void getPackagesToScan_withNone() {
         assertThat(getPackage(ConfigurationWithNone.class))
                 .containsExactly("com.github.jbrixhe.reactiveclient");
@@ -39,7 +33,7 @@ public class ReactiveClientRegistrarTest {
     @Test
     public void getPackagesToScan_withSpaceAndEmpty() {
         assertThat(getPackage(ConfigurationWithSpaceAndEmpty.class))
-                .containsExactly("packageValue2");
+                .containsExactly("packageValue1");
     }
 
     private Set<String> getPackage(Class<?> clazz) {
@@ -56,11 +50,7 @@ public class ReactiveClientRegistrarTest {
     static class ConfigurationWithBasePackages {
     }
 
-    @EnableReactiveClient(basePackages = {"basePackage1", "basePackage2"}, value = {"packageValue1", "packageValue2"})
-    class ConfigurationWithBoth {
-    }
-
-    @EnableReactiveClient(basePackages = {"   "}, value = {"", "packageValue2"})
+    @EnableReactiveClient({"","    ", "packageValue1"})
     class ConfigurationWithSpaceAndEmpty {
     }
 
