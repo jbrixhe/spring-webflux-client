@@ -32,7 +32,7 @@ public class ReactiveClientRegistrar implements
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         ClassPathScanningCandidateComponentProvider scanner = new ReactiveClientCandidateComponentProvider(resourceLoader);
-        ReactiveClientBeanRegister reactiveClientBeanRegister = new ReactiveClientBeanRegister(registry);
+        ReactiveClientBeanRegister reactiveClientBeanRegister = new ReactiveClientBeanRegister(registry, resourceLoader);
         for (String basePackage : getPackagesToScan(metadata)) {
             Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
             for (BeanDefinition candidateComponent : candidateComponents) {

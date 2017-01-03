@@ -17,6 +17,7 @@
 package com.github.jbrixhe.reactiveclient.beans;
 
 import com.github.jbrixhe.reactiveclient.EnableReactiveClient;
+import com.github.jbrixhe.reactiveclient.ReactiveClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientTests.Application.class)
+@SpringBootTest(classes = ReactiveClientTests.Application.class, properties = {"reactive.url=http://host"})
 @DirtiesContext
 public class ReactiveClientTests {
 
@@ -54,5 +55,9 @@ public class ReactiveClientTests {
 
     @Configuration
     public static class TestDefaultFeignConfig {
+    }
+
+    @ReactiveClient(name = "localapp")
+    private interface TestClient {
     }
 }
