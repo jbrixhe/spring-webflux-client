@@ -114,6 +114,27 @@ public class ReactiveClientBeanRegisterTests {
                 .hasCauseInstanceOf(MalformedURLException.class);
     }
 
+    @Test
+    public void getAliases() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getAliases(Collections.singletonMap("qualifier","beanQualifier")))
+                .containsExactly("beanQualifier");
+    }
+
+    @Test
+    public void getAliases_withEmptyValue() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getAliases(Collections.singletonMap("qualifier","")))
+                .isEmpty();
+    }
+
+    @Test
+    public void getAliases_withOnlyWhitespace() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getAliases(Collections.singletonMap("qualifier","   ")))
+                .isEmpty();
+    }
+
     @Configuration
     public static class TestDefaultFeignConfig {
     }

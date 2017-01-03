@@ -27,6 +27,7 @@ class ReactiveClientBeanRegister {
 
     public void register(AnnotatedBeanDefinition annotatedBeanDefinition){
         AnnotationMetadata annotationMetadata = annotatedBeanDefinition.getMetadata();
+        annotationMetadata.getEnclosingClassName();
         BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(ReactiveClientBeanFactory.class);
         Map<String, Object> attributes = annotationMetadata.getAnnotationAttributes(ReactiveClient.class.getName());
         definition.addPropertyValue("type", annotationMetadata.getClassName());
@@ -36,7 +37,9 @@ class ReactiveClientBeanRegister {
         AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
         beanDefinition.setPrimary(true);
 
-        BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, annotationMetadata.getClassName(), new String[] {});
+        String[] aliases = getAliases(attributes);
+
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, annotationMetadata.getClassName(), aliases);
         BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
     }
 
@@ -55,6 +58,14 @@ class ReactiveClientBeanRegister {
             }
         }
         return url;
+    }
+
+    String[] getAliases(Map<String, Object> attributes) {
+        String qualifier = (String) attributes.get("qualifier");
+        if (StringUtils.hasText(qualifier)) {
+            return new String[] {qualifier};
+        }
+        return new String[] {};
     }
 
     private String resolve(String value) {

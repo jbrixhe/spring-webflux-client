@@ -21,6 +21,7 @@ import com.github.jbrixhe.reactiveclient.ReactiveClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +39,13 @@ public class ReactiveClientTests {
     @Autowired
     private TestClient testClient;
 
+    @Autowired
+    private TestClient2 testClient2;
+
+    @Qualifier("myAwesomeClient")
+    @Autowired
+    private TestClient2 testClient2WithQualifier;
+
     @Configuration
     @EnableAutoConfiguration
     @EnableReactiveClient
@@ -51,6 +59,8 @@ public class ReactiveClientTests {
     @Test
     public void testClient() {
         assertNotNull("testClient was null", this.testClient);
+        assertNotNull("testClient was null", this.testClient2);
+        assertNotNull("testClient was null", this.testClient2WithQualifier);
     }
 
     @Configuration
@@ -59,5 +69,9 @@ public class ReactiveClientTests {
 
     @ReactiveClient(name = "localapp")
     private interface TestClient {
+    }
+
+    @ReactiveClient(name = "localapp2", qualifier = "myAwesomeClient")
+    private interface TestClient2 {
     }
 }
