@@ -45,6 +45,7 @@ class ReactiveClientBeanRegister {
         if (StringUtils.hasText(url)){
             url = resolve(url);
             if (!url.contains("://")) {
+
                 url = "http://" + url;
             }
             try {
