@@ -9,4 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ReactiveContext {
     private String url;
+    private String path;
 }

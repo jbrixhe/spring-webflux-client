@@ -135,7 +135,24 @@ public class ReactiveClientBeanRegisterTests {
                 .isEmpty();
     }
 
-    @Configuration
-    public static class TestDefaultFeignConfig {
+    @Test
+    public void getPath() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getPath(Collections.singletonMap("path","/api")))
+                .isEqualTo("/api");
+    }
+
+    @Test
+    public void getPath_withDashAtTheEnd() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getPath(Collections.singletonMap("path","/api/")))
+                .isEqualTo("/api");
+    }
+
+    @Test
+    public void getPath_withoutDashAtTheBeginning() {
+        ReactiveClientBeanRegister register = new ReactiveClientBeanRegister(null, resourceLoader);
+        assertThat(register.getPath(Collections.singletonMap("path","api")))
+                .isEqualTo("/api");
     }
 }

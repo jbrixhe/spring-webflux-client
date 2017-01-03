@@ -32,6 +32,7 @@ class ReactiveClientBeanRegister {
         Map<String, Object> attributes = annotationMetadata.getAnnotationAttributes(ReactiveClient.class.getName());
         definition.addPropertyValue("type", annotationMetadata.getClassName());
         definition.addPropertyValue("url", getUrl(attributes));
+        definition.addPropertyValue("path", getPath(attributes));
         definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
         AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
@@ -48,7 +49,6 @@ class ReactiveClientBeanRegister {
         if (StringUtils.hasText(url)){
             url = resolve(url);
             if (!url.contains("://")) {
-
                 url = "http://" + url;
             }
             try {
@@ -66,6 +66,20 @@ class ReactiveClientBeanRegister {
             return new String[] {qualifier};
         }
         return new String[] {};
+    }
+
+    String getPath(Map<String, Object> attributes) {
+        String path = (String) attributes.get("path");
+        if (StringUtils.hasText(path)){
+            path = resolve(path);
+            if (!path.startsWith("/")) {
+                path = "/" + path;
+            }
+            if (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+        }
+        return path;
     }
 
     private String resolve(String value) {

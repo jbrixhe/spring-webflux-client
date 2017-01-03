@@ -23,6 +23,8 @@ public class ReactiveClientBeanFactory implements
 
     private String url;
 
+    private String path;
+
     private ApplicationContext applicationContext;
 
     private ClassLoader classLoader;
@@ -44,7 +46,7 @@ public class ReactiveClientBeanFactory implements
 
     @Override
     public Object getObject() throws Exception {
-        ReactiveContext reactiveContext = new ReactiveContext(url);
+        ReactiveContext reactiveContext = new ReactiveContext(url, path);
         return Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new RequestHandler(reactiveContext));
     }
 
