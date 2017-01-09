@@ -5,8 +5,10 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.core.type.StandardMethodMetadata;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -56,6 +58,7 @@ public class RequestTemplateAnnotationVisitor {
         Map<String, Object> requestMappingAttributes = annotatedTypeMetadata.getAnnotationAttributes(RequestMapping.class.getName());
         if (requestMappingAttributes != null && !requestMappingAttributes.isEmpty()) {
             parsePath(requestMappingAttributes, requestTemplate);;
+            parseMethod(requestMappingAttributes, requestTemplate);;
         }
     }
 
@@ -64,6 +67,16 @@ public class RequestTemplateAnnotationVisitor {
         Assert.isTrue(values.length <= 1, () -> "Too many values on annotation RequestMapping");
         if (values.length > 0) {
             requestTemplate.getRequestPath().append(values[0]);
+        }
+    }
+
+    void parseMethod(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {
+        RequestMethod[] methods = (RequestMethod[]) requestMappingAttributes.get("method");
+        Assert.isTrue(methods.length <= 1, () -> "Too many Request mathod for annotation");
+        if (methods.length == 0) {
+            requestTemplate.setMethod(HttpMethod.GET);
+        } else {
+            requestTemplate.setMethod(HttpMethod.valueOf(methods[0].name()));
         }
     }
 }

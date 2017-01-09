@@ -4,7 +4,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,10 +69,31 @@ public class RequestTemplateAnnotationVisitorTest {
     }
 
     @Test
-    public void parsePath_withTooValue() {
+    public void parsePath_withTooManyValue() {
         RequestTemplate requestTemplate = new RequestTemplate();
         assertThatThrownBy(()-> requestTemplateAnnotationVisitor.parsePath(Collections.singletonMap("value", new String[]{"/parent", "/child"}), requestTemplate))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void parseMethod() {
+        RequestTemplate requestTemplate = new RequestTemplate();
+        requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplate);
+        assertThat(requestTemplate.getMethod()).isEqualTo(HttpMethod.GET);
+    }
+
+    @Test
+    public void parseMethod_withNoValue() {
+        RequestTemplate requestTemplate = new RequestTemplate();
+        requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{}), requestTemplate);
+        assertThat(requestTemplate.getMethod()).isEqualTo(HttpMethod.GET);
+    }
+
+    @Test
+    public void parseMethod_withTooManyValue() {
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()-> requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), requestTemplate))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     interface SimpleInterface {}
