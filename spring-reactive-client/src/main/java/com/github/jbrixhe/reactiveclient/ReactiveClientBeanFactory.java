@@ -1,6 +1,5 @@
 package com.github.jbrixhe.reactiveclient;
 
-import com.github.jbrixhe.reactiveclient.request.ReactiveContext;
 import com.github.jbrixhe.reactiveclient.request.RequestHandler;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
@@ -46,8 +45,7 @@ public class ReactiveClientBeanFactory implements
 
     @Override
     public Object getObject() throws Exception {
-        ReactiveContext reactiveContext = new ReactiveContext(url, path);
-        return Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new RequestHandler(reactiveContext));
+        return Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new RequestHandler(null));
     }
 
     @Override

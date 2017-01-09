@@ -1,20 +1,38 @@
 package com.github.jbrixhe.reactiveclient.request;
 
-import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.MethodMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
+import org.springframework.core.type.StandardMethodMetadata;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Collections;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class RequestTemplateAnnotationVisitor {
 
     public List<RequestTemplate> visit(Class<?> targetType) {
-        return Collections.emptyList();
+        RequestTemplate rootRequestTemplate = processRootRequestTemplate(targetType);
+        List<RequestTemplate> result = new ArrayList<>();
+        for (Method method : targetType.getMethods()) {
+            if (method.getDeclaringClass() == Object.class || (method.getModifiers() & Modifier.STATIC) != 0) {
+                continue;
+            }
+            MethodMetadata methodMetadata = new StandardMethodMetadata(method);
+            RequestTemplate methodRequestTemplate = new RequestTemplate(rootRequestTemplate);
+            processAnnotationOnMethod(methodMetadata, methodRequestTemplate);
+            result.add(methodRequestTemplate);
+        }
+        return result;
+    }
+
+    private void processAnnotationOnMethod(MethodMetadata methodMetadata, RequestTemplate methodRequestTemplate) {
+        processRequestMappingAnnotation(methodMetadata, methodRequestTemplate);
     }
 
     RequestTemplate processRootRequestTemplate(Class<?> targetType) {
@@ -31,14 +49,14 @@ public class RequestTemplateAnnotationVisitor {
     }
 
     private void processAnnotationOnClass(AnnotationMetadata annotationMetadata, RequestTemplate requestTemplate) {
-        Map<String, Object> requestMappingAttributes = annotationMetadata.getAnnotationAttributes(RequestMapping.class.getName());
-        if (requestMappingAttributes != null && !requestMappingAttributes.isEmpty()) {
-            processRequestMappingAnnotation(requestMappingAttributes, requestTemplate);
-        }
+        processRequestMappingAnnotation(annotationMetadata, requestTemplate);
     }
 
-    private void processRequestMappingAnnotation(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {
-        parsePath(requestMappingAttributes, requestTemplate);
+    private void processRequestMappingAnnotation(AnnotatedTypeMetadata annotatedTypeMetadata, RequestTemplate requestTemplate) {
+        Map<String, Object> requestMappingAttributes = annotatedTypeMetadata.getAnnotationAttributes(RequestMapping.class.getName());
+        if (requestMappingAttributes != null && !requestMappingAttributes.isEmpty()) {
+            parsePath(requestMappingAttributes, requestTemplate);;
+        }
     }
 
     void parsePath(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {

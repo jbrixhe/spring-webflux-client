@@ -1,14 +1,11 @@
 package com.github.jbrixhe.reactiveclient.request;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 public class RequestTemplate {
 
     private RequestPath requestPath;
 
     public RequestTemplate(RequestTemplate requestTemplate) {
-        this.requestPath = new RequestPath();
+        this.requestPath = new RequestPath(requestTemplate.getRequestPath());
     }
 
     public RequestTemplate() {
@@ -19,19 +16,4 @@ public class RequestTemplate {
         return requestPath;
     }
 
-    public void addHeader(String name) {
-
-    }
-
-    public void addHeader(String name, Object value) {
-
-    }
-
-    private String urlEncode(Object arg) {
-        try {
-            return URLEncoder.encode(String.valueOf(arg), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

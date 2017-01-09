@@ -7,6 +7,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,30 +18,38 @@ public class RequestTemplateAnnotationVisitorTest {
     private RequestTemplateAnnotationVisitor requestTemplateAnnotationVisitor;
 
     @Test
-    public void visit_withSingleInterface() {
+    public void processRootRequestTemplate_withSingleInterface() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(ParentReactiveClient.class);
         assertThat(requestTemplate).isNotNull();
         assertThat(requestTemplate.getRequestPath().getSegments()).hasSize(1);
     }
 
     @Test
-    public void visit_withOneParentInterface() {
+    public void processRootRequestTemplate_withOneParentInterface() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(ChildReactiveClient.class);
         assertThat(requestTemplate).isNotNull();
         assertThat(requestTemplate.getRequestPath().getSegments()).hasSize(2);
     }
 
     @Test
-    public void visit_withNoRequestMappingOnClass() {
+    public void processRootRequestTemplate_withNoRequestMappingOnClass() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(SimpleInterface.class);
         assertThat(requestTemplate).isNotNull();
         assertThat(requestTemplate.getRequestPath().getSegments()).isEmpty();
     }
 
     @Test
-    public void visit_withTooManyParent() {
+    public void processRootRequestTemplate_withTooManyParent() {
         assertThatThrownBy(() -> requestTemplateAnnotationVisitor.processRootRequestTemplate(ChildReactiveClientWithTwoDirectParents.class))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void visit() {
+        assertThat(requestTemplateAnnotationVisitor.visit(ChildReactiveClient.class))
+                .hasSize(2)
+                .extracting("requestPath.segments.size")
+                .containsExactlyInAnyOrder(2,3);
     }
 
     @Test
@@ -73,7 +82,14 @@ public class RequestTemplateAnnotationVisitorTest {
     interface ParentReactiveClientBis {}
 
     @RequestMapping("/child")
-    interface ChildReactiveClient extends ParentReactiveClient {}
+    interface ChildReactiveClient extends ParentReactiveClient {
+
+        void testGet();
+
+        @RequestMapping("/get2")
+        void testGet2();
+
+    }
 
     @RequestMapping("/grandChild")
     interface ChildReactiveClientWithTwoDirectParents extends ChildReactiveClient, ParentReactiveClient {}

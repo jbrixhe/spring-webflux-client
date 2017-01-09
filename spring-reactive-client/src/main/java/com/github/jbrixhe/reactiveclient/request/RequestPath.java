@@ -8,6 +8,11 @@ import java.util.List;
 public class RequestPath {
     private List<Segment> segments;
 
+    public RequestPath(RequestPath requestPath) {
+        this();
+        segments.addAll(requestPath.getSegments());
+    }
+
     public RequestPath() {
         this.segments = new LinkedList<>();
     }
