@@ -79,20 +79,63 @@ public class RequestTemplateAnnotationVisitorTest {
     public void parseMethod() {
         RequestTemplate requestTemplate = new RequestTemplate();
         requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplate);
-        assertThat(requestTemplate.getMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(requestTemplate.method).isEqualTo(HttpMethod.GET);
     }
 
     @Test
     public void parseMethod_withNoValue() {
         RequestTemplate requestTemplate = new RequestTemplate();
         requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{}), requestTemplate);
-        assertThat(requestTemplate.getMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(requestTemplate.method).isEqualTo(HttpMethod.GET);
     }
 
     @Test
     public void parseMethod_withTooManyValue() {
         RequestTemplate requestTemplate = new RequestTemplate();
         assertThatThrownBy(()-> requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), requestTemplate))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void parseHeaders() {
+        RequestTemplate requestTemplate = new RequestTemplate();
+        requestTemplateAnnotationVisitor.parseHeaders(Collections.singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplate);
+        assertThat(requestTemplate.headerTemplates)
+                .containsOnlyKeys("header1","header2");
+    }
+
+    @Test
+    public void extractHeader_withoutEquals(){
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()->requestTemplateAnnotationVisitor.extractHeader("namevalue", requestTemplate))
+           .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void extractHeader_withEmptyName(){
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()->requestTemplateAnnotationVisitor.extractHeader("   =value", requestTemplate))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void extractHeader_withNoName(){
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()->requestTemplateAnnotationVisitor.extractHeader("=value", requestTemplate))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void extractHeader_withEmptyValue(){
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()->requestTemplateAnnotationVisitor.extractHeader("name=   ", requestTemplate))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void extractHeader_withNoValue(){
+        RequestTemplate requestTemplate = new RequestTemplate();
+        assertThatThrownBy(()->requestTemplateAnnotationVisitor.extractHeader("name=", requestTemplate))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
