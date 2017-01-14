@@ -22,7 +22,7 @@ public class ReactiveClientRegistrarTest {
     @Test
     public void getPackagesToScan_withBasePackages() {
         assertThat(getPackage(ConfigurationWithBasePackages.class))
-                .containsExactly("basePackage1", "basePackage2");
+                .containsExactlyInAnyOrder("basePackage1", "basePackage2");
     }
 
     @Test

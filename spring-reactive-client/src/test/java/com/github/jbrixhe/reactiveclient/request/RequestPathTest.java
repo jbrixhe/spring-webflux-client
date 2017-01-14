@@ -13,7 +13,7 @@ public class RequestPathTest {
     public void processPathSegment() {
         RequestPath requestPath = new RequestPath();
         requestPath.append("/api/{id}");
-        assertThat(requestPath.getSegments())
+        assertThat(requestPath.getPathSegments())
                 .hasSize(2);
     }
 
@@ -21,7 +21,7 @@ public class RequestPathTest {
     public void processPathSegment_withDuplicateSlash() {
         RequestPath requestPath = new RequestPath();
         requestPath.append("//{id}");
-        assertThat(requestPath.getSegments())
+        assertThat(requestPath.getPathSegments())
                 .hasSize(1);
     }
 
@@ -29,7 +29,7 @@ public class RequestPathTest {
     public void processPathSegment_withSlashAtTheEnd() {
         RequestPath requestPath = new RequestPath();
         requestPath.append("/api/{id}/");
-        assertThat(requestPath.getSegments())
+        assertThat(requestPath.getPathSegments())
                 .hasSize(2);
     }
 
@@ -37,7 +37,7 @@ public class RequestPathTest {
     public void processPathSegment_withEmptySegment() {
         RequestPath requestPath = new RequestPath();
         requestPath.append("/  /{id}");
-        assertThat(requestPath.getSegments())
+        assertThat(requestPath.getPathSegments())
                 .hasSize(1);
     }
 }

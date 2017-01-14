@@ -6,23 +6,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RequestPath {
-    private List<Segment> segments;
+    private List<PathSegment> pathSegments;
 
     public RequestPath() {
-        this.segments = new LinkedList<>();
+        this.pathSegments = new LinkedList<>();
     }
 
     public void append(String path) {
         if (StringUtils.hasText(path)) {
             for (String segment : path.split("/")) {
                 if (StringUtils.hasText(segment)) {
-                    segments.add(Segment.fromString(segment));
+                    pathSegments.add(PathSegment.fromString(segment));
                 }
             }
         }
     }
 
-    List<Segment> getSegments() {
-        return segments;
+    List<PathSegment> getPathSegments() {
+        return pathSegments;
     }
 }
