@@ -7,7 +7,7 @@ public interface RequestParameter {
 
     void encode(RequestParameterEncoder requestParameterEncoder, Map<String, Object> parameterValues);
 
-    static RequestParameter build(String name, Class<?> parameterType) {
+    static RequestParameter create(String name, Class<?> parameterType) {
         if (Collection.class.isAssignableFrom(parameterType)) {
             return new CollectionRequestParameter(name);
         } else if (Object[].class.isAssignableFrom(parameterType)) {

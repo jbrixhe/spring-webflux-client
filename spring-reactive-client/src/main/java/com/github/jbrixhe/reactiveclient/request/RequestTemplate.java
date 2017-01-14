@@ -3,8 +3,6 @@ package com.github.jbrixhe.reactiveclient.request;
 import com.github.jbrixhe.reactiveclient.request.parameter.RequestParameters;
 import org.springframework.http.HttpMethod;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,11 +37,11 @@ public class RequestTemplate {
         }
     }
 
-    public void addRequestParameter(String name, Class<?> parameterType){
+    public void addRequestParameter(String name, Class<?> parameterType) {
         requestParameters.add(name, parameterType);
     }
 
-    public void setParameterName(String name, Integer index){
+    public void setParameterName(String name, Integer index) {
         indexToParameterNames.put(index, name);
     }
 

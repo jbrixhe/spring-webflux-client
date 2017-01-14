@@ -16,7 +16,7 @@ public class RequestPath {
         if (StringUtils.hasText(path)) {
             for (String segment : path.split("/")) {
                 if (StringUtils.hasText(segment)) {
-                    pathSegments.add(PathSegment.fromString(segment));
+                    pathSegments.add(PathSegment.get(segment));
                 }
             }
         }

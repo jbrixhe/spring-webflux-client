@@ -4,7 +4,7 @@ import java.util.Map;
 
 interface PathSegment extends Resolvable{
 
-    static PathSegment fromString(String segment){
+    static PathSegment get(String segment){
         if (segment.startsWith("{") && segment.endsWith("}")) {
             return new DynamicPathSegment(segment);
         } else {

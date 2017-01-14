@@ -11,13 +11,13 @@
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/Resolvable.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/PathSegment.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ReactiveClient.java
-/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/parameter/ArrayRequestParameter.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/HeaderTemplate.java
-/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/parameter/CollectionRequestParameter.java
-/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/parameter/DefaultRequestParameter.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/segment/RequestSegmentEncoder.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/RequestPath.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/segment/RequestSegment.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/ReactiveContext.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/parameter/RequestParameterEncoder.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/RequestTemplate.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/segment/RequestSegments.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/annotation/RequestParamParameterProcessor.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/annotation/AnnotatedParameterProcessor.java

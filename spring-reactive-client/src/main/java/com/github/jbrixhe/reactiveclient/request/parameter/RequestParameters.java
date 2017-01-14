@@ -23,7 +23,7 @@ public class RequestParameters implements Resolvable {
 
     public void add(String parameterName, Class<?> type) {
         if (!requestParameters.containsKey(parameterName)) {
-            requestParameters.put(parameterName, RequestParameter.build(parameterName, type));
+            requestParameters.put(parameterName, RequestParameter.create(parameterName, type));
         } else {
             throw new IllegalArgumentException("Duplicate Request parameter name:"+parameterName);
         }
@@ -36,6 +36,6 @@ public class RequestParameters implements Resolvable {
         requestParameters.values()
                 .forEach(requestParameter -> requestParameter.encode(requestParameterEncoder, parameters));
 
-        return requestParameterEncoder.encodedValue();
+        return requestParameterEncoder.value();
     }
 }

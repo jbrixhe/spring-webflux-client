@@ -9,17 +9,17 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PathSegmentTest {
+public class PathRequestSegmentTest {
 
     @Test
     public void fromString_withStaticSegment() {
-        assertThat(PathSegment.fromString("api"))
+        assertThat(PathSegment.get("api"))
                 .isInstanceOf(PathSegment.StaticPathSegment.class);
     }
 
     @Test
     public void fromString_withDynamicSegment() {
-        assertThat(PathSegment.fromString("{pathSegment}"))
+        assertThat(PathSegment.get("{pathSegment}"))
                 .isInstanceOf(PathSegment.DynamicPathSegment.class);
     }
 

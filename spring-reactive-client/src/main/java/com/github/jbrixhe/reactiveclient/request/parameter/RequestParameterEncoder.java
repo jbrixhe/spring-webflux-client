@@ -11,19 +11,20 @@ class RequestParameterEncoder {
         this.stringBuilder = new StringBuilder();
     }
 
-    void encode(String parameterName, Object value){
+    void encode(String parameterName, Object value) {
         if (value != null) {
-            if (stringBuilder.length() != 0) {
-                stringBuilder.append("&");
-            }
-
-            stringBuilder.append(parameterName)
+            stringBuilder
+                    .append("&")
+                    .append(parameterName)
                     .append("=")
                     .append(conversionService.convert(value, String.class));
         }
     }
 
-    String encodedValue(){
-        return stringBuilder.toString();
+    public String value() {
+        return stringBuilder
+                .deleteCharAt(0)
+                .insert(0, "?")
+                .toString();
     }
 }

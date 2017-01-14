@@ -49,7 +49,7 @@ public class RequestParametersTest {
         }};
 
         Assertions.assertThat(requestParameters.resolve(parameterValues))
-                .isEqualTo("doubleParameter=23.09&collectionParameter=stringvalue1&collectionParameter=stringvalue2&arrayParameter=1&arrayParameter=2&integerParameter=13&stringParameter=StringValue");
+                .isEqualTo("?doubleParameter=23.09&collectionParameter=stringvalue1&collectionParameter=stringvalue2&arrayParameter=1&arrayParameter=2&integerParameter=13&stringParameter=StringValue");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class RequestParametersTest {
         requestParameters.add("collectionParameter", ArrayList.class);
 
         Assertions.assertThat(requestParameters.resolve(singletonMap("collectionParameter", asList(1,2,3))))
-                .isEqualTo("collectionParameter=1&collectionParameter=2&collectionParameter=3");
+                .isEqualTo("?collectionParameter=1&collectionParameter=2&collectionParameter=3");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class RequestParametersTest {
         requestParameters.add("arrayParameter", Integer[].class);
 
         Assertions.assertThat(requestParameters.resolve(singletonMap("arrayParameter", new Integer[]{1,2,3})))
-                .isEqualTo("arrayParameter=1&arrayParameter=2&arrayParameter=3");
+                .isEqualTo("?arrayParameter=1&arrayParameter=2&arrayParameter=3");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class RequestParametersTest {
         }};
 
         Assertions.assertThat(requestParameters.resolve(parameterValues))
-                .isEqualTo("doubleParameter=23.09&integerParameter=13&stringParameter=StringValue");
+                .isEqualTo("?doubleParameter=23.09&integerParameter=13&stringParameter=StringValue");
     }
 
     @Test
