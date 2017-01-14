@@ -67,19 +67,18 @@ public class RequestTemplateAnnotationVisitor {
         processRequestMappingAnnotation(methodMetadata, methodRequestTemplate);
 
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-        Class<?>[] parameterTypes = method.getParameterTypes();
         int count = parameterAnnotations.length;
         for (int i = 0; i < count; i++) {
-            processAnnotationsOnParameter(methodRequestTemplate, parameterAnnotations[i], parameterTypes[i], i);
+            processAnnotationsOnParameter(methodRequestTemplate, parameterAnnotations[i], i);
         }
     }
 
-    private void processAnnotationsOnParameter(RequestTemplate methodRequestTemplate, Annotation[] parameterAnnotation, Class<?> parameterType, int i) {
+    private void processAnnotationsOnParameter(RequestTemplate methodRequestTemplate, Annotation[] parameterAnnotation, int i) {
         if (parameterAnnotation != null) {
             for (Annotation annotation : parameterAnnotation) {
                 AnnotatedParameterProcessor annotatedParameterProcessor;
                 if (annotation != null && (annotatedParameterProcessor = annotatedArgumentProcessors.get(annotation.annotationType())) != null) {
-                    annotatedParameterProcessor.processAnnotation(methodRequestTemplate, annotation, parameterType, i);
+                    annotatedParameterProcessor.processAnnotation(methodRequestTemplate, annotation, i);
                 }
             }
         }

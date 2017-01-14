@@ -1,3 +1,4 @@
+com/github/jbrixhe/reactiveclient/request/parameter/RequestParameter$DynamicRequestParameter.class
 com/github/jbrixhe/reactiveclient/request/RequestTemplateAnnotationVisitor.class
 com/github/jbrixhe/reactiveclient/request/segment/RequestSegments.class
 com/github/jbrixhe/reactiveclient/ReactiveClientRegistrar.class
@@ -13,7 +14,6 @@ com/github/jbrixhe/reactiveclient/request/header/RequestHeaders.class
 com/github/jbrixhe/reactiveclient/request/PathSegment.class
 com/github/jbrixhe/reactiveclient/ReactiveClientCandidateComponentProvider.class
 com/github/jbrixhe/reactiveclient/request/RequestTemplate.class
-com/github/jbrixhe/reactiveclient/request/parameter/RequestParameter$BasicRequestParameter.class
 com/github/jbrixhe/reactiveclient/request/PathSegment$DynamicPathSegment.class
 com/github/jbrixhe/reactiveclient/request/Resolvable.class
 com/github/jbrixhe/reactiveclient/EnableReactiveClient.class

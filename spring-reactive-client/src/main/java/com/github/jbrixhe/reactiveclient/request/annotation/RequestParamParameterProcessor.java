@@ -31,12 +31,12 @@ public class RequestParamParameterProcessor implements AnnotatedParameterProcess
 	}
 
 	@Override
-	public void processAnnotation(RequestTemplate methodRequestTemplate, Annotation annotation, Class<?> parameterType, Integer integer) {
+	public void processAnnotation(RequestTemplate methodRequestTemplate, Annotation annotation, Integer integer) {
 		RequestParam requestParam = RequestParam.class.cast(annotation);
 		String name = requestParam.value();
 		Assert.isTrue(StringUtils.hasText(name), "");
 
-		methodRequestTemplate.addRequestParameter(name, parameterType);
+		methodRequestTemplate.addRequestParameter(name);
 		methodRequestTemplate.setParameterName(name, integer);
 	}
 

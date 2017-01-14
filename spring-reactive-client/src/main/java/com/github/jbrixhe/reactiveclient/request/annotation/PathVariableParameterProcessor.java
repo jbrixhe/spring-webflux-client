@@ -31,7 +31,7 @@ public class PathVariableParameterProcessor implements AnnotatedParameterProcess
     }
 
     @Override
-    public void processAnnotation(RequestTemplate methodRequestTemplate, Annotation annotation, Class<?> parameterType, Integer integer) {
+    public void processAnnotation(RequestTemplate methodRequestTemplate, Annotation annotation, Integer integer) {
         String name = PathVariable.class.cast(annotation).value();
         Assert.isTrue(StringUtils.hasText(name), "");
         methodRequestTemplate.setParameterName(name, integer);
