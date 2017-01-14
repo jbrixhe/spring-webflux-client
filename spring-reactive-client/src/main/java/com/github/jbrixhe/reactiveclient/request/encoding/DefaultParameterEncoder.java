@@ -10,55 +10,55 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class DefaultParameterEncoder implements ParameterEncoder{
+class DefaultParameterEncoder implements ParameterEncoder {
     private ConversionService conversionService;
 
     public DefaultParameterEncoder() {
         this.conversionService = new DefaultConversionService();
     }
 
-    public Map<String, String> encodeToString(Map<Integer, String> indexToName, Object[] parameterValues) {
+    public Map<String, String> convertToString(Map<Integer, String> indexToName, Object[] values) {
         Map<String, String> encodedParameter = new HashMap<>();
         for (Map.Entry<Integer, String> mapEntry : indexToName.entrySet()) {
-            Object value = parameterValues[mapEntry.getKey()];
-            String valueAsString = conversionService.convert(value, String.class);
+            Object value = values[mapEntry.getKey()];
+            String valueAsString = convertToString(value);
             encodedParameter.put(mapEntry.getValue(), valueAsString);
         }
         return encodedParameter;
     }
 
-    public Map<String, List<String>> encodeToListOfString(Map<Integer, String> indexToName, Object[] parameterValues) {
+    public Map<String, List<String>> convertToListOfString(Map<Integer, String> indexToName, Object[] values) {
         Map<String, List<String>> encodedParameter = new HashMap<>();
         for (Map.Entry<Integer, String> mapEntry : indexToName.entrySet()) {
-            Object value = parameterValues[mapEntry.getKey()];
-            List<String> valueAsString = encodeParameterValue(value);
+            Object value = values[mapEntry.getKey()];
+            List<String> valueAsString = processValue(value);
             encodedParameter.put(mapEntry.getValue(), valueAsString);
         }
         return encodedParameter;
     }
 
-    private List<String> encodeParameterValue(Object value) {
+    List<String> processValue(Object value) {
         if (value == null) {
             return Collections.emptyList();
         } else if (Iterable.class.isInstance(value)) {
             List<String> valuesAsString = new ArrayList<>();
             for (Object o : (Iterable<?>) value) {
-                encodeCollectionOrArrayElement(valuesAsString, o);
+                addCollectionOrArrayElement(valuesAsString, o);
             }
             return valuesAsString;
         } else if (value.getClass().isArray()) {
             List<String> valuesAsString = new ArrayList<>();
             for (Object o : (Object[]) value) {
-                encodeCollectionOrArrayElement(valuesAsString, o);
+                addCollectionOrArrayElement(valuesAsString, o);
             }
             return valuesAsString;
         } else {
-            String valueAsString = conversionService.convert(value, String.class);
+            String valueAsString = convertToString(value);
             return Collections.singletonList(valueAsString);
         }
     }
 
-    private void encodeCollectionOrArrayElement(Collection<String> valuesAsString, Object value) {
+    private void addCollectionOrArrayElement(Collection<String> valuesAsString, Object value) {
         if (value == null) {
             return;
         }
@@ -66,6 +66,8 @@ class DefaultParameterEncoder implements ParameterEncoder{
     }
 
     protected String convertToString(Object value) {
-        return conversionService.convert(value, String.class);
+        return String.class.isInstance(value) ?
+                (String) value :
+                conversionService.convert(value, String.class);
     }
 }

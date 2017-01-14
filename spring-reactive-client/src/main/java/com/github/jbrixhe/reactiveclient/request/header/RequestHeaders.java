@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestHeaders {
-
     private ParameterEncoder parameterEncoder;
     private Map<String, RequestHeader> headers;
     private Map<Integer, String> indexToName;
@@ -33,7 +32,7 @@ public class RequestHeaders {
     }
 
     public HttpHeaders encode(Object[] parameterValues) {
-        Map<String, List<String>> headerDynamicValue = parameterEncoder.encodeToListOfString(indexToName, parameterValues);
+        Map<String, List<String>> headerDynamicValue = parameterEncoder.convertToListOfString(indexToName, parameterValues);
         HttpHeaders httpHeaders = new HttpHeaders();
         for (RequestHeader header : headers.values()) {
             List<String> headerValues = header.getValues(headerDynamicValue);

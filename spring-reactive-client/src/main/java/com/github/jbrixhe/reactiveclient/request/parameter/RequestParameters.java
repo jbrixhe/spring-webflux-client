@@ -27,7 +27,7 @@ public class RequestParameters {
     }
 
     public String resolve(Object[] parameters) {
-        Map<String, List<String>> headerDynamicValue = parameterEncoder.encodeToListOfString(indexToName, parameters);
+        Map<String, List<String>> headerDynamicValue = parameterEncoder.convertToListOfString(indexToName, parameters);
         RequestParameterAccumulator requestParameterAccumulator = new RequestParameterAccumulator();
 
         requestParameters

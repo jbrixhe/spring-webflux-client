@@ -33,7 +33,7 @@ public class RequestSegments {
     }
 
     public String resolve(Object[] parameters) {
-        Map<String, String> parameterEncodedValues = parameterEncoder.encodeToString(indexToName, parameters);
+        Map<String, String> parameterEncodedValues = parameterEncoder.convertToString(indexToName, parameters);
         return requestSegments.stream()
                 .map(segment -> segment.getValue(parameterEncodedValues))
                 .collect(Collectors.joining("/", "/", ""));
