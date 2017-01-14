@@ -38,7 +38,7 @@ public class RequestTemplate {
     }
 
     public void addRequestParameter(String name, Class<?> parameterType) {
-        requestParameters.add(name, parameterType);
+        requestParameters.add(name);
     }
 
     public void setParameterName(String name, Integer index) {

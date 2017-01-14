@@ -4,43 +4,43 @@ import java.util.Map;
 
 interface RequestSegment {
 
-    void encode(RequestSegmentEncoder requestSegmentEncoder, Map<String, Object> parameterValues);
+    String getValue(Map<String, String> parameterValues);
 
     static RequestSegment create(String segment){
         if (segment.startsWith("{") && segment.endsWith("}")) {
-            return new DynamicPathRequestSegment(segment);
+            return new DynamicRequestSegment(segment);
         } else {
-            return new BasicPathRequestSegment(segment);
+            return new BasicRequestSegment(segment);
         }
     }
 
-    class BasicPathRequestSegment implements RequestSegment {
+    class BasicRequestSegment implements RequestSegment {
 
         private String segment;
 
-        private BasicPathRequestSegment(String segment) {
+        private BasicRequestSegment(String segment) {
             this.segment = segment;
         }
 
         @Override
-        public void encode(RequestSegmentEncoder requestSegmentEncoder, Map<String, Object> parameterValues) {
-            requestSegmentEncoder.encode(segment);
+        public String getValue(Map<String, String> parameterValues) {
+            return segment;
         }
     }
 
-    class DynamicPathRequestSegment implements RequestSegment {
+    class DynamicRequestSegment implements RequestSegment {
 
         private String segment;
         private String defaultValue;
 
-        private DynamicPathRequestSegment(String segment) {
+        private DynamicRequestSegment(String segment) {
             this.defaultValue = segment;
             this.segment = segment.substring(1, segment.length() - 1);
         }
 
         @Override
-        public void encode(RequestSegmentEncoder requestSegmentEncoder, Map<String, Object> parameterValues) {
-            requestSegmentEncoder.encode(parameterValues.getOrDefault(segment, defaultValue));
+        public String getValue(Map<String, String> parameterValues) {
+            return parameterValues.getOrDefault(segment, defaultValue);
         }
     }
 }

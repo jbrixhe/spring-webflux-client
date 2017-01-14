@@ -3,97 +3,61 @@ package com.github.jbrixhe.reactiveclient.request.parameter;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.convert.support.DefaultConversionService;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequestParametersTest {
 
     @Test
     public void testRequestParameter() {
+        new DefaultConversionService().convert(Arrays.asList(1, 2, 3, 4), String.class);
         RequestParameters requestParameters = new RequestParameters();
-        requestParameters.add("stringParameter", String.class);
-        requestParameters.add("integerParameter", Integer.class);
-        requestParameters.add("doubleParameter", Double.class);
-        requestParameters.add("arrayParameter", Object[].class);
-        requestParameters.add("collectionParameter", List.class);
+        addParameter(requestParameters, "stringParameter", 0);
+        addParameter(requestParameters, "integerParameter", 1);
+        addParameter(requestParameters, "doubleParameter", 2);
+        addParameter(requestParameters, "arrayParameter", 3);
+        addParameter(requestParameters, "collectionParameter", 4);
 
-        Map<String,Object> parameterValues = new HashMap<String,Object>(){{
-            put("stringParameter","StringValue");
-            put("integerParameter",13);
-            put("doubleParameter",23.09D);
-            put("arrayParameter",new Integer[]{1,2});
-            put("collectionParameter",asList("stringvalue1","stringvalue2"));
-        }};
-
-        Assertions.assertThat(requestParameters.resolve(parameterValues))
-                .isEqualTo("?doubleParameter=23.09&collectionParameter=stringvalue1&collectionParameter=stringvalue2&arrayParameter=1&arrayParameter=2&integerParameter=13&stringParameter=StringValue");
+        Assertions.assertThat(requestParameters.resolve(new Object[]{"StringValue", 13, 23.09D, new Integer[]{1, 2}, asList("stringValue1", "stringValue2")}))
+                .isEqualTo("?doubleParameter=23.09&collectionParameter=stringValue1&collectionParameter=stringValue2&arrayParameter=1&arrayParameter=2&integerParameter=13&stringParameter=StringValue");
     }
 
     @Test
     public void testRequestParameter_withCollection() {
-        RequestParameters requestParameters = new RequestParameters();
-        requestParameters.add("collectionParameter", ArrayList.class);
+        RequestParameters requestParameters = addParameter(new RequestParameters(), "collectionParameter", 0);
 
-        Assertions.assertThat(requestParameters.resolve(singletonMap("collectionParameter", asList(1,2,3))))
+        Assertions.assertThat(requestParameters.resolve(new Object[]{asList(1, 2, 3)}))
                 .isEqualTo("?collectionParameter=1&collectionParameter=2&collectionParameter=3");
     }
 
     @Test
     public void testRequestParameter_withArray() {
-        RequestParameters requestParameters = new RequestParameters();
-        requestParameters.add("arrayParameter", Integer[].class);
+        RequestParameters requestParameters = addParameter(new RequestParameters(), "arrayParameter", 0);
 
-        Assertions.assertThat(requestParameters.resolve(singletonMap("arrayParameter", new Integer[]{1,2,3})))
+        Assertions.assertThat(requestParameters.resolve(new Object[]{new Integer[]{1, 2, 3}}))
                 .isEqualTo("?arrayParameter=1&arrayParameter=2&arrayParameter=3");
     }
 
     @Test
     public void testRequestParameter_withSimpleType() {
         RequestParameters requestParameters = new RequestParameters();
-        requestParameters.add("stringParameter", String.class);
-        requestParameters.add("integerParameter", Integer.class);
-        requestParameters.add("doubleParameter", Double.class);
+        addParameter(requestParameters, "stringParameter", 0);
+        addParameter(requestParameters, "integerParameter", 1);
+        addParameter(requestParameters, "doubleParameter", 2);
 
-        Map<String,Object> parameterValues = new HashMap<String,Object>(){{
-            put("stringParameter","StringValue");
-            put("integerParameter",13);
-            put("doubleParameter",23.09D);
-        }};
-
-        Assertions.assertThat(requestParameters.resolve(parameterValues))
+        Assertions.assertThat(requestParameters.resolve(new Object[]{"StringValue", 13, 23.09D}))
                 .isEqualTo("?doubleParameter=23.09&integerParameter=13&stringParameter=StringValue");
     }
 
-    @Test
-    public void testRequestParameter_withDuplicateParameterName() {
-        RequestParameters requestParameters = new RequestParameters();
-        requestParameters.add("duplicateName", Integer[].class);
-
-        assertThatThrownBy(()->requestParameters.add("duplicateName", Integer[].class))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageEndingWith("duplicateName");
+    private RequestParameters addParameter(RequestParameters requestParameters, String parameterName, Integer parameterIndex) {
+        requestParameters.add(parameterName);
+        requestParameters.addIndex(parameterIndex, parameterName);
+        return requestParameters;
     }
 }

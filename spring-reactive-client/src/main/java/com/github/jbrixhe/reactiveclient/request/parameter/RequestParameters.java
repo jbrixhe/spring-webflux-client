@@ -1,41 +1,64 @@
 package com.github.jbrixhe.reactiveclient.request.parameter;
 
-import com.github.jbrixhe.reactiveclient.request.Resolvable;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
+import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class RequestParameters implements Resolvable {
+public class RequestParameters {
 
-    Map<String, RequestParameter> requestParameters;
-    ConversionService conversionService;
-
-    public RequestParameters(ConversionService conversionService) {
-        this.conversionService = conversionService;
-        this.requestParameters = new HashMap<>();
-    }
+    private ParameterEncoder parameterEncoder;
+    private Map<String, RequestParameter> requestParameters;
+    private Map<Integer, String> indexToName;
 
     public RequestParameters() {
-        this(new DefaultConversionService());
+        this.parameterEncoder = ParameterEncoder.create(true);
+        this.requestParameters = new HashMap<>();
+        this.indexToName = new HashMap<>();
     }
 
-    public void add(String parameterName, Class<?> type) {
-        if (!requestParameters.containsKey(parameterName)) {
-            requestParameters.put(parameterName, RequestParameter.create(parameterName, type));
-        } else {
-            throw new IllegalArgumentException("Duplicate Request parameter name:"+parameterName);
+    public void add(String parameterName) {
+        requestParameters.put(parameterName, new RequestParameter.DynamicRequestParameter(parameterName));
+    }
+
+    public void addIndex(Integer index, String parameterName) {
+        this.indexToName.put(index, parameterName);
+    }
+
+    public String resolve(Object[] parameters) {
+        Map<String, List<String>> headerDynamicValue = parameterEncoder.encodeToListOfString(indexToName, parameters);
+        RequestParameterAccumulator requestParameterAccumulator = new RequestParameterAccumulator();
+
+        requestParameters
+                .values()
+                .forEach(requestParameter -> requestParameterAccumulator.add(requestParameter.getName(), requestParameter.getValues(headerDynamicValue)));
+
+        return requestParameterAccumulator.value();
+    }
+
+    class RequestParameterAccumulator {
+        private StringBuilder stringBuilder;
+
+        RequestParameterAccumulator() {
+            this.stringBuilder = new StringBuilder();
         }
-    }
 
-    @Override
-    public String resolve(Map<String, Object> parameters) {
-        RequestParameterEncoder requestParameterEncoder = new RequestParameterEncoder(conversionService);
+        void add(String parameterName, List<String> values) {
+            for (String value : values) {
+                stringBuilder
+                        .append("&")
+                        .append(parameterName)
+                        .append("=")
+                        .append(value);
+            }
+        }
 
-        requestParameters.values()
-                .forEach(requestParameter -> requestParameter.encode(requestParameterEncoder, parameters));
-
-        return requestParameterEncoder.value();
+        public String value() {
+            return stringBuilder
+                    .deleteCharAt(0)
+                    .insert(0, "?")
+                    .toString();
+        }
     }
 }

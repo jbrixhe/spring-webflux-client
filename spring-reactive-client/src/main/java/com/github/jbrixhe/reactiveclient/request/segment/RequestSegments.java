@@ -1,25 +1,23 @@
 package com.github.jbrixhe.reactiveclient.request.segment;
 
-import com.github.jbrixhe.reactiveclient.request.Resolvable;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
+import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class RequestSegments implements Resolvable{
-    private final ConversionService conversionService;
+public class RequestSegments {
+    private final ParameterEncoder parameterEncoder;
     private List<RequestSegment> requestSegments;
-
-    public RequestSegments(ConversionService conversionService) {
-        this.conversionService = conversionService;
-        this.requestSegments = new LinkedList<>();
-    }
+    private Map<Integer, String> indexToName;
 
     public RequestSegments() {
-        this(new DefaultConversionService());
+        this.parameterEncoder = ParameterEncoder.create(true);
+        this.requestSegments = new LinkedList<>();
+        this.indexToName = new HashMap<>();
     }
 
     public void add(String path) {
@@ -30,13 +28,14 @@ public class RequestSegments implements Resolvable{
         }
     }
 
+    public void addIndex(Integer index, String parameterName) {
+        this.indexToName.put(index, parameterName);
+    }
 
-    @Override
-    public String resolve(Map<String, Object> parameters) {
-        RequestSegmentEncoder requestSegmentEncoder = new RequestSegmentEncoder(conversionService);
-
-        requestSegments.forEach(requestSegment -> requestSegment.encode(requestSegmentEncoder, parameters));
-
-        return requestSegmentEncoder.value();
+    public String resolve(Object[] parameters) {
+        Map<String, String> parameterEncodedValues = parameterEncoder.encodeToString(indexToName, parameters);
+        return requestSegments.stream()
+                .map(segment -> segment.getValue(parameterEncodedValues))
+                .collect(Collectors.joining("/", "/", ""));
     }
 }
