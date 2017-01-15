@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request.parameter;
+package com.github.jbrixhe.reactiveclient.request;
 
 import java.util.Collections;
 import java.util.List;

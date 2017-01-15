@@ -1,6 +1,6 @@
 package com.github.jbrixhe.reactiveclient.request;
 
-import com.github.jbrixhe.reactiveclient.request.header.RequestHeader.BasicRequestHeader;
+import com.github.jbrixhe.reactiveclient.request.RequestHeader.BasicRequestHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

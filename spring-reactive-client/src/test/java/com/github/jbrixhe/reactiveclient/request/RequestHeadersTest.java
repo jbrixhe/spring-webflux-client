@@ -1,7 +1,6 @@
-package com.github.jbrixhe.reactiveclient.request.header;
+package com.github.jbrixhe.reactiveclient.request;
 
-import com.github.jbrixhe.reactiveclient.request.RequestTemplate;
-import com.github.jbrixhe.reactiveclient.request.header.RequestHeader.DynamicRequestHeader;
+import com.github.jbrixhe.reactiveclient.request.RequestHeader.DynamicRequestHeader;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +8,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

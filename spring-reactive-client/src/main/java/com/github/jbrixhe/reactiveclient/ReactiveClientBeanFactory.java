@@ -1,6 +1,5 @@
 package com.github.jbrixhe.reactiveclient;
 
-import com.github.jbrixhe.reactiveclient.request.RequestHandler;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -9,6 +8,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 @Setter
@@ -45,7 +46,12 @@ public class ReactiveClientBeanFactory implements
 
     @Override
     public Object getObject() throws Exception {
-        return Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new RequestHandler(null));
+        return Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return null;
+            }
+        });
     }
 
     @Override

@@ -1,11 +1,5 @@
 package com.github.jbrixhe.reactiveclient.request;
 
-import com.github.jbrixhe.reactiveclient.request.header.RequestHeader;
-import com.github.jbrixhe.reactiveclient.request.header.RequestHeaders;
-import com.github.jbrixhe.reactiveclient.request.parameter.RequestParameter;
-import com.github.jbrixhe.reactiveclient.request.parameter.RequestParameters;
-import com.github.jbrixhe.reactiveclient.request.segment.RequestSegment;
-import com.github.jbrixhe.reactiveclient.request.segment.RequestSegments;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 

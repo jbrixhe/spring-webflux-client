@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request.segment;
+package com.github.jbrixhe.reactiveclient.request;
 
 import java.util.Map;
 

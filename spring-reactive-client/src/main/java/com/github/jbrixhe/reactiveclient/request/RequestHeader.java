@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request.header;
+package com.github.jbrixhe.reactiveclient.request;
 
 import lombok.EqualsAndHashCode;
 
