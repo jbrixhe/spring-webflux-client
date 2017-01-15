@@ -15,6 +15,7 @@
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/Resolvable.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/encoding/ParameterEncoder.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ReactiveClient.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/annotation/RequestHeaderParameterProcessor.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/segment/RequestSegment.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/ReactiveContext.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/request/RequestTemplate.java

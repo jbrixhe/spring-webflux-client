@@ -2,6 +2,7 @@ package com.github.jbrixhe.reactiveclient.request;
 
 import com.github.jbrixhe.reactiveclient.request.annotation.AnnotatedParameterProcessor;
 import com.github.jbrixhe.reactiveclient.request.annotation.PathVariableParameterProcessor;
+import com.github.jbrixhe.reactiveclient.request.annotation.RequestHeaderParameterProcessor;
 import com.github.jbrixhe.reactiveclient.request.annotation.RequestParamParameterProcessor;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
@@ -31,7 +32,8 @@ public class RequestTemplateAnnotationVisitor {
     public RequestTemplateAnnotationVisitor() {
         this.annotatedArgumentProcessors = Stream.of(
                 new PathVariableParameterProcessor(),
-                new RequestParamParameterProcessor())
+                new RequestParamParameterProcessor(),
+                new RequestHeaderParameterProcessor())
                 .collect(Collectors.toMap(AnnotatedParameterProcessor::getAnnotationType, Function.identity()));
     }
 

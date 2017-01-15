@@ -19,24 +19,24 @@ package com.github.jbrixhe.reactiveclient.request.annotation;
 import com.github.jbrixhe.reactiveclient.request.RequestTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.lang.annotation.Annotation;
 
-public class RequestParamParameterProcessor implements AnnotatedParameterProcessor {
+public class RequestHeaderParameterProcessor implements AnnotatedParameterProcessor {
 
 	@Override
 	public Class<? extends Annotation> getAnnotationType() {
-		return RequestParam.class;
+		return RequestHeader.class;
 	}
 
 	@Override
 	public void processAnnotation(RequestTemplate.Builder requestTemplateBuilder, Annotation annotation, Integer integer) {
-		RequestParam requestParam = RequestParam.class.cast(annotation);
+		RequestHeader requestParam = RequestHeader.class.cast(annotation);
 		String name = requestParam.value();
 		Assert.isTrue(StringUtils.hasText(name), "");
 
-		requestTemplateBuilder.addParameter(integer, name);
+		requestTemplateBuilder.addHeader(integer, name);
 	}
 
 }

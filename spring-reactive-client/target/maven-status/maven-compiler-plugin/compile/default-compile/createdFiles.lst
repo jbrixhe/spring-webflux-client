@@ -17,6 +17,7 @@ com/github/jbrixhe/reactiveclient/request/encoding/DefaultParameterEncoder.class
 com/github/jbrixhe/reactiveclient/request/parameter/RequestParameter.class
 com/github/jbrixhe/reactiveclient/request/segment/RequestSegment$BasicRequestSegment.class
 com/github/jbrixhe/reactiveclient/request/header/RequestHeader$DynamicRequestHeader.class
+com/github/jbrixhe/reactiveclient/request/annotation/RequestHeaderParameterProcessor.class
 com/github/jbrixhe/reactiveclient/request/header/RequestHeader.class
 com/github/jbrixhe/reactiveclient/request/ReactiveContext.class
 com/github/jbrixhe/reactiveclient/request/segment/RequestSegment.class

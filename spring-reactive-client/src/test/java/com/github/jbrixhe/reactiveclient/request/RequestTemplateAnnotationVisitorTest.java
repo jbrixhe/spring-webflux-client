@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -158,7 +159,18 @@ public class RequestTemplateAnnotationVisitorTest {
     }
 
     @Test
-    public void parameterAnnotewationProcessing_withRequestAndPathParameters() {
+    public void parameterAnnotationProcessing_withRequestHeader() {
+        List<RequestTemplate> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestHeaders.class);
+        assertThat(visit)
+                .hasSize(1);
+        RequestTemplate requestTemplate = visit.get(0);
+        assertThat(requestTemplate.getRequestHeaders().getIndexToName())
+                .contains(new SimpleEntry<>(0, "requestHeader1"),
+                        new SimpleEntry<>(1, "requestHeader2"));
+    }
+
+    @Test
+    public void parameterAnnotationProcessing_withRequestAndPathParameters() {
         List<RequestTemplate> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestAndPathParameters.class);
         assertThat(visit)
                 .hasSize(1);
@@ -195,14 +207,18 @@ public class RequestTemplateAnnotationVisitorTest {
     }
 
     interface ReactiveClientWithRequestParameters {
-        void testGet2(@RequestParam("requestParameter1") String requestParameter1, @RequestParam("requestParameter2") String requestParameter2);
+        void testRequestParameters(@RequestParam("requestParameter1") String requestParameter1, @RequestParam("requestParameter2") String requestParameter2);
     }
 
     interface ReactiveClientWithPathParameters {
-        void testGet2(@PathVariable("pathVariable1") String pathVariable1, @PathVariable("pathVariable2") String pathVariable2);
+        void testPathVariable(@PathVariable("pathVariable1") String pathVariable1, @PathVariable("pathVariable2") String pathVariable2);
+    }
+
+    interface ReactiveClientWithRequestHeaders {
+        void testRequestHeader(@RequestHeader("requestHeader1") String requestHeader1, @RequestHeader("requestHeader2") String requestHeader2);
     }
 
     interface ReactiveClientWithRequestAndPathParameters {
-        void testGet2(@RequestParam("requestParameter1") String requestParameter1, @PathVariable("pathVariable1") String pathVariable1);
+        void testRequestParameterAndPathVariable(@RequestParam("requestParameter1") String requestParameter1, @PathVariable("pathVariable1") String pathVariable1);
     }
 }

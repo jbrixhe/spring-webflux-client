@@ -6,8 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -42,7 +40,7 @@ public class DefaultParameterEncoderTest {
     @Test
     public void convertToString_withNull() {
         assertThat(defaultParameterEncoder.convertToString(singletonMap(0, "parameterName"), new Object[]{null}))
-                .containsExactly(new SimpleEntry<String,String>("parameterName", null));
+                .containsExactly(new SimpleEntry<String, String>("parameterName", null));
     }
 
     @Test
@@ -54,13 +52,13 @@ public class DefaultParameterEncoderTest {
     @Test
     public void convertToListOfString_withList() {
         assertThat(defaultParameterEncoder.convertToListOfString(singletonMap(0, "parameterName"), new Object[]{asList(1, 2, 3)}))
-                .containsExactly(new SimpleEntry<>("parameterName", asList("1","2","3")));
+                .containsExactly(new SimpleEntry<>("parameterName", asList("1", "2", "3")));
     }
 
     @Test
     public void convertToListOfString_withArray() {
         assertThat(defaultParameterEncoder.convertToListOfString(singletonMap(0, "parameterName"), new Object[]{new Integer[]{1, 2, 3}}))
-                .containsExactly(new SimpleEntry<>("parameterName", asList("1","2","3")));
+                .containsExactly(new SimpleEntry<>("parameterName", asList("1", "2", "3")));
     }
 
     @Test
