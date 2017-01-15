@@ -8,5 +8,5 @@ public interface AnnotatedParameterProcessor {
 
     Class<? extends Annotation> getAnnotationType();
 
-    void processAnnotation(RequestTemplate methodRequestTemplate, Annotation annotation, Integer integer);
+    void processAnnotation(RequestTemplate.Builder requestTemplateBuilder, Annotation annotation, Integer integer);
 }

@@ -1,5 +1,6 @@
 package com.github.jbrixhe.reactiveclient.request;
 
+import com.github.jbrixhe.reactiveclient.request.header.RequestHeader.BasicRequestHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -11,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,22 +26,24 @@ public class RequestTemplateAnnotationVisitorTest {
     @Test
     public void processRootRequestTemplate_withSingleInterface() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(ParentReactiveClient.class);
-        assertThat(requestTemplate).isNotNull();
-        assertThat(requestTemplate.getRequestPath().getPathSegments()).hasSize(1);
+        assertThat(requestTemplate.getRequestSegments().getRequestSegments())
+                .extracting("segment")
+                .containsExactly("parent");
     }
 
     @Test
     public void processRootRequestTemplate_withOneParentInterface() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(ChildReactiveClient.class);
-        assertThat(requestTemplate).isNotNull();
-        assertThat(requestTemplate.getRequestPath().getPathSegments()).hasSize(2);
+        assertThat(requestTemplate.getRequestSegments().getRequestSegments())
+                .extracting("segment")
+                .containsExactly("parent", "child");
     }
 
     @Test
     public void processRootRequestTemplate_withNoRequestMappingOnClass() {
         RequestTemplate requestTemplate = requestTemplateAnnotationVisitor.processRootRequestTemplate(SimpleInterface.class);
-        assertThat(requestTemplate).isNotNull();
-        assertThat(requestTemplate.getRequestPath().getPathSegments()).isEmpty();
+        assertThat(requestTemplate.getRequestSegments().getRequestSegments())
+                .isEmpty();
     }
 
     @Test
@@ -50,95 +53,85 @@ public class RequestTemplateAnnotationVisitorTest {
     }
 
     @Test
-    public void visit() {
-        assertThat(requestTemplateAnnotationVisitor.visit(ChildReactiveClient.class))
-                .hasSize(2)
-                .extracting("requestPath.pathSegments.size")
-                .containsExactlyInAnyOrder(2, 3);
-    }
-
-    @Test
     public void parsePath() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplateAnnotationVisitor.parsePath(Collections.singletonMap("value", new String[]{"/api"}), requestTemplate);
-        assertThat(requestTemplate.getRequestPath().getPathSegments()).hasSize(1);
+        RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder();
+        requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{"/api"}), requestTemplateBuilder);
+        assertThat(requestTemplateBuilder.build().getRequestSegments().getRequestSegments())
+                .hasSize(1)
+                .extracting("segment")
+                .containsExactly("api");
     }
 
     @Test
     public void parsePath_withNoValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplateAnnotationVisitor.parsePath(Collections.singletonMap("value", new String[]{}), requestTemplate);
-        assertThat(requestTemplate.getRequestPath().getPathSegments()).isEmpty();
+        RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder();
+        requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{}), requestTemplateBuilder);
+        assertThat(requestTemplateBuilder.build().getRequestSegments().getRequestSegments())
+                .isEmpty();
     }
 
     @Test
     public void parsePath_withTooManyValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parsePath(Collections.singletonMap("value", new String[]{"/parent", "/child"}), requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{"/parent", "/child"}), RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parseMethod() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplate);
-        assertThat(requestTemplate.method).isEqualTo(HttpMethod.GET);
+        RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder();
+        requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplateBuilder);
+        assertThat(requestTemplateBuilder.build().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
-    public void parseMethod_withNoValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{}), requestTemplate);
-        assertThat(requestTemplate.method).isEqualTo(HttpMethod.GET);
+    public void parseMethod_withNoMethod() {
+        RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder();
+        requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{}), requestTemplateBuilder);
+        assertThat(requestTemplateBuilder.build().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
-    public void parseMethod_withTooManyValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parseMethod(Collections.singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), requestTemplate))
+    public void parseMethod_withTooManyMethod() {
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parseHeaders() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplateAnnotationVisitor.parseHeaders(Collections.singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplate);
-        assertThat(requestTemplate.headerTemplates)
-                .containsOnlyKeys("header1", "header2");
+        RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder();
+        requestTemplateAnnotationVisitor.parseHeaders(singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplateBuilder);
+        assertThat(requestTemplateBuilder.build().getRequestHeaders().getHeaders())
+                .containsOnlyKeys("header1", "header2")
+                .containsValues(new BasicRequestHeader("header1", "value1"), new BasicRequestHeader("header2", "value2"));
     }
 
     @Test
     public void extractHeader_withoutEquals() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("namevalue", requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("namevalue", RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withEmptyName() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("   =value", requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("   =value", RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withNoName() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("=value", requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("=value", RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withEmptyValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=   ", requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=   ", RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withNoValue() {
-        RequestTemplate requestTemplate = new RequestTemplate();
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=", requestTemplate))
+        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=", RequestTemplate.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -148,7 +141,7 @@ public class RequestTemplateAnnotationVisitorTest {
         assertThat(visit)
                 .hasSize(1);
         RequestTemplate requestTemplate = visit.get(0);
-        assertThat(requestTemplate.indexToParameterNames)
+        assertThat(requestTemplate.getRequestParameters().getIndexToName())
                 .contains(new SimpleEntry<>(0, "requestParameter1"),
                         new SimpleEntry<>(1, "requestParameter2"));
     }
@@ -159,20 +152,21 @@ public class RequestTemplateAnnotationVisitorTest {
         assertThat(visit)
                 .hasSize(1);
         RequestTemplate requestTemplate = visit.get(0);
-        assertThat(requestTemplate.indexToParameterNames)
+        assertThat(requestTemplate.getRequestSegments().getIndexToName())
                 .contains(new SimpleEntry<>(0, "pathVariable1"),
                         new SimpleEntry<>(1, "pathVariable2"));
     }
 
     @Test
-    public void parameterAnnotationProcessing_withRequestAndPathParameters() {
+    public void parameterAnnotewationProcessing_withRequestAndPathParameters() {
         List<RequestTemplate> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestAndPathParameters.class);
         assertThat(visit)
                 .hasSize(1);
         RequestTemplate requestTemplate = visit.get(0);
-        assertThat(requestTemplate.indexToParameterNames)
-                .contains(new SimpleEntry<>(0, "requestParameter1"),
-                        new SimpleEntry<>(1, "pathVariable1"));
+        assertThat(requestTemplate.getRequestParameters().getIndexToName())
+                .contains(new SimpleEntry<>(0, "requestParameter1"));
+        assertThat(requestTemplate.getRequestSegments().getIndexToName())
+                .contains(new SimpleEntry<>(1, "pathVariable1"));
     }
 
     interface SimpleInterface {
@@ -191,7 +185,7 @@ public class RequestTemplateAnnotationVisitorTest {
 
         void testGet();
 
-        @RequestMapping("/get2")
+        @RequestMapping("/get")
         void testGet2(String test);
 
     }

@@ -4,71 +4,61 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequestSegmentsTest {
 
     @Test
-    public void segmentEncoding() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("/api/{id}");
-        requestSegments.addIndex(0, "id");
-        assertThat(requestSegments.resolve(new Object[]{12}))
-                .isEqualTo("/api/12");
-    }
-
-    @Test
-    public void segmentEncoding_withMultipleSegments() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("/api/user/");
-        requestSegments.add("{id}/");
-        requestSegments.add("/contact/");
-        requestSegments.addIndex(0, "id");
-        assertThat(requestSegments.resolve(new Object[]{12}))
-                .isEqualTo("/api/user/12/contact");
-    }
-
-    @Test
-    public void segmentEncoding_withNullValue() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("/api/{id}");
-        requestSegments.addIndex(0, "id");
-        assertThat(requestSegments.resolve(new Object[]{null}))
-                .isEqualTo("/api/null");
-    }
-
-    @Test
-    public void segmentEncoding_withMissingValue() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("/api/{id}");
+    public void resolve_withBasicSegment() {
+        List<RequestSegment> segmentMap = new LinkedList<>();
+        segmentMap.add(RequestSegment.create("api"));
+        segmentMap.add(RequestSegment.create("user"));
+        RequestSegments requestSegments = new RequestSegments(segmentMap, emptyMap());
         assertThat(requestSegments.resolve(new Object[]{}))
-                .isEqualTo("/api/{id}");
+                .isEqualTo("/api/user");
     }
 
     @Test
-    public void segmentEncoding_withDuplicateSlash() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("//api");
-        assertThat(requestSegments.resolve(new Object[]{12}))
-                .isEqualTo("/api");
+    public void resolve_withDynamicSegment() {
+        List<RequestSegment> segmentMap = new LinkedList<>();
+        segmentMap.add(RequestSegment.create("api"));
+        segmentMap.add(RequestSegment.create("user"));
+        segmentMap.add(RequestSegment.create("{id}"));
+        Map<Integer, String> indexToname = new HashMap<>();
+        indexToname.put(0, "id");
+        RequestSegments requestSegments = new RequestSegments(segmentMap, indexToname);
+        assertThat(requestSegments.resolve(new Object[]{123}))
+                .isEqualTo("/api/user/123");
     }
 
     @Test
-    public void segmentEncoding_withSlashAtTheEnd() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("/api/{id}/");
-        requestSegments.addIndex(0, "id");
-        assertThat(requestSegments.resolve(new Object[]{12}))
-                .isEqualTo("/api/12");
+    public void resolve_withNullValue() {
+        List<RequestSegment> segmentMap = new LinkedList<>();
+        segmentMap.add(RequestSegment.create("api"));
+        segmentMap.add(RequestSegment.create("user"));
+        segmentMap.add(RequestSegment.create("{id}"));
+        Map<Integer, String> indexToname = new HashMap<>();
+        indexToname.put(0, "id");
+        RequestSegments requestSegments = new RequestSegments(segmentMap, indexToname);
+        assertThat(requestSegments.resolve(new Object[]{null}))
+                .isEqualTo("/api/user/null");
     }
 
     @Test
-    public void segmentEncoding_withEmptySegment() {
-        RequestSegments requestSegments = new RequestSegments();
-        requestSegments.add("api/  /{id}");
-        requestSegments.addIndex(0, "id");
-        assertThat(requestSegments.resolve(new Object[]{13}))
-                .isEqualTo("/api/13");
+    public void resolve_withNoValue() {
+        List<RequestSegment> segmentMap = new LinkedList<>();
+        segmentMap.add(RequestSegment.create("api"));
+        segmentMap.add(RequestSegment.create("user"));
+        segmentMap.add(RequestSegment.create("{id}"));
+        RequestSegments requestSegments = new RequestSegments(segmentMap, emptyMap());
+        assertThat(requestSegments.resolve(new Object[]{123}))
+                .isEqualTo("/api/user/{id}");
     }
 }

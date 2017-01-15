@@ -1,35 +1,31 @@
 package com.github.jbrixhe.reactiveclient.request.segment;
 
 import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
-import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+
 public class RequestSegments {
-    private final ParameterEncoder parameterEncoder;
+    private ParameterEncoder parameterEncoder;
     private List<RequestSegment> requestSegments;
     private Map<Integer, String> indexToName;
 
-    public RequestSegments() {
+    public RequestSegments(List<RequestSegment> requestSegments, Map<Integer, String> indexToName) {
         this.parameterEncoder = ParameterEncoder.create(true);
-        this.requestSegments = new LinkedList<>();
-        this.indexToName = new HashMap<>();
+        this.requestSegments = unmodifiableList(requestSegments);
+        this.indexToName = unmodifiableMap(indexToName);
     }
 
-    public void add(String path) {
-        for (String segment : path.split("/")) {
-            if (StringUtils.hasText(segment)) {
-                requestSegments.add(RequestSegment.create(segment));
-            }
-        }
+    public List<RequestSegment> getRequestSegments() {
+        return requestSegments;
     }
 
-    public void addIndex(Integer index, String parameterName) {
-        this.indexToName.put(index, parameterName);
+    public Map<Integer, String> getIndexToName() {
+        return indexToName;
     }
 
     public String resolve(Object[] parameters) {

@@ -1,51 +1,124 @@
 package com.github.jbrixhe.reactiveclient.request;
 
+import com.github.jbrixhe.reactiveclient.request.header.RequestHeader;
+import com.github.jbrixhe.reactiveclient.request.header.RequestHeaders;
+import com.github.jbrixhe.reactiveclient.request.parameter.RequestParameter;
 import com.github.jbrixhe.reactiveclient.request.parameter.RequestParameters;
+import com.github.jbrixhe.reactiveclient.request.segment.RequestSegment;
+import com.github.jbrixhe.reactiveclient.request.segment.RequestSegments;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class RequestTemplate {
-    Map<Integer, String> indexToParameterNames;
-    Map<String, HeaderTemplate> headerTemplates;
-    RequestPath requestPath;
-    RequestParameters requestParameters;
-    HttpMethod method;
+    private HttpMethod httpMethod;
+    private RequestSegments requestSegments;
+    private RequestParameters requestParameters;
+    private RequestHeaders requestHeaders;
 
-    public RequestTemplate(RequestTemplate requestTemplate) {
-        this();
-        this.requestPath.getPathSegments().addAll(requestTemplate.requestPath.getPathSegments());
-        this.headerTemplates.putAll(requestTemplate.headerTemplates);
-        this.method = requestTemplate.method;
-        this.indexToParameterNames = new HashMap<>();
+    private RequestTemplate(Builder builder) {
+        requestSegments = new RequestSegments(builder.requestSegments, builder.segmentIndexToName);
+        requestParameters = new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName);
+        requestHeaders = new RequestHeaders(builder.headers, builder.headerIndexToName);
+        httpMethod = builder.httpMethod;
     }
 
-    public RequestTemplate() {
-        this.requestPath = new RequestPath();
-        this.headerTemplates = new HashMap<>();
-        this.requestParameters = new RequestParameters();
+    static Builder newBuilder() {
+        return new Builder();
     }
 
-    public RequestPath getRequestPath() {
-        return requestPath;
+    static Builder newBuilder(RequestTemplate other) {
+        return new Builder(other);
     }
 
-    public void addHeader(String name, String value) {
-        if (!headerTemplates.containsKey(name)) {
-            headerTemplates.put(name, new HeaderTemplate.BasicT(name, value));
+    public HttpMethod getHttpMethod() {
+        return httpMethod;
+    }
+
+    public RequestSegments getRequestSegments() {
+        return requestSegments;
+    }
+
+    public RequestParameters getRequestParameters() {
+        return requestParameters;
+    }
+
+    public RequestHeaders getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public static class Builder {
+        private List<RequestSegment> requestSegments;
+        private Map<Integer, String> segmentIndexToName;
+        private Map<String, RequestParameter> requestParameters;
+        private Map<Integer, String> requestParameterIndexToName;
+        private Map<String, RequestHeader> headers;
+        private Map<Integer, String> headerIndexToName;
+        private HttpMethod httpMethod;
+
+        public Builder() {
+            requestSegments = new LinkedList<>();
+            segmentIndexToName = new HashMap<>();
+            requestParameters = new HashMap<>();
+            requestParameterIndexToName = new HashMap<>();
+            headers = new HashMap<>();
+            headerIndexToName = new HashMap<>();
+
         }
-    }
 
-    public void addRequestParameter(String name) {
-        requestParameters.add(name);
-    }
+        public Builder(RequestTemplate other){
+            this();
+            requestSegments.addAll(other.getRequestSegments().getRequestSegments());
+            segmentIndexToName.putAll(other.getRequestSegments().getIndexToName());
+            requestParameters.putAll(other.getRequestParameters().getRequestParameters());
+            requestParameterIndexToName.putAll(other.getRequestParameters().getIndexToName());
+            headers.putAll(other.getRequestHeaders().getHeaders());
+            headerIndexToName.putAll(other.getRequestHeaders().getIndexToName());
+            httpMethod = other.httpMethod;
+        }
 
-    public void setParameterName(String name, Integer index) {
-        indexToParameterNames.put(index, name);
-    }
+        public Builder addPath(String path) {
+            for (String segment : path.split("/")) {
+                if (StringUtils.hasText(segment)) {
+                    requestSegments.add(RequestSegment.create(segment));
+                }
+            }
+            return this;
+        }
 
-    public void setMethod(HttpMethod method) {
-        this.method = method;
+        public Builder addPathIndex(Integer index, String pathVariable) {
+            this.segmentIndexToName.put(index, pathVariable);
+            return this;
+        }
+
+        public Builder addHeader(String name, String value) {
+            headers.put(name, new RequestHeader.BasicRequestHeader(name, value));
+            return this;
+        }
+
+        public Builder addHeader(Integer index, String name) {
+            headers.put(name, new RequestHeader.DynamicRequestHeader(name));
+            headerIndexToName.put(index, name);
+            return this;
+        }
+
+        public Builder addParameter(Integer index, String name) {
+            requestParameters.put(name, new RequestParameter.DynamicRequestParameter(name));
+            requestParameterIndexToName.put(index, name);
+            return this;
+        }
+
+        public Builder httpMethod(HttpMethod httpMethod) {
+            this.httpMethod = httpMethod;
+            return this;
+        }
+
+        public RequestTemplate build() {
+            return new RequestTemplate(this);
+        }
     }
 }

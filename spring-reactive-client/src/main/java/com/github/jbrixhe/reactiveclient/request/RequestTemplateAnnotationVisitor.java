@@ -42,15 +42,15 @@ public class RequestTemplateAnnotationVisitor {
             if (method.getDeclaringClass() == Object.class || (method.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
-            RequestTemplate methodRequestTemplate = new RequestTemplate(rootRequestTemplate);
-            processAnnotationOnMethod(method, methodRequestTemplate);
-            result.add(methodRequestTemplate);
+            RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder(rootRequestTemplate);
+            processAnnotationOnMethod(method, requestTemplateBuilder);
+            result.add(requestTemplateBuilder.build());
         }
         return result;
     }
 
     RequestTemplate processRootRequestTemplate(Class<?> targetType) {
-        RequestTemplate rootRequestTemplate = new RequestTemplate();
+        RequestTemplate.Builder rootRequestTemplate = RequestTemplate.newBuilder();
         Assert.isTrue(targetType.getInterfaces().length <= 1, () -> "Invalid class " + targetType.getName() + ":Only one level of inheritance is currently supported");
         if (targetType.getInterfaces().length == 1) {
             AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(targetType.getInterfaces()[0]);
@@ -59,72 +59,72 @@ public class RequestTemplateAnnotationVisitor {
         AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(targetType);
         processAnnotationOnClass(annotationMetadata, rootRequestTemplate);
 
-        return rootRequestTemplate;
+        return rootRequestTemplate.build();
     }
 
-    private void processAnnotationOnMethod(Method method, RequestTemplate methodRequestTemplate) {
+    private void processAnnotationOnMethod(Method method, RequestTemplate.Builder requestTemplateBuilder) {
         MethodMetadata methodMetadata = new StandardMethodMetadata(method);
-        processRequestMappingAnnotation(methodMetadata, methodRequestTemplate);
+        processRequestMappingAnnotation(methodMetadata, requestTemplateBuilder);
 
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         int count = parameterAnnotations.length;
         for (int i = 0; i < count; i++) {
-            processAnnotationsOnParameter(methodRequestTemplate, parameterAnnotations[i], i);
+            processAnnotationsOnParameter(requestTemplateBuilder, parameterAnnotations[i], i);
         }
     }
 
-    private void processAnnotationsOnParameter(RequestTemplate methodRequestTemplate, Annotation[] parameterAnnotation, int i) {
+    private void processAnnotationsOnParameter(RequestTemplate.Builder requestTemplateBuilder, Annotation[] parameterAnnotation, int i) {
         if (parameterAnnotation != null) {
             for (Annotation annotation : parameterAnnotation) {
                 AnnotatedParameterProcessor annotatedParameterProcessor;
                 if (annotation != null && (annotatedParameterProcessor = annotatedArgumentProcessors.get(annotation.annotationType())) != null) {
-                    annotatedParameterProcessor.processAnnotation(methodRequestTemplate, annotation, i);
+                    annotatedParameterProcessor.processAnnotation(requestTemplateBuilder, annotation, i);
                 }
             }
         }
     }
 
-    private void processAnnotationOnClass(AnnotationMetadata annotationMetadata, RequestTemplate requestTemplate) {
-        processRequestMappingAnnotation(annotationMetadata, requestTemplate);
+    private void processAnnotationOnClass(AnnotationMetadata annotationMetadata, RequestTemplate.Builder requestTemplateBuilder) {
+        processRequestMappingAnnotation(annotationMetadata, requestTemplateBuilder);
     }
 
-    private void processRequestMappingAnnotation(AnnotatedTypeMetadata annotatedTypeMetadata, RequestTemplate requestTemplate) {
+    private void processRequestMappingAnnotation(AnnotatedTypeMetadata annotatedTypeMetadata, RequestTemplate.Builder requestTemplateBuilder) {
         Map<String, Object> requestMappingAttributes = annotatedTypeMetadata.getAnnotationAttributes(RequestMapping.class.getName());
         if (requestMappingAttributes != null && !requestMappingAttributes.isEmpty()) {
-            parsePath(requestMappingAttributes, requestTemplate);
-            parseMethod(requestMappingAttributes, requestTemplate);
-            parseHeaders(requestMappingAttributes, requestTemplate);
+            parsePath(requestMappingAttributes, requestTemplateBuilder);
+            parseMethod(requestMappingAttributes, requestTemplateBuilder);
+            parseHeaders(requestMappingAttributes, requestTemplateBuilder);
         }
     }
 
-    void parsePath(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {
+    void parsePath(Map<String, Object> requestMappingAttributes, RequestTemplate.Builder requestTemplateBuilder) {
         String[] values = (String[]) requestMappingAttributes.get("value");
         Assert.isTrue(values.length <= 1, "Too many values on annotation RequestMapping");
         if (values.length > 0) {
-            requestTemplate.getRequestPath().append(values[0]);
+            requestTemplateBuilder.addPath(values[0]);
         }
     }
 
-    void parseMethod(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {
+    void parseMethod(Map<String, Object> requestMappingAttributes, RequestTemplate.Builder requestTemplateBuilder) {
         RequestMethod[] methods = (RequestMethod[]) requestMappingAttributes.get("method");
-        Assert.isTrue(methods.length <= 1, "Too many Request method for annotation");
+        Assert.isTrue(methods.length <= 1, "Too many Request httpMethod for annotation");
         if (methods.length == 0) {
-            requestTemplate.setMethod(HttpMethod.GET);
+            requestTemplateBuilder.httpMethod(HttpMethod.GET);
         } else {
-            requestTemplate.setMethod(HttpMethod.valueOf(methods[0].name()));
+            requestTemplateBuilder.httpMethod(HttpMethod.valueOf(methods[0].name()));
         }
     }
 
-    void parseHeaders(Map<String, Object> requestMappingAttributes, RequestTemplate requestTemplate) {
+    void parseHeaders(Map<String, Object> requestMappingAttributes, RequestTemplate.Builder requestTemplateBuilder) {
         String[] headers = (String[]) requestMappingAttributes.get("headers");
         if (headers.length > 0) {
             for (String header : headers) {
-                extractHeader(header, requestTemplate);
+                extractHeader(header, requestTemplateBuilder);
             }
         }
     }
 
-    void extractHeader(String header, RequestTemplate requestTemplate) {
+    void extractHeader(String header, RequestTemplate.Builder requestTemplateBuilder) {
         int index = header.indexOf('=');
         Assert.isTrue(index != -1, () -> String.format("Invalid request header [%s], the symbol '=' is required to separate the header name and value", header));
 
@@ -134,6 +134,6 @@ public class RequestTemplateAnnotationVisitor {
         String value = header.substring(index + 1);
         Assert.isTrue(StringUtils.hasText(value), "Request header value can't not be empty");
 
-        requestTemplate.addHeader(name, value);
+        requestTemplateBuilder.addHeader(name, value);
     }
 }

@@ -2,7 +2,7 @@ package com.github.jbrixhe.reactiveclient.request.segment;
 
 import java.util.Map;
 
-interface RequestSegment {
+public interface RequestSegment {
 
     String getValue(Map<String, String> parameterValues);
 

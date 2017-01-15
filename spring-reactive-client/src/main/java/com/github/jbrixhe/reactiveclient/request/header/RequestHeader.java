@@ -1,5 +1,7 @@
 package com.github.jbrixhe.reactiveclient.request.header;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,7 @@ public interface RequestHeader {
 
     List<String> getValues(Map<String, List<String>> parameterValues);
 
+    @EqualsAndHashCode
     class BasicRequestHeader implements RequestHeader {
 
         private String name;
@@ -30,6 +33,7 @@ public interface RequestHeader {
         }
     }
 
+    @EqualsAndHashCode
     class DynamicRequestHeader implements RequestHeader {
 
         private String name;
@@ -47,5 +51,6 @@ public interface RequestHeader {
         public List<String> getValues(Map<String, List<String>> parameterValues) {
             return parameterValues.getOrDefault(name, Collections.emptyList());
         }
+
     }
 }

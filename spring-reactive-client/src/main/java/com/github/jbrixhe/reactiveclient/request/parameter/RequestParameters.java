@@ -2,28 +2,29 @@ package com.github.jbrixhe.reactiveclient.request.parameter;
 
 import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.unmodifiableMap;
+
 public class RequestParameters {
 
-    private ParameterEncoder parameterEncoder;
-    private Map<String, RequestParameter> requestParameters;
-    private Map<Integer, String> indexToName;
+    private final ParameterEncoder parameterEncoder;
+    private final Map<String, RequestParameter> requestParameters;
+    private final Map<Integer, String> indexToName;
 
-    public RequestParameters() {
+    public RequestParameters(Map<String, RequestParameter> requestParameters, Map<Integer, String> indexToName) {
         this.parameterEncoder = ParameterEncoder.create(true);
-        this.requestParameters = new HashMap<>();
-        this.indexToName = new HashMap<>();
+        this.requestParameters = unmodifiableMap(requestParameters);
+        this.indexToName = unmodifiableMap(indexToName);
     }
 
-    public void add(String parameterName) {
-        requestParameters.put(parameterName, new RequestParameter.DynamicRequestParameter(parameterName));
+    public Map<String, RequestParameter> getRequestParameters() {
+        return requestParameters;
     }
 
-    public void addIndex(Integer index, String parameterName) {
-        this.indexToName.put(index, parameterName);
+    public Map<Integer, String> getIndexToName() {
+        return indexToName;
     }
 
     public String resolve(Object[] parameters) {

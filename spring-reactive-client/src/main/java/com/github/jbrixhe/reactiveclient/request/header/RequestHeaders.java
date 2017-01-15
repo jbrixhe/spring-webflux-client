@@ -2,33 +2,29 @@ package com.github.jbrixhe.reactiveclient.request.header;
 
 import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
 import org.springframework.http.HttpHeaders;
-import org.springframework.util.LinkedCaseInsensitiveMap;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.unmodifiableMap;
 
 public class RequestHeaders {
     private ParameterEncoder parameterEncoder;
     private Map<String, RequestHeader> headers;
     private Map<Integer, String> indexToName;
 
-    public RequestHeaders() {
+    public RequestHeaders(Map<String, RequestHeader> headers, Map<Integer, String> indexToName) {
         this.parameterEncoder = ParameterEncoder.create(false);
-        this.headers = new LinkedCaseInsensitiveMap<>();
-        this.indexToName = new HashMap<>();
+        this.headers = unmodifiableMap(headers);
+        this.indexToName = unmodifiableMap(indexToName);
     }
 
-    public void add(String name, String value) {
-        headers.put(name, new RequestHeader.BasicRequestHeader(name, value));
+    public Map<String, RequestHeader> getHeaders() {
+        return headers;
     }
 
-    public void add(String name) {
-        headers.put(name, new RequestHeader.DynamicRequestHeader(name));
-    }
-
-    public void addIndex(Integer index, String parameterName) {
-        indexToName.put(index, parameterName);
+    public Map<Integer, String> getIndexToName() {
+        return indexToName;
     }
 
     public HttpHeaders encode(Object[] parameterValues) {

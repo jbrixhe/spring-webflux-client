@@ -14,7 +14,7 @@ public interface RequestParameter {
 
         private String name;
 
-        DynamicRequestParameter(String name) {
+        public DynamicRequestParameter(String name) {
             this.name = name;
         }
 
