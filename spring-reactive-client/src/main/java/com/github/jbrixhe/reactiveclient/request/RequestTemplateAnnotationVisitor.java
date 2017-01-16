@@ -44,7 +44,8 @@ public class RequestTemplateAnnotationVisitor {
             if (method.getDeclaringClass() == Object.class || (method.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
-            RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder(rootRequestTemplate);
+            RequestTemplate.Builder requestTemplateBuilder = RequestTemplate.newBuilder(rootRequestTemplate)
+                    .targetMethod(method);
             processAnnotationOnMethod(method, requestTemplateBuilder);
             result.add(requestTemplateBuilder.build());
         }

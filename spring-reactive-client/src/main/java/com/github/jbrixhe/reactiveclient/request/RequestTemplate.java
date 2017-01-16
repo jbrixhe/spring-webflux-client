@@ -3,6 +3,7 @@ package com.github.jbrixhe.reactiveclient.request;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,12 +14,14 @@ public class RequestTemplate {
     private RequestSegments requestSegments;
     private RequestParameters requestParameters;
     private RequestHeaders requestHeaders;
+    private Method targetMethod;
 
     private RequestTemplate(Builder builder) {
         requestSegments = new RequestSegments(builder.requestSegments, builder.segmentIndexToName);
         requestParameters = new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName);
         requestHeaders = new RequestHeaders(builder.headers, builder.headerIndexToName);
         httpMethod = builder.httpMethod;
+        targetMethod = builder.targetMethod;
     }
 
     static Builder newBuilder() {
@@ -45,6 +48,10 @@ public class RequestTemplate {
         return requestHeaders;
     }
 
+    public Method getTargetMethod() {
+        return targetMethod;
+    }
+
     public static class Builder {
         private List<RequestSegment> requestSegments;
         private Map<Integer, String> segmentIndexToName;
@@ -53,6 +60,7 @@ public class RequestTemplate {
         private Map<String, RequestHeader> headers;
         private Map<Integer, String> headerIndexToName;
         private HttpMethod httpMethod;
+        private Method targetMethod;
 
         public Builder() {
             requestSegments = new LinkedList<>();
@@ -66,6 +74,7 @@ public class RequestTemplate {
 
         public Builder(RequestTemplate other){
             this();
+            targetMethod = other.getTargetMethod();
             requestSegments.addAll(other.getRequestSegments().getRequestSegments());
             segmentIndexToName.putAll(other.getRequestSegments().getIndexToName());
             requestParameters.putAll(other.getRequestParameters().getRequestParameters());
@@ -108,6 +117,11 @@ public class RequestTemplate {
 
         public Builder httpMethod(HttpMethod httpMethod) {
             this.httpMethod = httpMethod;
+            return this;
+        }
+
+        public Builder targetMethod(Method targetMethod){
+            this.targetMethod = targetMethod;
             return this;
         }
 
