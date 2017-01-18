@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequestParametersTest {
@@ -76,5 +77,12 @@ public class RequestParametersTest {
         RequestParameters requestParameters = new RequestParameters(nameToParameter, indexToName);
         Assertions.assertThat(requestParameters.resolve(new Object[]{"StringValue", 13, 23.09D}))
                 .isEqualTo("?doubleParameter=23.09&integerParameter=13&stringParameter=StringValue");
+    }
+
+    @Test
+    public void testRequestParameter_withNoParameter() {
+        RequestParameters requestParameters = new RequestParameters(emptyMap(), emptyMap());
+        Assertions.assertThat(requestParameters.resolve(new Object[]{}))
+                .isEmpty();
     }
 }

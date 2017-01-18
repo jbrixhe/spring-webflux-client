@@ -56,7 +56,9 @@ public class RequestParameters {
         }
 
         public String value() {
-            return stringBuilder
+            return stringBuilder.length()==0?
+                    stringBuilder.toString():
+                    stringBuilder
                     .deleteCharAt(0)
                     .insert(0, "?")
                     .toString();
