@@ -1,5 +1,6 @@
 package com.github.jbrixhe.reactiveclient.metadata;
 
+import com.github.jbrixhe.reactiveclient.Target;
 import com.github.jbrixhe.reactiveclient.metadata.request.RequestHeader.BasicRequestHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void processRootMethodMetadata_withSingleInterface() {
-        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(ParentReactiveClient.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTarget(buildTarget(ParentReactiveClient.class));
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .extracting("segment")
                 .containsExactly("parent");
@@ -34,7 +37,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void processRootMethodMetadata_withOneParentInterface() {
-        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(ChildReactiveClient.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTarget(buildTarget(ChildReactiveClient.class));
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .extracting("segment")
                 .containsExactly("parent", "child");
@@ -42,15 +45,23 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void processRootMethodMetadata_withNoRequestMappingOnClass() {
-        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(SimpleInterface.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTarget(buildTarget(SimpleInterface.class));
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .isEmpty();
     }
 
     @Test
     public void processRootMethodMetadata_withTooManyParent() {
-        assertThatThrownBy(() -> methodMetadataFactory.processTargetClass(ChildReactiveClientWithTwoDirectParents.class))
+        assertThatThrownBy(() -> methodMetadataFactory.processTarget(buildTarget(ChildReactiveClientWithTwoDirectParents.class)))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void processRootMethodMetadata_withTargetUri() {
+        MethodMetadata requestTemplate = methodMetadataFactory.processTarget(buildTarget(ChildReactiveClient.class, "http://localhost:8080/api"));
+        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
+                .extracting("segment")
+                .containsExactly("parent", "child");
     }
 
     @Test
@@ -138,7 +149,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void parameterAnnotationProcessing_withRequestParameter() {
-        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(buildTarget(ReactiveClientWithRequestParameters.class));
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -149,7 +160,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void parameterAnnotationProcessing_withPathParameter() {
-        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithPathParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(buildTarget(ReactiveClientWithPathParameters.class));
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -160,7 +171,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void parameterAnnotationProcessing_withRequestHeader() {
-        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestHeaders.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(buildTarget(ReactiveClientWithRequestHeaders.class));
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -171,7 +182,7 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void parameterAnnotationProcessing_withRequestAndPathParameters() {
-        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestAndPathParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(buildTarget(ReactiveClientWithRequestAndPathParameters.class));
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -220,5 +231,17 @@ public class MethodMetadataFactoryTest {
 
     interface ReactiveClientWithRequestAndPathParameters {
         void testRequestParameterAndPathVariable(@RequestParam("requestParameter1") String requestParameter1, @PathVariable("pathVariable1") String pathVariable1);
+    }
+
+    private <T> Target<T> buildTarget(Class<T> targetClass, String uri) {
+        try {
+            return new Target<>(targetClass, new URI(uri));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <T> Target<T> buildTarget(Class<T> targetClass) {
+        return buildTarget(targetClass, "");
     }
 }

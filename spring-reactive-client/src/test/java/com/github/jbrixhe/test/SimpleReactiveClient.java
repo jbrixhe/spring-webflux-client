@@ -10,14 +10,11 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @ReactiveClient(url = "http://localhost:8080")
-@RequestMapping(path = "/api/user")
 public interface SimpleReactiveClient {
 
-    @RequestMapping(path = "/{id}")
-    Flux<String> getUser(@PathVariable("id") Integer userId);
+    @RequestMapping(path = "/hello")
+    Mono<ReactiveClientTests.Hello> getHello();
 
-    @RequestMapping(path = "/{id}/address")
-    Mono<String> getUserAddress(@PathVariable("id") Integer userId, @RequestParam("addressType") String addressType);
-
-    void test();
+    @RequestMapping(path = "/hellos")
+    Flux<ReactiveClientTests.Hello> getHellos();
 }

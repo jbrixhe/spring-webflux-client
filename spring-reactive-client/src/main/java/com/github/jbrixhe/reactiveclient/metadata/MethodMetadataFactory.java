@@ -1,5 +1,6 @@
 package com.github.jbrixhe.reactiveclient.metadata;
 
+import com.github.jbrixhe.reactiveclient.Target;
 import com.github.jbrixhe.reactiveclient.metadata.annotation.AnnotatedParameterProcessor;
 import com.github.jbrixhe.reactiveclient.metadata.annotation.PathVariableParameterProcessor;
 import com.github.jbrixhe.reactiveclient.metadata.annotation.RequestHeaderParameterProcessor;
@@ -40,15 +41,15 @@ public class MethodMetadataFactory {
                 .collect(Collectors.toMap(AnnotatedParameterProcessor::getAnnotationType, Function.identity()));
     }
 
-    public List<MethodMetadata> build(Class<?> targetClass) {
-        MethodMetadata rootRequestTemplate = processTargetClass(targetClass);
+    public List<MethodMetadata> build(Target target) {
+        MethodMetadata rootRequestTemplate = processTarget(target);
         List<MethodMetadata> result = new ArrayList<>();
-        for (Method method : targetClass.getMethods()) {
+        for (Method method : target.getType().getMethods()) {
             if (method.getDeclaringClass() == Object.class || (method.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
             MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(rootRequestTemplate)
-                    .targerMethod(method);
+                    .targetMethod(method);
             parseMethodReturnType(method, requestTemplateBuilder);
             processAnnotationOnMethod(method, requestTemplateBuilder);
             result.add(requestTemplateBuilder.build());
@@ -56,8 +57,12 @@ public class MethodMetadataFactory {
         return result;
     }
 
-    MethodMetadata processTargetClass(Class<?> targetType) {
-        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder();
+    MethodMetadata processTarget(Target target) {
+        Class targetType = target.getType();
+        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder()
+                .targetHost(target.getUri().getScheme(), target.getUri().getAuthority())
+                .addPath(target.getUri().getPath());
+
         Assert.isTrue(targetType.getInterfaces().length <= 1, () -> "Invalid class " + targetType.getName() + ":Only one level of inheritance is currently supported");
         if (targetType.getInterfaces().length == 1) {
             AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(targetType.getInterfaces()[0]);

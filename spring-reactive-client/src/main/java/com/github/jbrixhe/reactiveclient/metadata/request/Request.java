@@ -10,7 +10,7 @@ import java.net.URI;
 @Getter
 @AllArgsConstructor(staticName = "create")
 public class Request {
-    private URI url;
+    private URI uri;
     private HttpHeaders httpHeaders;
     private HttpMethod httpMethod;
 }

@@ -29,7 +29,8 @@ public class MethodMetadata {
         requestTemplate = new RequestTemplate(builder.httpMethod,
                 new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
                 new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
-                new RequestHeaders(builder.headers, builder.headerIndexToName));
+                new RequestHeaders(builder.headers, builder.headerIndexToName),
+                builder.targetHost);
     }
 
     public static Builder newBuilder() {
@@ -39,7 +40,6 @@ public class MethodMetadata {
     public static Builder newBuilder(MethodMetadata other) {
         return new Builder(other);
     }
-
 
     public static class Builder {
         private List<RequestSegment> requestSegments;
@@ -51,7 +51,7 @@ public class MethodMetadata {
         private HttpMethod httpMethod;
         private Method targetMethod;
         private ReturnType returnType;
-
+        private String targetHost;
 
         public Builder() {
             requestSegments = new LinkedList<>();
@@ -72,6 +72,7 @@ public class MethodMetadata {
             headers.putAll(other.getRequestTemplate().getRequestHeaders().getHeaders());
             headerIndexToName.putAll(other.getRequestTemplate().getRequestHeaders().getIndexToName());
             httpMethod = other.getRequestTemplate().getHttpMethod();
+            targetHost = other.getRequestTemplate().getTargetHost();
             targetMethod = other.getTargetMethod();
         }
 
@@ -111,8 +112,13 @@ public class MethodMetadata {
             return this;
         }
 
-        public Builder targerMethod(Method targetMethod) {
+        public Builder targetMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
+            return this;
+        }
+
+        public Builder targetHost(String scheme, String authority) {
+            targetHost = scheme + "://" + authority;
             return this;
         }
 

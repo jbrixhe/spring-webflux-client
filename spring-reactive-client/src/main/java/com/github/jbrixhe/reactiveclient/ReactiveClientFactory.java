@@ -20,7 +20,7 @@ public class ReactiveClientFactory implements ClientFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T newInstance(Target<T> target) {
-        List<MethodMetadata> requestTemplates = requestTemplateAnnotationVisitor.build(target.getType());
+        List<MethodMetadata> requestTemplates = requestTemplateAnnotationVisitor.build(target);
 
         return (T) Proxy.newProxyInstance(target.getType().getClassLoader(), new Class<?>[]{target.getType()}, invocationHandlerFactory.create(requestTemplates));
     }

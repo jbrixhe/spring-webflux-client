@@ -4,14 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @AllArgsConstructor
@@ -20,16 +15,17 @@ public class RequestTemplate {
     private RequestSegments requestSegments;
     private RequestParameters requestParameters;
     private RequestHeaders requestHeaders;
+    private String targetHost;
 
-    public Request apply(Object[] args){
+    public Request apply(Object[] args) {
         String path = requestSegments.resolve(args);
         String requestParameter = requestParameters.resolve(args);
         HttpHeaders httpHeaders = requestHeaders.encode(args);
         URI uri = null;
         try {
-            uri = new URI(path+requestParameter);
+            uri = new URI(targetHost + path + requestParameter);
         } catch (URISyntaxException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return Request.create(uri, httpHeaders, httpMethod);
     }

@@ -17,36 +17,72 @@
 package com.github.jbrixhe.test;
 
 import com.github.jbrixhe.reactiveclient.EnableReactiveClient;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientTests.Application.class, properties = {"reactive.url=http://host"})
+@SpringBootTest(classes = ReactiveClientTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, value = {
+        "spring.application.name=reactiveClientTest","server.port=8080" })
 @DirtiesContext
 public class ReactiveClientTests {
 
     @Autowired
     private SimpleReactiveClient simpleReactiveClient;
 
+    @Data
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Hello {
+        private String message;
+    }
+
     @Configuration
     @EnableAutoConfiguration
+    @RestController
     @EnableReactiveClient
     protected static class Application {
 
+        @RequestMapping(method = RequestMethod.GET, value = "/hello")
+        public Mono<Hello> getHello() {
+            return Mono.just(new Hello("hello world 1"));
+        }
+
+        @RequestMapping(method = RequestMethod.GET, value = "/hellos")
+        public Flux<Hello> getHellos() {
+            return Flux.just(new Hello("hello world 1"),
+                    new Hello("hello world 2"),
+                    new Hello("hello world 3"),
+                    new Hello("hello world 4"));
+        }
+
         public static void main(String[] args) {
-            new SpringApplicationBuilder(Application.class).run(args);
+            new SpringApplicationBuilder(ReactiveClientTests.Application.class)
+                    .properties("spring.application.name=reactiveClientTests")
+                    .run(args);
         }
     }
 
@@ -54,14 +90,14 @@ public class ReactiveClientTests {
     public void testClient() {
         assertNotNull("testClient was null", this.simpleReactiveClient);
 
-//        Flux<String> returnedValue = simpleReactiveClient.getUser(123);
-//        Assertions.assertThat(returnedValue)
-//                .isNotNull();
-//
-//        Mono<String> mono = simpleReactiveClient.getUserAddress(123, "home");
-//        Assertions.assertThat(mono)
-//                .isNotNull();
-
-//        simpleReactiveClient.getUser(12);
+        List<Hello> block1 = simpleReactiveClient.getHellos()
+                .map(hello -> {
+                    System.out.println(hello);
+                    return hello;
+                })
+                .collectList().block();
+        Assertions.assertThat(block1)
+                .extracting("message")
+        .containsExactly("hello world 1","hello world 2","hello world 3","hello world 4");
     }
 }
