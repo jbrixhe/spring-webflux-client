@@ -1,5 +1,13 @@
-package com.github.jbrixhe.reactiveclient.request;
+package com.github.jbrixhe.reactiveclient.metadata;
 
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestHeader;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestHeaders;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestParameter;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestParameters;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestSegment;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestSegments;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestTemplate;
+import lombok.Getter;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
@@ -9,48 +17,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class RequestTemplate {
-    private HttpMethod httpMethod;
-    private RequestSegments requestSegments;
-    private RequestParameters requestParameters;
-    private RequestHeaders requestHeaders;
+@Getter
+public class MethodMetadata {
+    private RequestTemplate requestTemplate;
     private Method targetMethod;
 
-    private RequestTemplate(Builder builder) {
-        requestSegments = new RequestSegments(builder.requestSegments, builder.segmentIndexToName);
-        requestParameters = new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName);
-        requestHeaders = new RequestHeaders(builder.headers, builder.headerIndexToName);
-        httpMethod = builder.httpMethod;
+    private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
+        requestTemplate = new RequestTemplate(builder.httpMethod,
+                new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
+                new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
+                new RequestHeaders(builder.headers, builder.headerIndexToName));
     }
 
-    static Builder newBuilder() {
+    public static Builder newBuilder() {
         return new Builder();
     }
 
-    static Builder newBuilder(RequestTemplate other) {
+    public static Builder newBuilder(MethodMetadata other) {
         return new Builder(other);
     }
 
-    public HttpMethod getHttpMethod() {
-        return httpMethod;
-    }
-
-    public RequestSegments getRequestSegments() {
-        return requestSegments;
-    }
-
-    public RequestParameters getRequestParameters() {
-        return requestParameters;
-    }
-
-    public RequestHeaders getRequestHeaders() {
-        return requestHeaders;
-    }
-
-    public Method getTargetMethod() {
-        return targetMethod;
-    }
 
     public static class Builder {
         private List<RequestSegment> requestSegments;
@@ -62,6 +49,7 @@ public class RequestTemplate {
         private HttpMethod httpMethod;
         private Method targetMethod;
 
+
         public Builder() {
             requestSegments = new LinkedList<>();
             segmentIndexToName = new HashMap<>();
@@ -72,16 +60,16 @@ public class RequestTemplate {
 
         }
 
-        public Builder(RequestTemplate other){
+        public Builder(MethodMetadata other) {
             this();
+            requestSegments.addAll(other.getRequestTemplate().getRequestSegments().getRequestSegments());
+            segmentIndexToName.putAll(other.getRequestTemplate().getRequestSegments().getIndexToName());
+            requestParameters.putAll(other.getRequestTemplate().getRequestParameters().getRequestParameters());
+            requestParameterIndexToName.putAll(other.getRequestTemplate().getRequestParameters().getIndexToName());
+            headers.putAll(other.getRequestTemplate().getRequestHeaders().getHeaders());
+            headerIndexToName.putAll(other.getRequestTemplate().getRequestHeaders().getIndexToName());
+            httpMethod = other.getRequestTemplate().getHttpMethod();
             targetMethod = other.getTargetMethod();
-            requestSegments.addAll(other.getRequestSegments().getRequestSegments());
-            segmentIndexToName.putAll(other.getRequestSegments().getIndexToName());
-            requestParameters.putAll(other.getRequestParameters().getRequestParameters());
-            requestParameterIndexToName.putAll(other.getRequestParameters().getIndexToName());
-            headers.putAll(other.getRequestHeaders().getHeaders());
-            headerIndexToName.putAll(other.getRequestHeaders().getIndexToName());
-            httpMethod = other.httpMethod;
         }
 
         public Builder addPath(String path) {
@@ -120,13 +108,13 @@ public class RequestTemplate {
             return this;
         }
 
-        public Builder targetMethod(Method targetMethod){
+        public Builder targerMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
             return this;
         }
 
-        public RequestTemplate build() {
-            return new RequestTemplate(this);
+        public MethodMetadata build() {
+            return new MethodMetadata(this);
         }
     }
 }

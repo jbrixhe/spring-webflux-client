@@ -1,17 +1,19 @@
 package com.github.jbrixhe.reactiveclient.handler;
 
-import com.github.jbrixhe.reactiveclient.request.RequestTemplate;
+import com.github.jbrixhe.reactiveclient.metadata.MethodMetadata;
+import com.github.jbrixhe.reactiveclient.metadata.request.Request;
 
 public class ReactorMethodHandler implements MethodHandler {
 
-    private RequestTemplate requestTemplate;
+    private MethodMetadata methodMetadata;
 
-    public ReactorMethodHandler(RequestTemplate requestTemplate) {
-        this.requestTemplate = requestTemplate;
+    public ReactorMethodHandler(MethodMetadata methodMetadata) {
+        this.methodMetadata = methodMetadata;
     }
 
     @Override
     public Object invoke(Object[] args) {
-        return null;
+        Request request = methodMetadata.getRequestTemplate().apply(args);
+        return "Test";
     }
 }

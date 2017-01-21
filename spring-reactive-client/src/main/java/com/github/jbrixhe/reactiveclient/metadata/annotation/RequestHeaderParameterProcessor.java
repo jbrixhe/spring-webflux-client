@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.jbrixhe.reactiveclient.request.annotation;
+package com.github.jbrixhe.reactiveclient.metadata.annotation;
 
-import com.github.jbrixhe.reactiveclient.request.RequestTemplate;
+import com.github.jbrixhe.reactiveclient.metadata.MethodMetadata;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,7 +32,7 @@ public class RequestHeaderParameterProcessor implements AnnotatedParameterProces
 	}
 
 	@Override
-	public void processAnnotation(RequestTemplate.Builder requestTemplateBuilder, Annotation annotation, Integer integer) {
+	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer) {
 		RequestHeader requestParam = RequestHeader.class.cast(annotation);
 		String name = requestParam.value();
 		Assert.isTrue(StringUtils.hasText(name), "");

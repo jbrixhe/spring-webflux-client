@@ -1,6 +1,6 @@
-package com.github.jbrixhe.reactiveclient.request;
+package com.github.jbrixhe.reactiveclient.metadata.request;
 
-import com.github.jbrixhe.reactiveclient.request.encoding.ParameterEncoder;
+import com.github.jbrixhe.reactiveclient.metadata.request.encoding.ParameterEncoder;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;

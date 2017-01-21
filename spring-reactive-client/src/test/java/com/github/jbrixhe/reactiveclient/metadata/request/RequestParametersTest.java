@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request;
+package com.github.jbrixhe.reactiveclient.metadata.request;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

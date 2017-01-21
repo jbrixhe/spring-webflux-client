@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request;
+package com.github.jbrixhe.reactiveclient.metadata.request;
 
 import java.util.Collections;
 import java.util.List;

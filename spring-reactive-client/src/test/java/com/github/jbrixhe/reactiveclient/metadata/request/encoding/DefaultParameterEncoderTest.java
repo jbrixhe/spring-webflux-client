@@ -1,4 +1,4 @@
-package com.github.jbrixhe.reactiveclient.request.encoding;
+package com.github.jbrixhe.reactiveclient.metadata.request.encoding;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

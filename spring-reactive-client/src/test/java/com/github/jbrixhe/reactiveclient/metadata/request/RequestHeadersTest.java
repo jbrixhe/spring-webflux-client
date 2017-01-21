@@ -1,6 +1,6 @@
-package com.github.jbrixhe.reactiveclient.request;
+package com.github.jbrixhe.reactiveclient.metadata.request;
 
-import com.github.jbrixhe.reactiveclient.request.RequestHeader.DynamicRequestHeader;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestHeader.DynamicRequestHeader;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;

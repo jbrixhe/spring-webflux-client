@@ -1,6 +1,7 @@
 package com.github.jbrixhe.reactiveclient.handler;
 
-import com.github.jbrixhe.reactiveclient.request.RequestTemplate;
+import com.github.jbrixhe.reactiveclient.metadata.MethodMetadata;
+import com.github.jbrixhe.reactiveclient.metadata.request.RequestTemplate;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -10,15 +11,15 @@ import java.util.stream.Collectors;
 
 public interface InvocationHandlerFactory {
 
-    InvocationHandler create(List<RequestTemplate> requestTemplates);
+    InvocationHandler create(List<MethodMetadata> requestTemplates);
 
     class Default implements InvocationHandlerFactory {
 
         @Override
-        public InvocationHandler create(List<RequestTemplate> requestTemplates) {
+        public InvocationHandler create(List<MethodMetadata> requestTemplates) {
             Map<Method, MethodHandler> invocationDispatcher = requestTemplates
                     .stream()
-                    .collect(Collectors.toMap(RequestTemplate::getTargetMethod, ReactorMethodHandler::new));
+                    .collect(Collectors.toMap(MethodMetadata::getTargetMethod, ReactorMethodHandler::new));
 
             return new ReactiveInvocationHandler(invocationDispatcher);
         }
