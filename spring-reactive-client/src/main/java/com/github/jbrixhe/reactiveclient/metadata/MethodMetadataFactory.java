@@ -50,8 +50,11 @@ public class MethodMetadataFactory {
             }
             MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(rootRequestTemplate)
                     .targetMethod(method);
+
             parseMethodReturnType(method, requestTemplateBuilder);
+
             processAnnotationOnMethod(method, requestTemplateBuilder);
+
             result.add(requestTemplateBuilder.build());
         }
         return result;
@@ -76,10 +79,11 @@ public class MethodMetadataFactory {
 
     private void processAnnotationOnMethod(Method method, MethodMetadata.Builder requestTemplateBuilder) {
         AnnotatedTypeMetadata methodMetadata = new StandardMethodMetadata(method);
-        processRequestMappingAnnotation(methodMetadata, requestTemplateBuilder);
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-        int count = parameterAnnotations.length;
-        for (int i = 0; i < count; i++) {
+
+        processRequestMappingAnnotation(methodMetadata, requestTemplateBuilder);
+
+        for (int i = 0; i < parameterAnnotations.length; i++) {
             processAnnotationsOnParameter(requestTemplateBuilder, parameterAnnotations[i], i);
         }
     }
@@ -105,6 +109,8 @@ public class MethodMetadataFactory {
             parsePath(requestMappingAttributes, requestTemplateBuilder);
             parseMethod(requestMappingAttributes, requestTemplateBuilder);
             parseHeaders(requestMappingAttributes, requestTemplateBuilder);
+            parseConsumes(requestMappingAttributes, requestTemplateBuilder);
+            parseProduces(requestMappingAttributes, requestTemplateBuilder);
         }
     }
 
@@ -135,10 +141,26 @@ public class MethodMetadataFactory {
         }
     }
 
+    private void parseProduces(Map<String, Object> requestMappingAttributes, MethodMetadata.Builder requestTemplateBuilder) {
+        String[] produces = (String[]) requestMappingAttributes.get("produces");
+        Assert.isTrue(produces.length <= 1, "Too many produces parameter for annotation");
+        if (produces.length > 0) {
+            requestTemplateBuilder.addHeader("Content-Type", produces[0]);
+        }
+    }
+
+    private void parseConsumes(Map<String, Object> requestMappingAttributes, MethodMetadata.Builder requestTemplateBuilder) {
+        String[] consumes = (String[]) requestMappingAttributes.get("consumes");
+        Assert.isTrue(consumes.length <= 1, "Too many consumes parameter for annotation");
+        if (consumes.length > 0) {
+            requestTemplateBuilder.addHeader("Accept", consumes[0]);
+        }
+    }
+
     void parseMethodReturnType(Method method, MethodMetadata.Builder requestTemplateBuilder) {
         Type returnType = method.getGenericReturnType();
         if (ParameterizedType.class.isInstance(returnType)) {
-            ParameterizedType parameterizedType = (ParameterizedType)returnType;
+            ParameterizedType parameterizedType = (ParameterizedType) returnType;
             Type argumentType = parameterizedType.getActualTypeArguments()[0];
             if (ParameterizedType.class.isInstance(argumentType)) {
                 throw new IllegalArgumentException("Embedded generic type not supported yet.");

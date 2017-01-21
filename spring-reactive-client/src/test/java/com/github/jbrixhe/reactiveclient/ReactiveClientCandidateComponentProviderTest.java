@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientCandidateComponentProviderTest.PlainConfiguration.class)
+@SpringBootTest(classes = ReactiveClientCandidateComponentProviderTest.PlainConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DirtiesContext
 public class ReactiveClientCandidateComponentProviderTest {
 

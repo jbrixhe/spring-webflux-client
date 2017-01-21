@@ -34,7 +34,7 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientBeanRegisterTests.Application.class, properties = {"reactive.url=http://property-url","reactive.url2=property-url2"})
+@SpringBootTest(classes = ReactiveClientBeanRegisterTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"reactive.url=http://property-url","reactive.url2=property-url2"})
 @DirtiesContext
 public class ReactiveClientBeanRegisterTests {
 

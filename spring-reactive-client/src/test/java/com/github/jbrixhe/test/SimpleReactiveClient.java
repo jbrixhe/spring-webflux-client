@@ -1,6 +1,7 @@
 package com.github.jbrixhe.test;
 
 import com.github.jbrixhe.reactiveclient.ReactiveClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +16,6 @@ public interface SimpleReactiveClient {
     @RequestMapping(path = "/hello")
     Mono<ReactiveClientTests.Hello> getHello();
 
-    @RequestMapping(path = "/hellos")
+    @RequestMapping(path = "/hellos", consumes = MediaType.TEXT_EVENT_STREAM_VALUE)
     Flux<ReactiveClientTests.Hello> getHellos();
 }

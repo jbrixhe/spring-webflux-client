@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientTests.Application.class, properties = {"reactive.url=http://host"})
+@SpringBootTest(classes = ReactiveClientTests.Application.class,webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"reactive.url=http://host"})
 @DirtiesContext
 public class ReactiveClientTests {
 
@@ -67,11 +67,11 @@ public class ReactiveClientTests {
     public static class TestDefaultFeignConfig {
     }
 
-    @ReactiveClient(name = "localapp")
+    @ReactiveClient(name = "localapp", url = "http://localhost:8080")
     private interface TestClient {
     }
 
-    @ReactiveClient(name = "localapp2", qualifier = "myAwesomeClient")
+    @ReactiveClient(name = "localapp2", qualifier = "myAwesomeClient", url = "http://localhost:8080")
     private interface TestClient2 {
     }
 }

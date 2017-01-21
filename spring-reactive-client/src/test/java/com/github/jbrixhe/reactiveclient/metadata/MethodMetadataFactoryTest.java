@@ -61,7 +61,7 @@ public class MethodMetadataFactoryTest {
         MethodMetadata requestTemplate = methodMetadataFactory.processTarget(buildTarget(ChildReactiveClient.class, "http://localhost:8080/api"));
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .extracting("segment")
-                .containsExactly("parent", "child");
+                .containsExactly("api", "parent", "child");
     }
 
     @Test
