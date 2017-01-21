@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@ReactiveClient
+import java.util.List;
+
+@ReactiveClient(url = "http://localhost:8080")
 @RequestMapping(path = "/api/user")
 public interface SimpleReactiveClient {
 

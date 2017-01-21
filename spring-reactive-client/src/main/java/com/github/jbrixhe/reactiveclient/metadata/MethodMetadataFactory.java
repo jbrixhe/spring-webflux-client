@@ -13,10 +13,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +28,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RequestTemplateAnnotationVisitor {
+public class MethodMetadataFactory {
 
     private Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
 
-    public RequestTemplateAnnotationVisitor() {
+    public MethodMetadataFactory() {
         this.annotatedArgumentProcessors = Stream.of(
                 new PathVariableParameterProcessor(),
                 new RequestParamParameterProcessor(),
@@ -36,7 +40,7 @@ public class RequestTemplateAnnotationVisitor {
                 .collect(Collectors.toMap(AnnotatedParameterProcessor::getAnnotationType, Function.identity()));
     }
 
-    public List<MethodMetadata> visit(Class<?> targetClass) {
+    public List<MethodMetadata> build(Class<?> targetClass) {
         MethodMetadata rootRequestTemplate = processTargetClass(targetClass);
         List<MethodMetadata> result = new ArrayList<>();
         for (Method method : targetClass.getMethods()) {
@@ -45,6 +49,7 @@ public class RequestTemplateAnnotationVisitor {
             }
             MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(rootRequestTemplate)
                     .targerMethod(method);
+            parseMethodReturnType(method, requestTemplateBuilder);
             processAnnotationOnMethod(method, requestTemplateBuilder);
             result.add(requestTemplateBuilder.build());
         }
@@ -122,6 +127,25 @@ public class RequestTemplateAnnotationVisitor {
             for (String header : headers) {
                 extractHeader(header, requestTemplateBuilder);
             }
+        }
+    }
+
+    void parseMethodReturnType(Method method, MethodMetadata.Builder requestTemplateBuilder) {
+        Type returnType = method.getGenericReturnType();
+        if (ParameterizedType.class.isInstance(returnType)) {
+            ParameterizedType parameterizedType = (ParameterizedType)returnType;
+            Type argumentType = parameterizedType.getActualTypeArguments()[0];
+            if (ParameterizedType.class.isInstance(argumentType)) {
+                throw new IllegalArgumentException("Embedded generic type not supported yet.");
+            }
+
+            if (Mono.class.equals(parameterizedType.getRawType())) {
+                requestTemplateBuilder.returnType(ReturnType.monoOf((Class<?>) argumentType));
+            } else if (Flux.class.equals(parameterizedType.getRawType())) {
+                requestTemplateBuilder.returnType(ReturnType.fluxOf((Class<?>) argumentType));
+            }
+        } else if (void.class.equals(returnType)) {
+            requestTemplateBuilder.returnType(ReturnType.none());
         }
     }
 

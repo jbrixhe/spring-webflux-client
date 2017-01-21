@@ -8,6 +8,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.net.URI;
+
 @Setter
 public class ReactiveClientBeanFactory implements
         FactoryBean<Object>,

@@ -21,9 +21,11 @@ import java.util.Map;
 public class MethodMetadata {
     private RequestTemplate requestTemplate;
     private Method targetMethod;
+    private ReturnType returnType;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
+        returnType = builder.returnType;
         requestTemplate = new RequestTemplate(builder.httpMethod,
                 new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
                 new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
@@ -48,6 +50,7 @@ public class MethodMetadata {
         private Map<Integer, String> headerIndexToName;
         private HttpMethod httpMethod;
         private Method targetMethod;
+        private ReturnType returnType;
 
 
         public Builder() {
@@ -110,6 +113,11 @@ public class MethodMetadata {
 
         public Builder targerMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
+            return this;
+        }
+
+        public Builder returnType(ReturnType returnType) {
+            this.returnType = returnType;
             return this;
         }
 

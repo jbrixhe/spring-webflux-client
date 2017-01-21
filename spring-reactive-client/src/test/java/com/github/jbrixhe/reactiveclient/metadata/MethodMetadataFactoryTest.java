@@ -20,13 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RequestTemplateAnnotationVisitorTest {
+public class MethodMetadataFactoryTest {
     @InjectMocks
-    private RequestTemplateAnnotationVisitor requestTemplateAnnotationVisitor;
+    private MethodMetadataFactory methodMetadataFactory;
 
     @Test
     public void processRootMethodMetadata_withSingleInterface() {
-        MethodMetadata requestTemplate = requestTemplateAnnotationVisitor.processTargetClass(ParentReactiveClient.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(ParentReactiveClient.class);
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .extracting("segment")
                 .containsExactly("parent");
@@ -34,7 +34,7 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void processRootMethodMetadata_withOneParentInterface() {
-        MethodMetadata requestTemplate = requestTemplateAnnotationVisitor.processTargetClass(ChildReactiveClient.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(ChildReactiveClient.class);
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .extracting("segment")
                 .containsExactly("parent", "child");
@@ -42,21 +42,21 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void processRootMethodMetadata_withNoRequestMappingOnClass() {
-        MethodMetadata requestTemplate = requestTemplateAnnotationVisitor.processTargetClass(SimpleInterface.class);
+        MethodMetadata requestTemplate = methodMetadataFactory.processTargetClass(SimpleInterface.class);
         assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
                 .isEmpty();
     }
 
     @Test
     public void processRootMethodMetadata_withTooManyParent() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.processTargetClass(ChildReactiveClientWithTwoDirectParents.class))
+        assertThatThrownBy(() -> methodMetadataFactory.processTargetClass(ChildReactiveClientWithTwoDirectParents.class))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parsePath() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder();
-        requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{"/api"}), requestTemplateBuilder);
+        methodMetadataFactory.parsePath(singletonMap("value", new String[]{"/api"}), requestTemplateBuilder);
         assertThat(requestTemplateBuilder.build().getRequestTemplate().getRequestSegments().getRequestSegments())
                 .hasSize(1)
                 .extracting("segment")
@@ -66,41 +66,41 @@ public class RequestTemplateAnnotationVisitorTest {
     @Test
     public void parsePath_withNoValue() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder();
-        requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{}), requestTemplateBuilder);
+        methodMetadataFactory.parsePath(singletonMap("value", new String[]{}), requestTemplateBuilder);
         assertThat(requestTemplateBuilder.build().getRequestTemplate().getRequestSegments().getRequestSegments())
                 .isEmpty();
     }
 
     @Test
     public void parsePath_withTooManyValue() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parsePath(singletonMap("value", new String[]{"/parent", "/child"}), MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.parsePath(singletonMap("value", new String[]{"/parent", "/child"}), MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parseMethod() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder();
-        requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplateBuilder);
+        methodMetadataFactory.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplateBuilder);
         assertThat(requestTemplateBuilder.build().getRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
     public void parseMethod_withNoMethod() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder();
-        requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{}), requestTemplateBuilder);
+        methodMetadataFactory.parseMethod(singletonMap("method", new RequestMethod[]{}), requestTemplateBuilder);
         assertThat(requestTemplateBuilder.build().getRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
     public void parseMethod_withTooManyMethod() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.PUT, RequestMethod.POST}), MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parseHeaders() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder();
-        requestTemplateAnnotationVisitor.parseHeaders(singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplateBuilder);
+        methodMetadataFactory.parseHeaders(singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplateBuilder);
         assertThat(requestTemplateBuilder.build().getRequestTemplate().getRequestHeaders().getHeaders())
                 .containsOnlyKeys("header1", "header2")
                 .containsValues(new BasicRequestHeader("header1", "value1"), new BasicRequestHeader("header2", "value2"));
@@ -108,37 +108,37 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void extractHeader_withoutEquals() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("namevalue", MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.extractHeader("namevalue", MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withEmptyName() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("   =value", MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.extractHeader("   =value", MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withNoName() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("=value", MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.extractHeader("=value", MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withEmptyValue() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=   ", MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.extractHeader("name=   ", MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void extractHeader_withNoValue() {
-        assertThatThrownBy(() -> requestTemplateAnnotationVisitor.extractHeader("name=", MethodMetadata.newBuilder()))
+        assertThatThrownBy(() -> methodMetadataFactory.extractHeader("name=", MethodMetadata.newBuilder()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void parameterAnnotationProcessing_withRequestParameter() {
-        List<MethodMetadata> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestParameters.class);
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -149,7 +149,7 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void parameterAnnotationProcessing_withPathParameter() {
-        List<MethodMetadata> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithPathParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithPathParameters.class);
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -160,7 +160,7 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void parameterAnnotationProcessing_withRequestHeader() {
-        List<MethodMetadata> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestHeaders.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestHeaders.class);
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
@@ -171,7 +171,7 @@ public class RequestTemplateAnnotationVisitorTest {
 
     @Test
     public void parameterAnnotationProcessing_withRequestAndPathParameters() {
-        List<MethodMetadata> visit = requestTemplateAnnotationVisitor.visit(ReactiveClientWithRequestAndPathParameters.class);
+        List<MethodMetadata> visit = methodMetadataFactory.build(ReactiveClientWithRequestAndPathParameters.class);
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);

@@ -62,6 +62,6 @@ public class ReactiveClientTests {
 //        Assertions.assertThat(mono)
 //                .isNotNull();
 
-        simpleReactiveClient.test();
+        simpleReactiveClient.getUser(12);
     }
 }

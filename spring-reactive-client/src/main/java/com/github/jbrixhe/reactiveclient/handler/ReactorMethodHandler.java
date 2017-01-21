@@ -2,6 +2,9 @@ package com.github.jbrixhe.reactiveclient.handler;
 
 import com.github.jbrixhe.reactiveclient.metadata.MethodMetadata;
 import com.github.jbrixhe.reactiveclient.metadata.request.Request;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public class ReactorMethodHandler implements MethodHandler {
 
@@ -14,6 +17,15 @@ public class ReactorMethodHandler implements MethodHandler {
     @Override
     public Object invoke(Object[] args) {
         Request request = methodMetadata.getRequestTemplate().apply(args);
-        return "Test";
+//        WebClient client = WebClient.create(new ReactorClientHttpConnector());
+//        ClientRequest<Void> clientRequest = ClientRequest.method(request.getHttpMethod(), request.getUrl())
+//                .headers(request.getHttpHeaders())
+//                .build();
+//
+//        return methodMetadata
+//                .getReturnType()
+//                .convert(client.exchange(clientRequest));
+
+        return "test";
     }
 }
