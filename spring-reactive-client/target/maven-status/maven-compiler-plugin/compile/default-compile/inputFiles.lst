@@ -1,6 +1,5 @@
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ReactiveClientBeanRegister.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/Request.java
-/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/RequestTemplateAnnotationVisitor.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/annotation/RequestParamParameterProcessor.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/RequestParameters.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/encoding/ParameterEncoder.java
@@ -12,9 +11,11 @@
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ClientFactory.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ReactiveClientCandidateComponentProvider.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/RequestSegment.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/ReturnType.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/handler/InvocationHandlerFactory.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/EnableReactiveClient.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/ReactiveClientRegistrar.java
+/Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/MethodMetadataFactory.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/RequestHeader.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/RequestTemplate.java
 /Users/jbrixhe/workspace/projectAlpha/spring-reactive-client/src/main/java/com/github/jbrixhe/reactiveclient/metadata/request/encoding/UrlParameterEncoder.java

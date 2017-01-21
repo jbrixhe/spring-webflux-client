@@ -1,6 +1,9 @@
+com/github/jbrixhe/reactiveclient/metadata/ReturnType$ResponseExtractor.class
+com/github/jbrixhe/reactiveclient/metadata/ReturnType.class
 com/github/jbrixhe/reactiveclient/metadata/MethodMetadata.class
-com/github/jbrixhe/reactiveclient/metadata/RequestTemplateAnnotationVisitor.class
+com/github/jbrixhe/reactiveclient/metadata/MethodMetadataFactory.class
 com/github/jbrixhe/reactiveclient/ReactiveClientRegistrar.class
+com/github/jbrixhe/reactiveclient/metadata/ReturnType$ResponseExtractor$3.class
 com/github/jbrixhe/reactiveclient/ReactiveClient.class
 com/github/jbrixhe/reactiveclient/metadata/request/RequestSegment$BasicRequestSegment.class
 com/github/jbrixhe/reactiveclient/ReactiveClientBeanFactory.class
@@ -8,6 +11,7 @@ com/github/jbrixhe/reactiveclient/metadata/annotation/RequestHeaderParameterProc
 com/github/jbrixhe/reactiveclient/metadata/request/RequestParameter$DynamicRequestParameter.class
 com/github/jbrixhe/reactiveclient/handler/InvocationHandlerFactory$Default.class
 com/github/jbrixhe/reactiveclient/ReactiveClientFactory.class
+com/github/jbrixhe/reactiveclient/metadata/ReturnType$ResponseExtractor$1.class
 com/github/jbrixhe/reactiveclient/ReactiveClientCandidateComponentProvider.class
 com/github/jbrixhe/reactiveclient/metadata/annotation/AnnotatedParameterProcessor.class
 com/github/jbrixhe/reactiveclient/metadata/request/RequestParameters.class
@@ -28,9 +32,11 @@ com/github/jbrixhe/reactiveclient/ClientFactory.class
 com/github/jbrixhe/reactiveclient/metadata/annotation/PathVariableParameterProcessor.class
 com/github/jbrixhe/reactiveclient/metadata/MethodMetadata$1.class
 com/github/jbrixhe/reactiveclient/metadata/request/encoding/DefaultParameterEncoder.class
+com/github/jbrixhe/reactiveclient/metadata/ReturnType$1.class
 com/github/jbrixhe/reactiveclient/handler/MethodHandler.class
 com/github/jbrixhe/reactiveclient/ReactiveClientBeanRegister.class
 com/github/jbrixhe/reactiveclient/metadata/MethodMetadata$Builder.class
+com/github/jbrixhe/reactiveclient/metadata/ReturnType$ResponseExtractor$2.class
 com/github/jbrixhe/reactiveclient/Target.class
 com/github/jbrixhe/reactiveclient/metadata/request/RequestHeader$DynamicRequestHeader.class
 com/github/jbrixhe/reactiveclient/metadata/request/RequestSegment$DynamicRequestSegment.class

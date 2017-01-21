@@ -21,6 +21,4 @@ public @interface ReactiveClient {
     String qualifier() default "";
 
     String url() default "";
-
-    String path() default "";
 }
