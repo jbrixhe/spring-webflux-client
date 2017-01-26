@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class RequestHeaderParameterProcessor implements AnnotatedParameterProcessor {
 
@@ -32,7 +33,7 @@ public class RequestHeaderParameterProcessor implements AnnotatedParameterProces
 	}
 
 	@Override
-	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer, Class<?> parameterType) {
+	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer, Type parameterType) {
 		RequestHeader requestParam = RequestHeader.class.cast(annotation);
 		String name = requestParam.value();
 		Assert.isTrue(StringUtils.hasText(name), "");

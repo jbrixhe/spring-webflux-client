@@ -54,8 +54,6 @@ public class MethodMetadataFactory {
             MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(rootRequestTemplate)
                     .targetMethod(method);
 
-            parseMethodReturnType(method, requestTemplateBuilder);
-
             processAnnotationOnMethod(method, requestTemplateBuilder);
 
             result.add(requestTemplateBuilder.build());
@@ -90,7 +88,7 @@ public class MethodMetadataFactory {
             Parameter parameter = parameters[i];
             processAnnotationsOnParameter(requestTemplateBuilder, parameter, i);
             if (parameter.getAnnotations().length == 0) {
-                requestTemplateBuilder.bodyIndex(i, parameter.getType());
+                requestTemplateBuilder.body(i, parameter.getType());
             }
         }
     }
@@ -100,7 +98,7 @@ public class MethodMetadataFactory {
             for (Annotation annotation : parameter.getAnnotations()) {
                 AnnotatedParameterProcessor annotatedParameterProcessor;
                 if (annotation != null && (annotatedParameterProcessor = annotatedArgumentProcessors.get(annotation.annotationType())) != null) {
-                    annotatedParameterProcessor.processAnnotation(requestTemplateBuilder, annotation, i, parameter.getType());
+                    annotatedParameterProcessor.processAnnotation(requestTemplateBuilder, annotation, i, parameter.getParameterizedType());
                 }
             }
         }
@@ -161,25 +159,6 @@ public class MethodMetadataFactory {
         Assert.isTrue(consumes.length <= 1, "Too many consumes parameter for annotation");
         if (consumes.length > 0) {
             requestTemplateBuilder.addHeader("Accept", consumes[0]);
-        }
-    }
-
-    void parseMethodReturnType(Method method, MethodMetadata.Builder requestTemplateBuilder) {
-        Type returnType = method.getGenericReturnType();
-        if (ParameterizedType.class.isInstance(returnType)) {
-            ParameterizedType parameterizedType = (ParameterizedType) returnType;
-            Type argumentType = parameterizedType.getActualTypeArguments()[0];
-            if (ParameterizedType.class.isInstance(argumentType)) {
-                throw new IllegalArgumentException("Embedded generic type not supported yet.");
-            }
-
-            if (Mono.class.equals(parameterizedType.getRawType())) {
-                requestTemplateBuilder.returnType(ReturnType.monoOf((Class<?>) argumentType));
-            } else if (Flux.class.equals(parameterizedType.getRawType())) {
-                requestTemplateBuilder.returnType(ReturnType.fluxOf((Class<?>) argumentType));
-            }
-        } else if (void.class.equals(returnType)) {
-            requestTemplateBuilder.returnType(ReturnType.none());
         }
     }
 

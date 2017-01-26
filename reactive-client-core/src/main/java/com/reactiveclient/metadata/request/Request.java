@@ -1,17 +1,12 @@
 package com.reactiveclient.metadata.request;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.reactivestreams.Publisher;
+import lombok.Data;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
 import java.net.URI;
 
-@Setter(AccessLevel.PACKAGE)
-@Getter
+@Data
 public class Request {
     private URI uri;
     private HttpHeaders httpHeaders;

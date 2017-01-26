@@ -15,12 +15,15 @@ public interface HelloRessource {
     @RequestMapping(method = RequestMethod.GET, path = "/hellos", consumes = MediaType.TEXT_EVENT_STREAM_VALUE)
     Flux<ReactiveClientTests.Hello> getHellos();
 
-    @RequestMapping(method = RequestMethod.POST, path = "/hello", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.POST, path = "/hello")
     Mono<ReactiveClientTests.Hello> createHello(@RequestBody ReactiveClientTests.Hello hello);
 
-    @RequestMapping(method = RequestMethod.POST, path = "/hello/async", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    Mono<ReactiveClientTests.Hello> asyncCreateHello(@RequestBody ReactiveClientTests.Hello hello);
+    @RequestMapping(method = RequestMethod.POST, path = "/hello/async")
+    Mono<ReactiveClientTests.Hello> asyncCreateHello(@RequestBody Mono<ReactiveClientTests.Hello> hello);
 
-    @RequestMapping(method = RequestMethod.PUT, path = "/hello", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.POST, path = "/hellos/async", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    void asyncCreateHellos(@RequestBody Flux<ReactiveClientTests.Hello> hellos);
+
+    @RequestMapping(method = RequestMethod.PUT, path = "/hello")
     Mono<ReactiveClientTests.Hello> updateHello(@RequestBody ReactiveClientTests.Hello hello);
 }

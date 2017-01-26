@@ -17,13 +17,10 @@
 package com.reactiveclient.metadata.annotation;
 
 import com.reactiveclient.metadata.MethodMetadata;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class RequestBodyParameterProcessor implements AnnotatedParameterProcessor {
 
@@ -33,8 +30,8 @@ public class RequestBodyParameterProcessor implements AnnotatedParameterProcesso
 	}
 
 	@Override
-	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer index, Class<?> parameterType) {
-		requestTemplateBuilder.bodyIndex(index, parameterType);
+	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer index, Type parameterType) {
+		requestTemplateBuilder.body(index, parameterType);
 	}
 
 }

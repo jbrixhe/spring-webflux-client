@@ -5,11 +5,11 @@ import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
-public interface BodyInserterProvider {
-    BodyInserter<Object, ReactiveHttpOutputMessage> get(Object body);
+public interface BodyInserterProvider<T> {
+    BodyInserter<T, ReactiveHttpOutputMessage> get(T body);
 
 
-    class ObjectBodyInserterProvider implements BodyInserterProvider {
+    class ObjectBodyInserterProvider implements BodyInserterProvider<Object> {
 
         @Override
         public BodyInserter<Object, ReactiveHttpOutputMessage> get(Object body) {
@@ -19,19 +19,19 @@ public interface BodyInserterProvider {
         }
     }
 
-    class PublisherBodyInserterProvider implements BodyInserterProvider {
+    class PublisherBodyInserterProvider<T> implements BodyInserterProvider<Publisher<T>> {
 
-        private Class<?> bodyType;
+        private Class<T> bodyType;
 
-        public PublisherBodyInserterProvider(Class<?> bodyType) {
+        public PublisherBodyInserterProvider(Class<T> bodyType) {
             this.bodyType = bodyType;
         }
 
         @Override
-        public BodyInserter<Object, ReactiveHttpOutputMessage> get(Object body) {
+        public BodyInserter<Publisher<T>, ReactiveHttpOutputMessage> get(Publisher<T> body) {
             return body == null ?
                     BodyInserters.empty():
-                    BodyInserters.fromPublisher((Publisher)body, bodyType);
+                    BodyInserters.fromPublisher(body, bodyType);
         }
     }
 }

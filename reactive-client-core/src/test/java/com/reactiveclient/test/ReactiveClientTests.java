@@ -24,6 +24,9 @@ import lombok.NoArgsConstructor;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -36,18 +39,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.config.EnableWebReactive;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ReactiveClientTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, value = {
-        "spring.application.name=reactiveClientTest","server.port=8080" })
+        "spring.application.name=reactiveClientTest", "server.port=8080"})
 @DirtiesContext
 public class ReactiveClientTests {
 
@@ -58,7 +59,7 @@ public class ReactiveClientTests {
     @EqualsAndHashCode
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Hello implements Serializable{
+    public static class Hello implements Serializable {
         private String message;
     }
 
@@ -66,7 +67,8 @@ public class ReactiveClientTests {
     @EnableAutoConfiguration
     @RestController
     @EnableReactiveClient
-    protected static class Application{
+    @EnableWebReactive
+    protected static class Application {
 
         @RequestMapping(path = "/hello")
         public Mono<Hello> getHello() {
@@ -86,8 +88,8 @@ public class ReactiveClientTests {
             return Mono.just(new Hello(hello.getMessage() + " created"));
         }
 
-        @RequestMapping(method = RequestMethod.POST, path = "/hello/async", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-        Mono<ReactiveClientTests.Hello> asyncCreateHello(@RequestBody Mono<ReactiveClientTests.Hello> hello){
+        @RequestMapping(method = RequestMethod.POST, path = "/hello/async")
+        Mono<ReactiveClientTests.Hello> asyncCreateHello(@RequestBody Mono<ReactiveClientTests.Hello> hello) {
             return hello.then(hello1 -> {
                 try {
                     System.out.println(hello1);
@@ -95,8 +97,39 @@ public class ReactiveClientTests {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                return Mono.just(new Hello(hello1.getMessage()+"Async created"));
+                return Mono.just(new Hello(hello1.getMessage() + "Async created"));
             });
+        }
+
+        @RequestMapping(method = RequestMethod.POST, path = "/hellos/async", consumes = MediaType.APPLICATION_JSON_VALUE)
+        void asyncCreateHellos(@RequestBody Publisher<Hello> hellos) {
+            System.out.println("Received request");
+            try {
+                hellos.subscribe(new Subscriber<Hello>() {
+                    @Override
+                    public void onSubscribe(Subscription subscription) {
+                        subscription.request(1l);
+                    }
+
+                    @Override
+                    public void onNext(Hello hello) {
+                        System.out.println("Client before: " + hello);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            } finally {
+                System.out.println("Request processed");
+            }
+
         }
 
         @RequestMapping(method = RequestMethod.PUT, path = "/hello")
@@ -113,8 +146,24 @@ public class ReactiveClientTests {
 
     @Test
     public void testClient() {
-        Hello createdHello = helloClient.asyncCreateHello(new Hello("Hello world!!")).block();
-        assertThat(createdHello)
-                .isNotNull();
+//        Hello createdHello = helloClient.asyncCreateHello(Mono.just(new Hello("Hello world!!"))).block();
+//        assertThat(createdHello)
+//                .isNotNull();
+
+        helloClient.asyncCreateHellos(Flux.just(new Hello("hello world 1"),
+                new Hello("hello world 2"),
+                new Hello("hello world 3"),
+                new Hello("hello world 4"))
+                .map(hello -> {
+                    try {
+                        System.out.println("Client before: " + hello);
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return hello;
+                }));
+        Assertions.assertThat((List)null)
+                .isNotEmpty();
     }
 }
