@@ -30,7 +30,8 @@ public class MethodMetadata {
                 new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
                 new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
-                builder.targetHost);
+                builder.targetHost,
+                builder.bodyIndex);
     }
 
     public static Builder newBuilder() {
@@ -52,6 +53,8 @@ public class MethodMetadata {
         private Method targetMethod;
         private ReturnType returnType;
         private String targetHost;
+        private Integer bodyIndex;
+        private Class<?> bodyType;
 
         public Builder() {
             requestSegments = new LinkedList<>();
@@ -109,6 +112,16 @@ public class MethodMetadata {
 
         public Builder httpMethod(HttpMethod httpMethod) {
             this.httpMethod = httpMethod;
+            return this;
+        }
+
+        public Builder bodyIndex(Integer bodyIndex, Class<?> bodyType){
+            if (bodyType != null && bodyIndex != null) {
+                throw new IllegalArgumentException();
+            }
+
+            this.bodyIndex = bodyIndex;
+            this.bodyType = bodyType;
             return this;
         }
 

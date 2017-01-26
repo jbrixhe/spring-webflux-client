@@ -19,25 +19,22 @@ package com.reactiveclient.metadata.annotation;
 import com.reactiveclient.metadata.MethodMetadata;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 
-public class RequestHeaderParameterProcessor implements AnnotatedParameterProcessor {
+public class RequestBodyParameterProcessor implements AnnotatedParameterProcessor {
 
 	@Override
 	public Class<? extends Annotation> getAnnotationType() {
-		return RequestHeader.class;
+		return RequestBody.class;
 	}
 
 	@Override
-	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer, Class<?> parameterType) {
-		RequestHeader requestParam = RequestHeader.class.cast(annotation);
-		String name = requestParam.value();
-		Assert.isTrue(StringUtils.hasText(name), "");
-
-		requestTemplateBuilder.addHeader(integer, name);
+	public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer index, Class<?> parameterType) {
+		requestTemplateBuilder.bodyIndex(index, parameterType);
 	}
 
 }
