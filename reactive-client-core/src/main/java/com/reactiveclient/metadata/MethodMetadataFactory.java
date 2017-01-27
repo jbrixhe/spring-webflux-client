@@ -3,6 +3,7 @@ package com.reactiveclient.metadata;
 import com.reactiveclient.Target;
 import com.reactiveclient.metadata.annotation.AnnotatedParameterProcessor;
 import com.reactiveclient.metadata.annotation.PathVariableParameterProcessor;
+import com.reactiveclient.metadata.annotation.RequestBodyParameterProcessor;
 import com.reactiveclient.metadata.annotation.RequestHeaderParameterProcessor;
 import com.reactiveclient.metadata.annotation.RequestParamParameterProcessor;
 import org.springframework.core.type.AnnotatedTypeMetadata;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -37,7 +39,8 @@ public class MethodMetadataFactory {
         this.annotatedArgumentProcessors = Stream.of(
                 new PathVariableParameterProcessor(),
                 new RequestParamParameterProcessor(),
-                new RequestHeaderParameterProcessor())
+                new RequestHeaderParameterProcessor(),
+                new RequestBodyParameterProcessor())
                 .collect(Collectors.toMap(AnnotatedParameterProcessor::getAnnotationType, Function.identity()));
     }
 
@@ -50,8 +53,6 @@ public class MethodMetadataFactory {
             }
             MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(rootRequestTemplate)
                     .targetMethod(method);
-
-            parseMethodReturnType(method, requestTemplateBuilder);
 
             processAnnotationOnMethod(method, requestTemplateBuilder);
 
@@ -79,21 +80,25 @@ public class MethodMetadataFactory {
 
     private void processAnnotationOnMethod(Method method, MethodMetadata.Builder requestTemplateBuilder) {
         AnnotatedTypeMetadata methodMetadata = new StandardMethodMetadata(method);
-        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        Parameter[] parameters = method.getParameters();
 
         processRequestMappingAnnotation(methodMetadata, requestTemplateBuilder);
 
-        for (int i = 0; i < parameterAnnotations.length; i++) {
-            processAnnotationsOnParameter(requestTemplateBuilder, parameterAnnotations[i], i);
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            processAnnotationsOnParameter(requestTemplateBuilder, parameter, i);
+            if (parameter.getAnnotations().length == 0) {
+                requestTemplateBuilder.body(i, parameter.getType());
+            }
         }
     }
 
-    private void processAnnotationsOnParameter(MethodMetadata.Builder requestTemplateBuilder, Annotation[] parameterAnnotation, int i) {
-        if (parameterAnnotation != null) {
-            for (Annotation annotation : parameterAnnotation) {
+    private void processAnnotationsOnParameter(MethodMetadata.Builder requestTemplateBuilder, Parameter parameter, int i) {
+        if (parameter.getAnnotations() != null) {
+            for (Annotation annotation : parameter.getAnnotations()) {
                 AnnotatedParameterProcessor annotatedParameterProcessor;
                 if (annotation != null && (annotatedParameterProcessor = annotatedArgumentProcessors.get(annotation.annotationType())) != null) {
-                    annotatedParameterProcessor.processAnnotation(requestTemplateBuilder, annotation, i);
+                    annotatedParameterProcessor.processAnnotation(requestTemplateBuilder, annotation, i, parameter.getParameterizedType());
                 }
             }
         }
@@ -154,25 +159,6 @@ public class MethodMetadataFactory {
         Assert.isTrue(consumes.length <= 1, "Too many consumes parameter for annotation");
         if (consumes.length > 0) {
             requestTemplateBuilder.addHeader("Accept", consumes[0]);
-        }
-    }
-
-    void parseMethodReturnType(Method method, MethodMetadata.Builder requestTemplateBuilder) {
-        Type returnType = method.getGenericReturnType();
-        if (ParameterizedType.class.isInstance(returnType)) {
-            ParameterizedType parameterizedType = (ParameterizedType) returnType;
-            Type argumentType = parameterizedType.getActualTypeArguments()[0];
-            if (ParameterizedType.class.isInstance(argumentType)) {
-                throw new IllegalArgumentException("Embedded generic type not supported yet.");
-            }
-
-            if (Mono.class.equals(parameterizedType.getRawType())) {
-                requestTemplateBuilder.returnType(ReturnType.monoOf((Class<?>) argumentType));
-            } else if (Flux.class.equals(parameterizedType.getRawType())) {
-                requestTemplateBuilder.returnType(ReturnType.fluxOf((Class<?>) argumentType));
-            }
-        } else if (void.class.equals(returnType)) {
-            requestTemplateBuilder.returnType(ReturnType.none());
         }
     }
 

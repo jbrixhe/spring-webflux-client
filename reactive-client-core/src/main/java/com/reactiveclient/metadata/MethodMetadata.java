@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,18 +20,21 @@ import java.util.Map;
 
 @Getter
 public class MethodMetadata {
-    private RequestTemplate requestTemplate;
     private Method targetMethod;
-    private ReturnType returnType;
+    private Type returnType;
+    private Type bodyType;
+    private RequestTemplate requestTemplate;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
-        returnType = builder.returnType;
+        returnType = targetMethod == null ? null : targetMethod.getGenericReturnType();
+        bodyType = builder.bodyType;
         requestTemplate = new RequestTemplate(builder.httpMethod,
                 new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
                 new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
-                builder.targetHost);
+                builder.targetHost,
+                builder.bodyIndex);
     }
 
     public static Builder newBuilder() {
@@ -50,8 +54,9 @@ public class MethodMetadata {
         private Map<Integer, String> headerIndexToName;
         private HttpMethod httpMethod;
         private Method targetMethod;
-        private ReturnType returnType;
         private String targetHost;
+        private Integer bodyIndex;
+        private Type bodyType;
 
         public Builder() {
             requestSegments = new LinkedList<>();
@@ -112,6 +117,16 @@ public class MethodMetadata {
             return this;
         }
 
+        public Builder body(Integer bodyIndex, Type bodyType){
+            if (this.bodyType != null && this.bodyIndex != null) {
+                throw new IllegalArgumentException();
+            }
+
+            this.bodyIndex = bodyIndex;
+            this.bodyType = bodyType;
+            return this;
+        }
+
         public Builder targetMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
             return this;
@@ -119,11 +134,6 @@ public class MethodMetadata {
 
         public Builder targetHost(String scheme, String authority) {
             targetHost = scheme + "://" + authority;
-            return this;
-        }
-
-        public Builder returnType(ReturnType returnType) {
-            this.returnType = returnType;
             return this;
         }
 

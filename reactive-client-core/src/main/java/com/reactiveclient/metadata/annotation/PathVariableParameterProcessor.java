@@ -22,6 +22,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class PathVariableParameterProcessor implements AnnotatedParameterProcessor {
 
@@ -31,7 +33,7 @@ public class PathVariableParameterProcessor implements AnnotatedParameterProcess
     }
 
     @Override
-    public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer) {
+    public void processAnnotation(MethodMetadata.Builder requestTemplateBuilder, Annotation annotation, Integer integer, Type parameterType) {
         String name = PathVariable.class.cast(annotation).value();
         Assert.isTrue(StringUtils.hasText(name), "");
         requestTemplateBuilder.addPathIndex(integer, name);
