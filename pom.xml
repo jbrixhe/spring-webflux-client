@@ -18,6 +18,7 @@
 
     <modules>
         <module>reactive-client-core</module>
+        <module>reactive-client-example</module>
     </modules>
 
     <properties>
@@ -25,16 +26,6 @@
     </properties>
 
     <dependencyManagement>
-        <!--<dependencies>-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-framework-bom</artifactId>-->
-        <!--<version>${spring.version}</version>-->
-        <!--<type>pom</type>-->
-        <!--<scope>import</scope>-->
-        <!--</dependency>-->
-        <!--</dependencies>-->
-
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot.experimental</groupId>

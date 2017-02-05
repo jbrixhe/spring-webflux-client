@@ -1,10 +1,9 @@
 package com.reactiveclient.metadata.request.encoding;
 
-import com.reactiveclient.metadata.request.encoding.DefaultParameterEncoder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.AbstractMap.SimpleEntry;
 

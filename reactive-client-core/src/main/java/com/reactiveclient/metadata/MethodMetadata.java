@@ -2,43 +2,40 @@ package com.reactiveclient.metadata;
 
 import com.reactiveclient.metadata.request.RequestHeader;
 import com.reactiveclient.metadata.request.RequestHeaders;
-import com.reactiveclient.metadata.request.RequestParameter;
-import com.reactiveclient.metadata.request.RequestParameters;
-import com.reactiveclient.metadata.request.RequestSegment;
-import com.reactiveclient.metadata.request.RequestSegments;
 import com.reactiveclient.metadata.request.RequestTemplate;
 import lombok.Getter;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.StringUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 @Getter
 public class MethodMetadata {
     private Method targetMethod;
-    private Type returnType;
+    private Type responseType;
     private Type bodyType;
     private RequestTemplate requestTemplate;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
-        returnType = targetMethod == null ? null : targetMethod.getGenericReturnType();
+        responseType = targetMethod == null ? null : targetMethod.getGenericReturnType();
         bodyType = builder.bodyType;
         requestTemplate = new RequestTemplate(builder.httpMethod,
-                new RequestSegments(builder.requestSegments, builder.segmentIndexToName),
-                new RequestParameters(builder.requestParameters, builder.requestParameterIndexToName),
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
-                builder.targetHost,
-                builder.bodyIndex);
+                builder.bodyIndex,
+                builder.uriBuilder,
+                builder.variableIndexToName);
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    public static Builder newBuilder(URI baseUri) {
+        return new Builder(baseUri.getScheme(), baseUri.getAuthority());
     }
 
     public static Builder newBuilder(MethodMetadata other) {
@@ -46,52 +43,47 @@ public class MethodMetadata {
     }
 
     public static class Builder {
-        private List<RequestSegment> requestSegments;
-        private Map<Integer, String> segmentIndexToName;
-        private Map<String, RequestParameter> requestParameters;
-        private Map<Integer, String> requestParameterIndexToName;
+        private UriBuilder uriBuilder;
+        private MultiValueMap<Integer, String> variableIndexToName;
         private Map<String, RequestHeader> headers;
         private Map<Integer, String> headerIndexToName;
         private HttpMethod httpMethod;
         private Method targetMethod;
-        private String targetHost;
         private Integer bodyIndex;
         private Type bodyType;
 
-        public Builder() {
-            requestSegments = new LinkedList<>();
-            segmentIndexToName = new HashMap<>();
-            requestParameters = new HashMap<>();
-            requestParameterIndexToName = new HashMap<>();
+        private Builder() {
+            variableIndexToName = new LinkedMultiValueMap<>();
             headers = new HashMap<>();
             headerIndexToName = new HashMap<>();
+        }
 
+        public Builder(String scheme, String authority) {
+            this();
+            if (scheme != null && authority != null) {
+                uriBuilder = new DefaultUriBuilderFactory(scheme + "://" + authority).builder();
+            } else {
+                uriBuilder = new DefaultUriBuilderFactory().builder();
+            }
         }
 
         public Builder(MethodMetadata other) {
             this();
-            requestSegments.addAll(other.getRequestTemplate().getRequestSegments().getRequestSegments());
-            segmentIndexToName.putAll(other.getRequestTemplate().getRequestSegments().getIndexToName());
-            requestParameters.putAll(other.getRequestTemplate().getRequestParameters().getRequestParameters());
-            requestParameterIndexToName.putAll(other.getRequestTemplate().getRequestParameters().getIndexToName());
+            uriBuilder = new DefaultUriBuilderFactory(other.getRequestTemplate().getUriBuilder().build().toString()).builder();
+            variableIndexToName.putAll(other.getRequestTemplate().getVariableIndexToName());
             headers.putAll(other.getRequestTemplate().getRequestHeaders().getHeaders());
             headerIndexToName.putAll(other.getRequestTemplate().getRequestHeaders().getIndexToName());
             httpMethod = other.getRequestTemplate().getHttpMethod();
-            targetHost = other.getRequestTemplate().getTargetHost();
             targetMethod = other.getTargetMethod();
         }
 
         public Builder addPath(String path) {
-            for (String segment : path.split("/")) {
-                if (StringUtils.hasText(segment)) {
-                    requestSegments.add(RequestSegment.create(segment));
-                }
-            }
+            uriBuilder.path(path);
             return this;
         }
 
         public Builder addPathIndex(Integer index, String pathVariable) {
-            this.segmentIndexToName.put(index, pathVariable);
+            this.variableIndexToName.add(index, pathVariable);
             return this;
         }
 
@@ -107,8 +99,8 @@ public class MethodMetadata {
         }
 
         public Builder addParameter(Integer index, String name) {
-            requestParameters.put(name, new RequestParameter.DynamicRequestParameter(name));
-            requestParameterIndexToName.put(index, name);
+            variableIndexToName.add(index, name);
+            uriBuilder.query(name + "={" + name + "}");
             return this;
         }
 
@@ -117,7 +109,7 @@ public class MethodMetadata {
             return this;
         }
 
-        public Builder body(Integer bodyIndex, Type bodyType){
+        public Builder body(Integer bodyIndex, Type bodyType) {
             if (this.bodyType != null && this.bodyIndex != null) {
                 throw new IllegalArgumentException();
             }
@@ -129,11 +121,6 @@ public class MethodMetadata {
 
         public Builder targetMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
-            return this;
-        }
-
-        public Builder targetHost(String scheme, String authority) {
-            targetHost = scheme + "://" + authority;
             return this;
         }
 

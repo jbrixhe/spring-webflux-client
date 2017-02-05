@@ -1,9 +1,11 @@
 package com.reactiveclient.metadata;
 
-import com.reactiveclient.metadata.MethodMetadata;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.URI;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,58 +13,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MethodMetadataBuilderTest {
     @Test
     public void addPath() {
-        MethodMetadata requestTemplate = MethodMetadata.newBuilder()
+        MethodMetadata requestTemplate = MethodMetadata.newBuilder(URI.create("http://localhost:8080"))
                 .addPath("/api/{id}")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
-                .extracting("segment")
-                .containsExactly("api", "id");
+        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("id", 132)))
+                .isEqualTo(URI.create("http://localhost:8080/api/132"));
     }
 
     @Test
     public void addPath_withMultipleSegments() {
-        MethodMetadata requestTemplate = MethodMetadata.newBuilder()
-                .addPath("/api/user/")
+        MethodMetadata requestTemplate = MethodMetadata.newBuilder(URI.create("http://localhost:8080"))
+                .addPath("/api/users/")
                 .addPath("{id}/")
-                .addPath("/contact/")
+                .addPath("/contact")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
-                .extracting("segment")
-                .containsExactly("api", "user", "id", "contact");
+        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("id", 123)))
+                .isEqualTo(URI.create("http://localhost:8080/api/users/123/contact"));
     }
 
     @Test
-    public void addPath_withDuplicateSlash() {
-        MethodMetadata requestTemplate = MethodMetadata.newBuilder()
-                .addPath("/api//user")
+    public void addQueryParam() {
+        MethodMetadata requestTemplate = MethodMetadata.newBuilder(URI.create("http://localhost:8080"))
+                .addPath("/api/users")
+                .addParameter(1, "name")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
-                .extracting("segment")
-                .containsExactly("api", "user");
-    }
-
-    @Test
-    public void addPath_withSlashAtTheEnd() {
-        MethodMetadata requestTemplate = MethodMetadata.newBuilder()
-                .addPath("/api/user/")
-                .build();
-
-        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
-                .extracting("segment")
-                .containsExactly("api", "user");
-    }
-
-    @Test
-    public void addPath_withEmptySegment() {
-        MethodMetadata requestTemplate = MethodMetadata.newBuilder()
-                .addPath("/api/   /user/")
-                .build();
-
-        assertThat(requestTemplate.getRequestTemplate().getRequestSegments().getRequestSegments())
-                .extracting("segment")
-                .containsExactly("api", "user");
+        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("name", "Jérémy")))
+                .isEqualTo(URI.create("http://localhost:8080/api/users?name=J%C3%A9r%C3%A9my"));
     }
 }

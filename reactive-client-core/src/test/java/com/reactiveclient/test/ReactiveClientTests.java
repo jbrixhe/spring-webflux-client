@@ -21,34 +21,32 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.config.EnableWebReactive;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, value = {
-        "spring.application.name=reactiveClientTest", "server.port=8080"})
+@SpringBootTest(classes = ReactiveClientTests.Application.class,
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        value = {"spring.application.name=reactiveClientTest", "server.port=8080"})
 @DirtiesContext
 public class ReactiveClientTests {
 
@@ -63,19 +61,17 @@ public class ReactiveClientTests {
         private String message;
     }
 
-    @Configuration
-    @EnableAutoConfiguration
     @RestController
     @EnableReactiveClient
-    @EnableWebReactive
+    @SpringBootApplication
     protected static class Application {
 
-        @RequestMapping(path = "/hello")
+        @RequestMapping(method = RequestMethod.GET, path = "/hello")
         public Mono<Hello> getHello() {
             return Mono.just(new Hello("hello world 1"));
         }
 
-        @RequestMapping(path = "/hellos")
+        @RequestMapping(method = RequestMethod.GET, path = "/hellos")
         public Flux<Hello> getHellos() {
             return Flux.just(new Hello("hello world 1"),
                     new Hello("hello world 2"),
@@ -83,58 +79,9 @@ public class ReactiveClientTests {
                     new Hello("hello world 4"));
         }
 
-        @RequestMapping(method = RequestMethod.POST, path = "/hello")
-        public Mono<Hello> createHello(@RequestBody Hello hello) {
-            return Mono.just(new Hello(hello.getMessage() + " created"));
-        }
-
-        @RequestMapping(method = RequestMethod.POST, path = "/hello/async")
-        Mono<ReactiveClientTests.Hello> asyncCreateHello(@RequestBody Mono<ReactiveClientTests.Hello> hello) {
-            return hello.then(hello1 -> {
-                try {
-                    System.out.println(hello1);
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return Mono.just(new Hello(hello1.getMessage() + "Async created"));
-            });
-        }
-
-        @RequestMapping(method = RequestMethod.POST, path = "/hellos/async", consumes = MediaType.APPLICATION_JSON_VALUE)
-        void asyncCreateHellos(@RequestBody Publisher<Hello> hellos) {
-            System.out.println("Received request");
-            try {
-                hellos.subscribe(new Subscriber<Hello>() {
-                    @Override
-                    public void onSubscribe(Subscription subscription) {
-                        subscription.request(1l);
-                    }
-
-                    @Override
-                    public void onNext(Hello hello) {
-                        System.out.println("Client before: " + hello);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-            } finally {
-                System.out.println("Request processed");
-            }
-
-        }
-
-        @RequestMapping(method = RequestMethod.PUT, path = "/hello")
-        public Mono<Hello> updateHello(@RequestBody Hello hello) {
-            return Mono.just(new Hello(hello.getMessage() + " updated"));
+        @RequestMapping(method = RequestMethod.GET, path = "/string")
+        public Mono<String> getString(@RequestParam("name") List<String> names) {
+            return Mono.just("MyString");
         }
 
         public static void main(String[] args) {
@@ -146,24 +93,8 @@ public class ReactiveClientTests {
 
     @Test
     public void testClient() {
-//        Hello createdHello = helloClient.asyncCreateHello(Mono.just(new Hello("Hello world!!"))).block();
-//        assertThat(createdHello)
-//                .isNotNull();
-//
-//        helloClient.asyncCreateHellos(Flux.just(new Hello("hello world 1"),
-//                new Hello("hello world 2"),
-//                new Hello("hello world 3"),
-//                new Hello("hello world 4"))
-//                .map(hello -> {
-//                    try {
-//                        System.out.println("Client before: " + hello);
-//                        Thread.sleep(2000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    return hello;
-//                }));
-//        Assertions.assertThat((List)null)
-//                .isNotEmpty();
+        String block1 = helloClient.getString(Arrays.asList("jeremy", "julien"))
+                .block();
+        System.out.println(block1);
     }
 }

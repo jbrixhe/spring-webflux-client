@@ -1,10 +1,8 @@
 package com.reactiveclient;
 
-import com.reactiveclient.EnableReactiveClient;
-import com.reactiveclient.ReactiveClientRegistrar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
 
@@ -32,6 +30,7 @@ public class ReactiveClientRegistrarTest {
         assertThat(getPackage(ConfigurationWithNone.class))
                 .containsExactly("com.reactiveclient");
     }
+
     @Test
     public void getPackagesToScan_withSpaceAndEmpty() {
         assertThat(getPackage(ConfigurationWithSpaceAndEmpty.class))
@@ -52,7 +51,7 @@ public class ReactiveClientRegistrarTest {
     static class ConfigurationWithBasePackages {
     }
 
-    @EnableReactiveClient({"","    ", "packageValue1"})
+    @EnableReactiveClient({"", "    ", "packageValue1"})
     class ConfigurationWithSpaceAndEmpty {
     }
 

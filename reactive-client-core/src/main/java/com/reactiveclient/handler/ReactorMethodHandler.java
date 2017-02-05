@@ -4,10 +4,8 @@ import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -15,6 +13,9 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Function;
 
 public class ReactorMethodHandler implements MethodHandler {
@@ -22,26 +23,41 @@ public class ReactorMethodHandler implements MethodHandler {
     private MethodMetadata methodMetadata;
     private Function<Mono<ClientResponse>, Publisher<?>> responseExtractor;
     private Function<Object, BodyInserter<?, ? super ClientHttpRequest>> bodyInserterFunction;
+    private WebClient client;
 
     public ReactorMethodHandler(MethodMetadata methodMetadata) {
         this.methodMetadata = methodMetadata;
-        this.responseExtractor = responseExractor(methodMetadata.getReturnType());
+        this.responseExtractor = responseExractor(methodMetadata.getResponseType());
         this.bodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
+        this.client = WebClient.create();
     }
 
     @Override
     public Object invoke(Object[] args) {
         Request request = methodMetadata.getRequestTemplate().apply(args);
-        WebClient client = WebClient.create(new ReactorClientHttpConnector());
-        ClientRequest<?> clientRequest = buildClientRequest(request);
-
-        return responseExtractor.apply(client.exchange(clientRequest));
+        return responseExtractor.apply(buildWebClient(request));
     }
 
-    private ClientRequest<?> buildClientRequest(Request request) {
-        return ClientRequest.method(request.getHttpMethod(), request.getUri())
-                .headers(request.getHttpHeaders())
-                .body(bodyInserterFunction.apply(request.getBody()));
+    private Mono<ClientResponse> buildWebClient(Request request) {
+        switch (request.getHttpMethod()) {
+            case GET:
+                return client.get()
+                        .uri(request.getUri())
+                        .headers(request.getHttpHeaders())
+                        .exchange();
+            case POST:
+                return client.post()
+                        .uri(request.getUri())
+                        .headers(request.getHttpHeaders())
+                        .exchange(bodyInserterFunction.apply(request.getBody()));
+            case PUT:
+                return client.put()
+                        .uri(request.getUri())
+                        .headers(request.getHttpHeaders())
+                        .exchange(bodyInserterFunction.apply(request.getBody()));
+            default:
+                throw new RuntimeException();
+        }
     }
 
 
@@ -76,10 +92,10 @@ public class ReactorMethodHandler implements MethodHandler {
             }
 
             if (Publisher.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                return o -> BodyInserters.fromPublisher((Publisher) o, (Class<?>) argumentType);
+                return body -> BodyInserters.fromPublisher((Publisher) body, (Class<?>) argumentType);
             }
         } else {
-            return o -> BodyInserters.fromObject(o);
+            return body -> BodyInserters.fromObject(body);
         }
 
         throw new IllegalArgumentException();

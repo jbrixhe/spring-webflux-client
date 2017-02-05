@@ -15,15 +15,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +59,7 @@ public class MethodMetadataFactory {
 
     MethodMetadata processTarget(Target target) {
         Class targetType = target.getType();
-        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder()
-                .targetHost(target.getUri().getScheme(), target.getUri().getAuthority())
+        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder(target.getUri())
                 .addPath(target.getUri().getPath());
 
         Assert.isTrue(targetType.getInterfaces().length <= 1, () -> "Invalid class " + targetType.getName() + ":Only one level of inheritance is currently supported");

@@ -12,27 +12,15 @@
     <artifactId>reactive-client-core</artifactId>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-web-reactive</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
-            <groupId>org.springframework.boot.experimental</groupId>
-            <artifactId>spring-boot-starter-web-reactive</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
-        <!-- Using Reactor Netty HTTP client in tests -->
         <dependency>
             <groupId>io.projectreactor.ipc</groupId>
             <artifactId>reactor-netty</artifactId>
-            <scope>test</scope>
+            <version>0.6.0.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -44,6 +32,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot.experimental</groupId>
+            <artifactId>spring-boot-starter-web-reactive</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.projectreactor.addons</groupId>

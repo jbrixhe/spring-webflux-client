@@ -1,12 +1,10 @@
 package com.reactiveclient.metadata.request;
 
-import com.reactiveclient.metadata.request.RequestHeader;
 import com.reactiveclient.metadata.request.RequestHeader.DynamicRequestHeader;
-import com.reactiveclient.metadata.request.RequestHeaders;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
 
 import java.util.AbstractMap.SimpleEntry;

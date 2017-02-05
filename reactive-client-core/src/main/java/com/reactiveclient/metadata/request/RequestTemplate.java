@@ -2,23 +2,24 @@ package com.reactiveclient.metadata.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.reactivestreams.Publisher;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import reactor.core.publisher.Mono;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
 public class RequestTemplate {
     private HttpMethod httpMethod;
-    private RequestSegments requestSegments;
-    private RequestParameters requestParameters;
     private RequestHeaders requestHeaders;
-    private String targetHost;
     private Integer bodyIndex;
+    private UriBuilder uriBuilder;
+    private MultiValueMap<Integer, String> variableIndexToName;
 
     public Request apply(Object[] args) {
 
@@ -30,19 +31,25 @@ public class RequestTemplate {
         return request;
     }
 
-    private URI buildUri(Object[] args){
-        String path = requestSegments.resolve(args);
-        String requestParameter = requestParameters.resolve(args);
-        try {
-            return new URI(targetHost + path + requestParameter);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+    private URI buildUri(Object[] args) {
+        Map<String, Object> nameToVariable = new HashMap<>();
+        for (Map.Entry<Integer, List<String>> integerListEntry : variableIndexToName.entrySet()) {
+            Object variable = gg(args[integerListEntry.getKey()]);
+            integerListEntry.getValue().forEach(variableName -> nameToVariable.put(variableName, variable));
         }
+        return uriBuilder.build(nameToVariable);
     }
 
     private Object buildBody(Object[] args) {
-        return bodyIndex != null?
-                args[bodyIndex]:
+        return bodyIndex != null ?
+                args[bodyIndex] :
                 null;
+    }
+
+    private Object gg(Object variable) {
+        if (Collection.class.isInstance(variable)) {
+            return ((Collection<?>) variable).toArray();
+        }
+        return variable;
     }
 }
