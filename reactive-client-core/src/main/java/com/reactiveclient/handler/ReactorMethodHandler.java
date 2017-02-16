@@ -1,6 +1,6 @@
 package com.reactiveclient.handler;
 
-import com.reactiveclient.handler.client.NeverFailOnExceptionReactorClientHttpConnector;
+import com.reactiveclient.handler.client.CustomExchangeFunction;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class ReactorMethodHandler implements MethodHandler {
 
@@ -28,7 +27,7 @@ public class ReactorMethodHandler implements MethodHandler {
         this.methodMetadata = methodMetadata;
         this.responseExtractor = responseExractor(methodMetadata.getResponseType());
         this.bodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
-        this.client = WebClient.builder().clientConnector(new NeverFailOnExceptionReactorClientHttpConnector()).build();
+        this.client = WebClient.builder().exchangeFunction(CustomExchangeFunction.build()).build();
     }
 
     @Override
