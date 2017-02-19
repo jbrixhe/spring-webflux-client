@@ -1,6 +1,6 @@
 package com.reactiveclient.handler;
 
-import com.reactiveclient.handler.client.CustomExchangeFunction;
+import com.reactiveclient.client.ExtendedExchangeFunction;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
@@ -16,18 +16,18 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-public class ReactorMethodHandler implements MethodHandler {
+public class ReactiveMethodHandler implements MethodHandler {
 
     private MethodMetadata methodMetadata;
     private Function<Mono<ClientResponse>, Publisher<?>> responseExtractor;
     private Function<Object, BodyInserter<?, ? super ClientHttpRequest>> bodyInserterFunction;
     private WebClient client;
 
-    public ReactorMethodHandler(MethodMetadata methodMetadata) {
+    public ReactiveMethodHandler(MethodMetadata methodMetadata) {
         this.methodMetadata = methodMetadata;
         this.responseExtractor = responseExractor(methodMetadata.getResponseType());
         this.bodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
-        this.client = WebClient.builder().exchangeFunction(CustomExchangeFunction.build()).build();
+        this.client = WebClient.builder().exchangeFunction(ExtendedExchangeFunction.build()).build();
     }
 
     @Override

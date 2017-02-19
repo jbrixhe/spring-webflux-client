@@ -1,4 +1,4 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.util.Assert;
@@ -9,12 +9,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.logging.Level;
 
-public class CustomExchangeFunction implements ExchangeFunction {
+public class ExtendedExchangeFunction implements ExchangeFunction {
     private final ClientHttpConnector connector;
 
     private final ExtendedExchangeStrategies strategies;
 
-    private CustomExchangeFunction(
+    private ExtendedExchangeFunction(
             ClientHttpConnector connector,
             ExtendedExchangeStrategies strategies) {
         this.connector = connector;
@@ -22,7 +22,7 @@ public class CustomExchangeFunction implements ExchangeFunction {
     }
 
     public static ExchangeFunction build() {
-        return new CustomExchangeFunction(new NeverFailOnExceptionReactorClientHttpConnector(), ExtendedExchangeStrategiesImpl.build());
+        return new ExtendedExchangeFunction(new ExtendedClientHttpConnector(), DefaultExtendedExchangeStrategies.build());
     }
 
     @Override
@@ -33,6 +33,6 @@ public class CustomExchangeFunction implements ExchangeFunction {
                 .connect(request.method(), request.url(),
                         clientHttpRequest -> request.writeTo(clientHttpRequest, this.strategies))
                 .log("org.springframework.web.reactive.function.client", Level.FINE)
-                .map(clientHttpResponse -> new CustomClientResponse(clientHttpResponse, this.strategies));
+                .map(clientHttpResponse -> new ExtendedClientResponse(clientHttpResponse, this.strategies));
     }
 }

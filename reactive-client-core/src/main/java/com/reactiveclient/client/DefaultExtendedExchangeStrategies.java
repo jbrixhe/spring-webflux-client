@@ -1,4 +1,4 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import com.reactiveclient.DefaultErrorDecoder;
 import org.springframework.http.codec.HttpMessageReader;
@@ -11,20 +11,20 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class ExtendedExchangeStrategiesImpl implements ExtendedExchangeStrategies {
+class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
 
     private List<HttpExceptionReader> exceptionReaders;
 
     private ExchangeStrategies exchangeStrategies;
 
-    public ExtendedExchangeStrategiesImpl(ExchangeStrategies exchangeStrategies,
-                                          List<HttpExceptionReader> exceptionReaders) {
+    public DefaultExtendedExchangeStrategies(ExchangeStrategies exchangeStrategies,
+                                             List<HttpExceptionReader> exceptionReaders) {
         this.exceptionReaders = unmodifiableCopy(exceptionReaders);
         this.exchangeStrategies = exchangeStrategies;
     }
 
     public static ExtendedExchangeStrategies build() {
-        return new ExtendedExchangeStrategiesImpl(ExchangeStrategies.withDefaults(), Collections.singletonList(new DecoderHttpExceptionReader(new DefaultErrorDecoder())));
+        return new DefaultExtendedExchangeStrategies(ExchangeStrategies.withDefaults(), Collections.singletonList(new DecoderHttpExceptionReader(new DefaultErrorDecoder())));
     }
 
     private <T> List<T> unmodifiableCopy(List<? extends T> list) {

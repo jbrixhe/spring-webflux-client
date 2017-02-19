@@ -1,4 +1,4 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -12,11 +12,11 @@ import reactor.ipc.netty.http.client.HttpClient;
 import java.net.URI;
 import java.util.function.Function;
 
-public class NeverFailOnExceptionReactorClientHttpConnector implements ClientHttpConnector {
+class ExtendedClientHttpConnector implements ClientHttpConnector {
 
     private final HttpClient httpClient;
 
-    public NeverFailOnExceptionReactorClientHttpConnector() {
+    public ExtendedClientHttpConnector() {
         this.httpClient = HttpClient.create();
     }
 

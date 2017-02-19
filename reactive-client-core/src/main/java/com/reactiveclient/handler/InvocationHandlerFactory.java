@@ -18,7 +18,7 @@ public interface InvocationHandlerFactory {
         public InvocationHandler create(List<MethodMetadata> requestTemplates) {
             Map<Method, MethodHandler> invocationDispatcher = requestTemplates
                     .stream()
-                    .collect(Collectors.toMap(MethodMetadata::getTargetMethod, ReactorMethodHandler::new));
+                    .collect(Collectors.toMap(MethodMetadata::getTargetMethod, ReactiveMethodHandler::new));
 
             return new ReactiveInvocationHandler(invocationDispatcher);
         }

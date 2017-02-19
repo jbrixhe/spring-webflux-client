@@ -1,4 +1,4 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-public class ExceptionExtractors {
+class ExceptionExtractors {
 
     public static <T> ExceptionExtractor<Mono<T>, ClientHttpResponse> toMono() {
         return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),

@@ -1,4 +1,4 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpHeaders;
@@ -22,14 +22,14 @@ import java.util.OptionalLong;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class CustomClientResponse implements ClientResponse {
+class ExtendedClientResponse implements ClientResponse {
     private final ClientHttpResponse response;
 
     private final Headers headers;
 
     private final ExtendedExchangeStrategies strategies;
 
-    public CustomClientResponse(ClientHttpResponse response, ExtendedExchangeStrategies strategies) {
+    public ExtendedClientResponse(ClientHttpResponse response, ExtendedExchangeStrategies strategies) {
         this.response = response;
         this.strategies = strategies;
         this.headers = new DefaultHeaders();

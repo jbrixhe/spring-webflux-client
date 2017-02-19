@@ -1,11 +1,11 @@
-package com.reactiveclient.handler.client;
+package com.reactiveclient.client;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface HttpExceptionReader {
+interface HttpExceptionReader {
 
     boolean canRead(HttpStatus httpStatus);
 
