@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

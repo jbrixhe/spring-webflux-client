@@ -1,6 +1,6 @@
 package com.reactiveclient.example.client;
 
-import com.reactiveclient.EnableReactiveClient;
+import com.reactiveclient.starter.EnableReactiveClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;

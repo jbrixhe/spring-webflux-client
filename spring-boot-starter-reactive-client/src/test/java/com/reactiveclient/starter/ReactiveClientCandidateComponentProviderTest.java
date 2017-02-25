@@ -1,6 +1,7 @@
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
-import com.reactiveclient.toscan.TestInterfaceReactiveClient;
+import com.reactiveclient.starter.toscan.TestInterfaceReactiveClient;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ReactiveClientCandidateComponentProviderTest.PlainConfiguration.class)
 @DirtiesContext
@@ -28,9 +27,9 @@ public class ReactiveClientCandidateComponentProviderTest {
     @Test
     public void findCandidateComponents() {
         ReactiveClientCandidateComponentProvider componentProvider = new ReactiveClientCandidateComponentProvider(resourceLoader);
-        Set<BeanDefinition> candidateComponents = componentProvider.findCandidateComponents("com.reactiveclient.toscan");
-        assertEquals("", candidateComponents.size(), 1);
-        assertEquals("", candidateComponents.iterator().next().getBeanClassName(), TestInterfaceReactiveClient.class.getName());
+        Set<BeanDefinition> candidateComponents = componentProvider.findCandidateComponents("com.reactiveclient.starter.toscan");
+        Assert.assertEquals("", candidateComponents.size(), 1);
+        Assert.assertEquals("", candidateComponents.iterator().next().getBeanClassName(), TestInterfaceReactiveClient.class.getName());
     }
 
     @Configuration

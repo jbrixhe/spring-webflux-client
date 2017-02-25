@@ -1,6 +1,6 @@
 package com.reactiveclient.example.client;
 
-import com.reactiveclient.ReactiveClient;
+import com.reactiveclient.starter.ReactiveClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -24,7 +24,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.reactiveclient</groupId>
-			<artifactId>reactive-client-core</artifactId>
+			<artifactId>spring-boot-starter-reactive-client</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
