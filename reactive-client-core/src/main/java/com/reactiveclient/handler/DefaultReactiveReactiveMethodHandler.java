@@ -13,23 +13,20 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 import java.util.function.Function;
 
-public class ReactorMethodHandler implements MethodHandler {
+public class DefaultReactiveReactiveMethodHandler implements ReactiveMethodHandler {
 
     private MethodMetadata methodMetadata;
     private Function<Mono<ClientResponse>, Publisher<?>> responseExtractor;
     private Function<Object, BodyInserter<?, ? super ClientHttpRequest>> bodyInserterFunction;
     private WebClient client;
 
-    public ReactorMethodHandler(MethodMetadata methodMetadata) {
+    public DefaultReactiveReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client) {
+        this.client = client;
         this.methodMetadata = methodMetadata;
         this.responseExtractor = responseExractor(methodMetadata.getResponseType());
         this.bodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
-        this.client = WebClient.create();
     }
 
     @Override
@@ -95,7 +92,7 @@ public class ReactorMethodHandler implements MethodHandler {
                 return body -> BodyInserters.fromPublisher((Publisher) body, (Class<?>) argumentType);
             }
         } else {
-            return body -> BodyInserters.fromObject(body);
+            return BodyInserters::fromObject;
         }
 
         throw new IllegalArgumentException();

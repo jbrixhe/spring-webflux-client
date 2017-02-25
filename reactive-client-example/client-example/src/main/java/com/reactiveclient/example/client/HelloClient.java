@@ -17,4 +17,3 @@ public interface HelloClient {
     Flux<Hello> getHellos();
 
 }
-

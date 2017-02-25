@@ -1,8 +1,6 @@
 package com.reactiveclient.starter;
 
-import com.reactiveclient.ClientFactory;
-import com.reactiveclient.ReactiveClientFactory;
-import com.reactiveclient.Target;
+import com.reactiveclient.ReactiveClientBuilder;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -45,8 +43,9 @@ public class ReactiveClientBeanFactory implements
 
     @Override
     public Object getObject() throws Exception {
-        ClientFactory clientFactory = new ReactiveClientFactory();
-        return clientFactory.newInstance(new Target<>(type, url));
+        return ReactiveClientBuilder
+                .builder()
+                .build(type, url);
     }
 
     @Override

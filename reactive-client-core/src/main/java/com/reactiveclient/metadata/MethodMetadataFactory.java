@@ -1,6 +1,5 @@
 package com.reactiveclient.metadata;
 
-import com.reactiveclient.Target;
 import com.reactiveclient.metadata.annotation.AnnotatedParameterProcessor;
 import com.reactiveclient.metadata.annotation.PathVariableParameterProcessor;
 import com.reactiveclient.metadata.annotation.RequestBodyParameterProcessor;
@@ -20,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +40,10 @@ public class MethodMetadataFactory {
                 .collect(Collectors.toMap(AnnotatedParameterProcessor::getAnnotationType, Function.identity()));
     }
 
-    public List<MethodMetadata> build(Target target) {
-        MethodMetadata rootRequestTemplate = processTarget(target);
+    public List<MethodMetadata> build(Class<?> target, URI uri) {
+        MethodMetadata rootRequestTemplate = processTarget(target, uri);
         List<MethodMetadata> result = new ArrayList<>();
-        for (Method method : target.getType().getMethods()) {
+        for (Method method : target.getMethods()) {
             if (method.getDeclaringClass() == Object.class || (method.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
@@ -57,17 +57,16 @@ public class MethodMetadataFactory {
         return result;
     }
 
-    MethodMetadata processTarget(Target target) {
-        Class targetType = target.getType();
-        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder(target.getUri())
-                .addPath(target.getUri().getPath());
+    MethodMetadata processTarget(Class<?> target, URI uri) {
+        MethodMetadata.Builder rootRequestTemplate = MethodMetadata.newBuilder(uri)
+                .addPath(uri.getPath());
 
-        Assert.isTrue(targetType.getInterfaces().length <= 1, () -> "Invalid class " + targetType.getName() + ":Only one level of inheritance is currently supported");
-        if (targetType.getInterfaces().length == 1) {
-            AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(targetType.getInterfaces()[0]);
+        Assert.isTrue(target.getInterfaces().length <= 1, () -> "Invalid class " + target.getName() + ":Only one level of inheritance is currently supported");
+        if (target.getInterfaces().length == 1) {
+            AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(target.getInterfaces()[0]);
             processAnnotationOnClass(annotationMetadata, rootRequestTemplate);
         }
-        AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(targetType);
+        AnnotationMetadata annotationMetadata = new StandardAnnotationMetadata(target);
         processAnnotationOnClass(annotationMetadata, rootRequestTemplate);
 
         return rootRequestTemplate.build();
