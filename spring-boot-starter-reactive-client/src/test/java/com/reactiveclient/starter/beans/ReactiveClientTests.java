@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.reactiveclient.beans;
+package com.reactiveclient.starter.beans;
 
-import com.reactiveclient.EnableReactiveClient;
-import com.reactiveclient.ReactiveClient;
+import com.reactiveclient.starter.EnableReactiveClient;
+import com.reactiveclient.starter.ReactiveClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ReactiveClientTests.Application.class,webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"reactive.url=http://host"})
+@SpringBootTest(classes = ReactiveClientTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"reactive.url=http://host"})
 @DirtiesContext
 public class ReactiveClientTests {
 
@@ -46,6 +46,21 @@ public class ReactiveClientTests {
     @Autowired
     private TestClient2 testClient2WithQualifier;
 
+    @Test
+    public void testClient() {
+        assertNotNull("testClient was null", this.testClient);
+        assertNotNull("testClient was null", this.testClient2);
+        assertNotNull("testClient was null", this.testClient2WithQualifier);
+    }
+
+    @ReactiveClient(name = "localapp", url = "http://localhost:8080")
+    private interface TestClient {
+    }
+
+    @ReactiveClient(name = "localapp2", qualifier = "myAwesomeClient", url = "http://localhost:8080")
+    private interface TestClient2 {
+    }
+
     @Configuration
     @EnableAutoConfiguration
     @EnableReactiveClient
@@ -56,22 +71,9 @@ public class ReactiveClientTests {
         }
     }
 
-    @Test
-    public void testClient() {
-        assertNotNull("testClient was null", this.testClient);
-        assertNotNull("testClient was null", this.testClient2);
-        assertNotNull("testClient was null", this.testClient2WithQualifier);
-    }
-
     @Configuration
     public static class TestDefaultFeignConfig {
     }
 
-    @ReactiveClient(name = "localapp", url = "http://localhost:8080")
-    private interface TestClient {
-    }
 
-    @ReactiveClient(name = "localapp2", qualifier = "myAwesomeClient", url = "http://localhost:8080")
-    private interface TestClient2 {
-    }
 }

@@ -1,4 +1,4 @@
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
 import org.springframework.core.annotation.AliasFor;
 

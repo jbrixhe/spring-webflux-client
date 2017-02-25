@@ -1,5 +1,6 @@
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -8,32 +9,30 @@ import org.springframework.core.type.StandardAnnotationMetadata;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveClientRegistrarTest {
 
     @Test
     public void getPackagesToScan_withValue() {
-        assertThat(getPackage(ConfigurationWithValue.class))
+        Assertions.assertThat(getPackage(ConfigurationWithValue.class))
                 .containsExactlyInAnyOrder("packageValue1", "packageValue2");
     }
 
     @Test
     public void getPackagesToScan_withBasePackages() {
-        assertThat(getPackage(ConfigurationWithBasePackages.class))
+        Assertions.assertThat(getPackage(ConfigurationWithBasePackages.class))
                 .containsExactlyInAnyOrder("basePackage1", "basePackage2");
     }
 
     @Test
     public void getPackagesToScan_withNone() {
-        assertThat(getPackage(ConfigurationWithNone.class))
-                .containsExactly("com.reactiveclient");
+        Assertions.assertThat(getPackage(ConfigurationWithNone.class))
+                .containsExactly("com.reactiveclient.starter");
     }
 
     @Test
     public void getPackagesToScan_withSpaceAndEmpty() {
-        assertThat(getPackage(ConfigurationWithSpaceAndEmpty.class))
+        Assertions.assertThat(getPackage(ConfigurationWithSpaceAndEmpty.class))
                 .containsExactly("packageValue1");
     }
 

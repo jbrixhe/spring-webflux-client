@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.reactiveclient.test;
+package com.reactiveclient.starter.test;
 
-import com.reactiveclient.EnableReactiveClient;
+import com.reactiveclient.starter.EnableReactiveClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,15 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ReactiveClientTests.Application.class,
@@ -52,6 +49,13 @@ public class ReactiveClientTests {
 
     @Autowired
     private HelloClient helloClient;
+
+    @Test
+    public void testClient() {
+        String block1 = helloClient.getString(Arrays.asList("jeremy", "julien"))
+                .block();
+        System.out.println(block1);
+    }
 
     @Data
     @EqualsAndHashCode
@@ -65,6 +69,12 @@ public class ReactiveClientTests {
     @EnableReactiveClient
     @SpringBootApplication
     protected static class Application {
+
+        public static void main(String[] args) {
+            new SpringApplicationBuilder(ReactiveClientTests.Application.class)
+                    .properties("spring.application.name=reactiveClientTests")
+                    .run(args);
+        }
 
         @RequestMapping(method = RequestMethod.GET, path = "/hello")
         public Mono<Hello> getHello() {
@@ -83,18 +93,5 @@ public class ReactiveClientTests {
         public Mono<String> getString(@RequestParam("name") List<String> names) {
             return Mono.just("MyString");
         }
-
-        public static void main(String[] args) {
-            new SpringApplicationBuilder(ReactiveClientTests.Application.class)
-                    .properties("spring.application.name=reactiveClientTests")
-                    .run(args);
-        }
-    }
-
-    @Test
-    public void testClient() {
-        String block1 = helloClient.getString(Arrays.asList("jeremy", "julien"))
-                .block();
-        System.out.println(block1);
     }
 }

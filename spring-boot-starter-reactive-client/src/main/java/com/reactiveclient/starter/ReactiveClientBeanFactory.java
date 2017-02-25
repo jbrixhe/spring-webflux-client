@@ -1,5 +1,8 @@
-package com.reactiveclient;
+package com.reactiveclient.starter;
 
+import com.reactiveclient.ClientFactory;
+import com.reactiveclient.ReactiveClientFactory;
+import com.reactiveclient.Target;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
