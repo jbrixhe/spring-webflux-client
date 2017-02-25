@@ -4,11 +4,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-public class ReactiveInvocationHandler implements InvocationHandler {
+public class DefaultReactiveInvocationHandler implements InvocationHandler {
 
-    private Map<Method, MethodHandler> invocationDispatcher;
+    private Map<Method, ReactiveMethodHandler> invocationDispatcher;
 
-    public ReactiveInvocationHandler(Map<Method, MethodHandler> invocationDispatcher) {
+    public DefaultReactiveInvocationHandler(Map<Method, ReactiveMethodHandler> invocationDispatcher) {
         this.invocationDispatcher = invocationDispatcher;
     }
 

@@ -10,7 +10,7 @@ class DecoderHttpExceptionReader implements HttpExceptionReader {
 
     private ErrorDecoder errorDecoder;
 
-    public DecoderHttpExceptionReader(ErrorDecoder errorDecoder) {
+    DecoderHttpExceptionReader(ErrorDecoder errorDecoder) {
         this.errorDecoder = errorDecoder;
     }
 

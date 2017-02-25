@@ -1,5 +1,7 @@
-package com.reactiveclient;
+package com.reactiveclient.client;
 
+import com.reactiveclient.ErrorDecoder;
+import com.reactiveclient.ReactiveClientException;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 
@@ -7,11 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public class DefaultErrorDecoder implements ErrorDecoder {
+class DefaultErrorDecoder implements ErrorDecoder {
 
     @Override
     public boolean canDecode(HttpStatus httpStatus) {
-        return true;
+        return httpStatus.is4xxClientError() || httpStatus.is5xxServerError();
     }
 
     @Override

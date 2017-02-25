@@ -7,22 +7,17 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.logging.Level;
 
-public class ExtendedExchangeFunction implements ExchangeFunction {
+class ExtendedExchangeFunction implements ExchangeFunction {
     private final ClientHttpConnector connector;
 
     private final ExtendedExchangeStrategies strategies;
 
-    private ExtendedExchangeFunction(
-            ClientHttpConnector connector,
-            ExtendedExchangeStrategies strategies) {
-        this.connector = connector;
-        this.strategies = strategies;
-    }
-
-    public static ExchangeFunction build() {
-        return new ExtendedExchangeFunction(new ExtendedClientHttpConnector(), DefaultExtendedExchangeStrategies.build());
+    ExtendedExchangeFunction(List<HttpExceptionReader> httpExceptionReaders) {
+        this.connector = new ExtendedClientHttpConnector();
+        this.strategies = new DefaultExtendedExchangeStrategies(httpExceptionReaders);
     }
 
     @Override

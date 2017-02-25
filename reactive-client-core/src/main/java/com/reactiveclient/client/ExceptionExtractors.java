@@ -1,5 +1,6 @@
 package com.reactiveclient.client;
 
+import com.reactiveclient.ReactiveClientConfigurationException;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
@@ -10,13 +11,13 @@ import java.util.function.Function;
 
 class ExceptionExtractors {
 
-    public static <T> ExceptionExtractor<Mono<T>, ClientHttpResponse> toMono() {
+    static <T> ExceptionExtractor<Mono<T>, ClientHttpResponse> toMono() {
         return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),
                 context,
                 httpExceptionReader -> httpExceptionReader.readMono(inputMessage));
     }
 
-    public static <T> ExceptionExtractor<Flux<T>, ClientHttpResponse> toFlux() {
+    static <T> ExceptionExtractor<Flux<T>, ClientHttpResponse> toFlux() {
         return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),
                 context,
                 httpExceptionReader -> httpExceptionReader.read(inputMessage));
@@ -31,7 +32,7 @@ class ExceptionExtractors {
                 .get()
                 .filter(r -> r.canRead(httpStatus))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new ReactiveClientConfigurationException("No HttpExceptionReader available for status: " + httpStatus.value()));
 
         return readerFunction.apply(httpExceptionReader);
     }
