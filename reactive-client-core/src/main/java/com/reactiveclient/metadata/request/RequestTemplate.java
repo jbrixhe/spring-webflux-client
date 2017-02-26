@@ -34,7 +34,7 @@ public class RequestTemplate {
     private URI buildUri(Object[] args) {
         Map<String, Object> nameToVariable = new HashMap<>();
         for (Map.Entry<Integer, List<String>> integerListEntry : variableIndexToName.entrySet()) {
-            Object variable = gg(args[integerListEntry.getKey()]);
+            Object variable = processVariable(args[integerListEntry.getKey()]);
             integerListEntry.getValue().forEach(variableName -> nameToVariable.put(variableName, variable));
         }
         return uriBuilder.build(nameToVariable);
@@ -46,7 +46,7 @@ public class RequestTemplate {
                 null;
     }
 
-    private Object gg(Object variable) {
+    private Object processVariable(Object variable) {
         if (Collection.class.isInstance(variable)) {
             return ((Collection<?>) variable).toArray();
         }
