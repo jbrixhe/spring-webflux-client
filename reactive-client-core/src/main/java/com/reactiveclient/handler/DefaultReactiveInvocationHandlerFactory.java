@@ -17,7 +17,7 @@ public class DefaultReactiveInvocationHandlerFactory  implements ReactiveInvocat
     public InvocationHandler create(List<MethodMetadata> requestTemplates, WebClient webClient, Consumer<Request> requestConsumer) {
         Map<Method, ReactiveMethodHandler> invocationDispatcher = requestTemplates
                 .stream()
-                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultReactiveReactiveMethodHandler(methodMetadata, webClient, requestConsumer)));
+                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultReactiveMethodHandler(methodMetadata, webClient, requestConsumer)));
 
         return new DefaultReactiveInvocationHandler(invocationDispatcher);
     }

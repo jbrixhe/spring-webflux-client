@@ -22,11 +22,9 @@ public class RequestTemplate {
     private MultiValueMap<Integer, String> variableIndexToName;
 
     public Request apply(Object[] args) {
-
         Request request = new Request();
         request.setUri(buildUri(args));
         request.setHttpHeaders(requestHeaders.encode(args));
-        request.setHttpMethod(httpMethod);
         request.setBody(buildBody(args));
         return request;
     }

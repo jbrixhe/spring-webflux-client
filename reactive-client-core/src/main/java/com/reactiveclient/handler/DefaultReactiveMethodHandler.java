@@ -3,11 +3,13 @@ package com.reactiveclient.handler;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.UriSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,21 +17,21 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class DefaultReactiveReactiveMethodHandler implements ReactiveMethodHandler {
+public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
 
-    private MethodMetadata methodMetadata;
-    private Function<Mono<ClientResponse>, Publisher<?>> responseExtractor;
-    private Function<Object, BodyInserter<?, ? super ClientHttpRequest>> bodyInserterFunction;
-    private Consumer<Request> requestInterceptor;
     private WebClient client;
+    private MethodMetadata methodMetadata;
+    private Consumer<Request> requestInterceptor;
+    private Function<Request, Publisher<?>> requestFunction;
 
-    public DefaultReactiveReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client, Consumer<Request> requestInterceptor) {
+    public DefaultReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client, Consumer<Request> requestInterceptor) {
         this.client = client;
         this.methodMetadata = methodMetadata;
         this.requestInterceptor = requestInterceptor;
-        this.responseExtractor = responseExtractor(methodMetadata.getResponseType());
-        this.bodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
+        this.requestFunction = buildWebClient(methodMetadata)
+                .andThen(responseExtractor(methodMetadata.getResponseType()));
     }
 
     @Override
@@ -38,31 +40,32 @@ public class DefaultReactiveReactiveMethodHandler implements ReactiveMethodHandl
 
         requestInterceptor.accept(request);
 
-        return responseExtractor.apply(buildWebClient(request));
+        return requestFunction.apply(request);
     }
 
-    private Mono<ClientResponse> buildWebClient(Request request) {
-        switch (request.getHttpMethod()) {
+    private Function<Request, Mono<ClientResponse>> buildWebClient(MethodMetadata methodMetadata) {
+        Supplier<UriSpec> uriSpecSupplier = uriSpecSupplier(methodMetadata.getRequestTemplate().getHttpMethod());
+
+        Function<Object, BodyInserter<?, ? super ClientHttpRequest>> objectBodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
+
+        return request -> uriSpecSupplier.get()
+                .uri(request.getUri())
+                .headers(request.getHttpHeaders())
+                .exchange(objectBodyInserterFunction.apply(request.getBody()));
+    }
+
+    Supplier<UriSpec> uriSpecSupplier(HttpMethod httpMethod) {
+        switch (httpMethod) {
             case GET:
-                return client.get()
-                        .uri(request.getUri())
-                        .headers(request.getHttpHeaders())
-                        .exchange();
+                return client::get;
             case POST:
-                return client.post()
-                        .uri(request.getUri())
-                        .headers(request.getHttpHeaders())
-                        .exchange(bodyInserterFunction.apply(request.getBody()));
+                return client::post;
             case PUT:
-                return client.put()
-                        .uri(request.getUri())
-                        .headers(request.getHttpHeaders())
-                        .exchange(bodyInserterFunction.apply(request.getBody()));
+                return client::put;
             default:
-                throw new RuntimeException();
+                throw new IllegalArgumentException();
         }
     }
-
 
     Function<Mono<ClientResponse>, Publisher<?>> responseExtractor(Type returnType) {
         if (ParameterizedType.class.isInstance(returnType)) {
