@@ -52,10 +52,10 @@ public class ReactiveClientBuilder {
         return this;
     }
 
-    public <T> T build(Class<T> target, URI uri) {
+    public <T> T build(Class<T> target, String uri) {
         MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
         WebClient webClient = new DefaultWebClientFactory().create(errorDecoders);
-        List<MethodMetadata> requestTemplates = methodMetadataFactory.build(target, uri);
+        List<MethodMetadata> requestTemplates = methodMetadataFactory.build(target, URI.create(uri));
 
         ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
         requestConsumer = requestConsumer != null ? requestConsumer : request -> {};

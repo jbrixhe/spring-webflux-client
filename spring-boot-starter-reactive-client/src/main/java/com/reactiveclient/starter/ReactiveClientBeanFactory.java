@@ -20,7 +20,7 @@ public class ReactiveClientBeanFactory implements
 
     private Class<?> type;
 
-    private URI url;
+    private String url;
 
     private ApplicationContext applicationContext;
 

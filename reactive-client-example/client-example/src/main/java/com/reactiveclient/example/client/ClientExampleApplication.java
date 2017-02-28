@@ -1,6 +1,5 @@
 package com.reactiveclient.example.client;
 
-import com.reactiveclient.starter.EnableReactiveClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import javax.annotation.PostConstruct;
 import java.net.URISyntaxException;
 
-@EnableReactiveClient
 @SpringBootApplication
 public class ClientExampleApplication {
 
