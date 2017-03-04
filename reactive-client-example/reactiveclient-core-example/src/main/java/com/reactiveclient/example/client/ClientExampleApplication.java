@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 public class ClientExampleApplication {
 
     @Autowired
-    private HelloClient helloClient;
+    private BeerClient beerClient;
 
     public static void main(String[] args) {
         SpringApplication.run(ClientExampleApplication.class, args);
@@ -19,8 +19,8 @@ public class ClientExampleApplication {
 
     @PostConstruct
     public void init() throws URISyntaxException {
-        Hello block = helloClient.getHello()
+        beerClient.getBeer("iuhgigu")
+                .doOnError(throwable -> System.out.println(throwable.getClass().getName()))
                 .block();
-        System.out.println(block);
     }
 }

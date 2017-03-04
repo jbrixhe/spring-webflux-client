@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Configuration;
 public class ClientConfiguration {
 
     @Bean
-    public HelloClient helloClient(){
-        return ReactiveClientBuilder.builder()
-                .build(HelloClient.class, "http://localhost:8888");
+    public BeerClient helloClient(){
+        return ReactiveClientBuilder
+                .builder()
+                .errorDecoder(new NotFoundErrorDecoder())
+                .build(BeerClient.class, "http://localhost:8080");
     }
 }
