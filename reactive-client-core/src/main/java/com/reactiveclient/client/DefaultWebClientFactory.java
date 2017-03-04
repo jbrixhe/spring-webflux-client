@@ -12,6 +12,7 @@ public class DefaultWebClientFactory implements WebClientFactory {
         List<HttpExceptionReader> httpExceptionReaders = errorDecoders.stream()
                 .map(DecoderHttpExceptionReader::new)
                 .collect(Collectors.toList());
+
         httpExceptionReaders.add(new DecoderHttpExceptionReader(new DefaultErrorDecoder()));
 
         return WebClient

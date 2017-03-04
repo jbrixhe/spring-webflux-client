@@ -15,6 +15,6 @@
 
     <modules>
         <module>server-example</module>
-        <module>client-example</module>
+        <module>reactiveclient-core-example</module>
     </modules>
 </project>
