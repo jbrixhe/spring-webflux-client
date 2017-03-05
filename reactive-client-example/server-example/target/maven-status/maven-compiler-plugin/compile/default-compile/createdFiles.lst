@@ -1,7 +1,0 @@
-com/reactiveclient/example/server/beer/BeerService.class
-com/reactiveclient/example/server/DuplicateResourceException.class
-com/reactiveclient/example/server/ResourceNotFoundException.class
-com/reactiveclient/example/server/ServerApplication.class
-com/reactiveclient/example/server/beer/Beer.class
-com/reactiveclient/example/server/beer/BeerController.class
-com/reactiveclient/example/server/beer/BeerServiceImpl.class

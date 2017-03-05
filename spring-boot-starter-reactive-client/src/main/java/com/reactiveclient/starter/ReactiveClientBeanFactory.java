@@ -1,22 +1,20 @@
 package com.reactiveclient.starter;
 
+import com.reactiveclient.ErrorDecoder;
 import com.reactiveclient.ReactiveClientBuilder;
+import com.reactiveclient.RequestInterceptor;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.net.URI;
+import java.util.Map;
 
 @Setter
 public class ReactiveClientBeanFactory implements
         FactoryBean<Object>,
-        InitializingBean,
-        ApplicationContextAware,
-        BeanClassLoaderAware {
+        ApplicationContextAware {
 
     private Class<?> type;
 
@@ -24,27 +22,20 @@ public class ReactiveClientBeanFactory implements
 
     private ApplicationContext applicationContext;
 
-    private ClassLoader classLoader;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
     @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    @Override
     public Object getObject() throws Exception {
+        Map<String, ErrorDecoder> errorDecoders = applicationContext.getBeansOfType(ErrorDecoder.class);
+        Map<String, RequestInterceptor> requestInterceptors = applicationContext.getBeansOfType(RequestInterceptor.class);
+
         return ReactiveClientBuilder
                 .builder()
+                .errorDecoders(errorDecoders.values())
+                .requestInterceptors(requestInterceptors.values())
                 .build(type, url);
     }
 

@@ -14,7 +14,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>server-example</module>
+        <module>reactive-server-example</module>
         <module>reactiveclient-core-example</module>
+        <module>reactiveclient-starter-example</module>
     </modules>
 </project>

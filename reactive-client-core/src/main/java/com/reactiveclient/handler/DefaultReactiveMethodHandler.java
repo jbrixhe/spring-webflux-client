@@ -1,5 +1,6 @@
 package com.reactiveclient.handler;
 
+import com.reactiveclient.RequestInterceptor;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,13 +25,13 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
 
     private WebClient client;
     private MethodMetadata methodMetadata;
-    private Consumer<Request> requestInterceptor;
+    private List<RequestInterceptor> requestInterceptors;
     private Function<Request, Publisher<?>> requestFunction;
 
-    public DefaultReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client, Consumer<Request> requestInterceptor) {
+    public DefaultReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client, List<RequestInterceptor> requestInterceptors) {
         this.client = client;
         this.methodMetadata = methodMetadata;
-        this.requestInterceptor = requestInterceptor;
+        this.requestInterceptors = requestInterceptors;
         this.requestFunction = buildWebClient(methodMetadata)
                 .andThen(responseExtractor(methodMetadata.getResponseType()));
     }
@@ -38,7 +40,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
     public Object invoke(Object[] args) {
         Request request = methodMetadata.getRequestTemplate().apply(args);
 
-        requestInterceptor.accept(request);
+        requestInterceptors.forEach(requestInterceptor -> requestInterceptor.accept(request));
 
         return requestFunction.apply(request);
     }

@@ -16,10 +16,11 @@ import java.util.function.Consumer;
 
 public class ReactiveClientBuilder {
     private List<ErrorDecoder> errorDecoders;
-    private Consumer<Request> requestConsumer;
+    private List<RequestInterceptor> requestInterceptors;
 
     private ReactiveClientBuilder() {
         this.errorDecoders = new ArrayList<>();
+        this.requestInterceptors = new ArrayList<>();
     }
 
     public static ReactiveClientBuilder builder() {
@@ -39,16 +40,16 @@ public class ReactiveClientBuilder {
         return this;
     }
 
-    public ReactiveClientBuilder requestConsumer(Iterable<Consumer<Request>> requestConsumers) {
-        requestConsumer = request -> {};
-        for (Consumer<Request> requestConsumer : requestConsumers) {
-            this.requestConsumer = this.requestConsumer.andThen(requestConsumer);
+    public ReactiveClientBuilder requestInterceptors(Iterable<RequestInterceptor> requestInterceptors) {
+        this.requestInterceptors.clear();
+        for (RequestInterceptor requestConsumer : requestInterceptors) {
+            this.requestInterceptors.add(requestConsumer);
         }
         return this;
     }
 
-    public ReactiveClientBuilder requestConsumer(Consumer<Request> requestConsumer) {
-        this.requestConsumer = this.requestConsumer == null ? requestConsumer : this.requestConsumer.andThen(requestConsumer);
+    public ReactiveClientBuilder requestInterceptor(RequestInterceptor requestConsumer) {
+        this.requestInterceptors.add(requestConsumer);
         return this;
     }
 
@@ -58,7 +59,6 @@ public class ReactiveClientBuilder {
         List<MethodMetadata> requestTemplates = methodMetadataFactory.build(target, URI.create(uri));
 
         ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
-        requestConsumer = requestConsumer != null ? requestConsumer : request -> {};
-        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, reactiveInvocationHandlerFactory.create(requestTemplates, webClient, requestConsumer));
+        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, reactiveInvocationHandlerFactory.create(requestTemplates, webClient, requestInterceptors));
     }
 }
