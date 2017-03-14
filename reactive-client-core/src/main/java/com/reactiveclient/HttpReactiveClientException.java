@@ -11,9 +11,4 @@ public class HttpReactiveClientException extends RuntimeException {
         super(message);
         this.httpStatus = httpStatus;
     }
-
-    public HttpReactiveClientException(HttpStatus httpStatus, Throwable cause) {
-        super(cause);
-        this.httpStatus = httpStatus;
-    }
 }

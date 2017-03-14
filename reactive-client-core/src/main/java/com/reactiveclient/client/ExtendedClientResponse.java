@@ -29,7 +29,7 @@ class ExtendedClientResponse implements ClientResponse {
 
     private final ExtendedExchangeStrategies strategies;
 
-    public ExtendedClientResponse(ClientHttpResponse response, ExtendedExchangeStrategies strategies) {
+    ExtendedClientResponse(ClientHttpResponse response, ExtendedExchangeStrategies strategies) {
         this.response = response;
         this.strategies = strategies;
         this.headers = new DefaultHeaders();
@@ -47,7 +47,7 @@ class ExtendedClientResponse implements ClientResponse {
 
     @Override
     public MultiValueMap<String, ResponseCookie> cookies() {
-        return null;
+        return response.getCookies();
     }
 
     @Override
