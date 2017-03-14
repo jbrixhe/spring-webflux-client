@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -72,15 +71,13 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
     Function<Mono<ClientResponse>, Publisher<?>> responseExtractor(Type returnType) {
         if (ParameterizedType.class.isInstance(returnType)) {
             ParameterizedType parameterizedType = (ParameterizedType) returnType;
-            Type argumentType = parameterizedType.getActualTypeArguments()[0];
-            if (ParameterizedType.class.isInstance(argumentType)) {
-                throw new IllegalArgumentException("Embedded generic type not supported yet.");
-            }
+            Class<?> argumentType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
 
-            if (Mono.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                return clientResponseMono -> clientResponseMono.then(clientResponse -> clientResponse.bodyToMono((Class<?>) argumentType));
-            } else if (Flux.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                return clientResponseMono -> clientResponseMono.flatMap(clientResponse -> clientResponse.bodyToFlux((Class<?>) argumentType));
+            if (Mono.class.isAssignableFrom(rawType)) {
+                return clientResponseMono -> clientResponseMono.then(clientResponse -> clientResponse.bodyToMono(argumentType));
+            } else if (Flux.class.isAssignableFrom(rawType)) {
+                return clientResponseMono -> clientResponseMono.flatMap(clientResponse -> clientResponse.bodyToFlux(argumentType));
             }
         } else if (void.class.equals(returnType)) {
             return Mono::then;
@@ -94,13 +91,10 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
             return o -> BodyInserters.empty();
         } else if (ParameterizedType.class.isInstance(bodyType)) {
             ParameterizedType parameterizedType = (ParameterizedType) bodyType;
-            Type argumentType = parameterizedType.getActualTypeArguments()[0];
-            if (ParameterizedType.class.isInstance(argumentType)) {
-                throw new IllegalArgumentException("Embedded generic type not supported yet.");
-            }
-
-            if (Publisher.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                return body -> BodyInserters.fromPublisher((Publisher) body, (Class<?>) argumentType);
+            Class<?> argumentType = (Class<?>)parameterizedType.getActualTypeArguments()[0];
+            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+            if (Publisher.class.isAssignableFrom(rawType)) {
+                return body -> BodyInserters.fromPublisher(Publisher.class.cast(body), argumentType);
             }
         } else {
             return BodyInserters::fromObject;

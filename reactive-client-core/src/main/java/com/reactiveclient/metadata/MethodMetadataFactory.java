@@ -82,7 +82,7 @@ public class MethodMetadataFactory {
             Parameter parameter = parameters[i];
             processAnnotationsOnParameter(requestTemplateBuilder, parameter, i);
             if (parameter.getAnnotations().length == 0) {
-                requestTemplateBuilder.body(i, parameter.getType());
+                requestTemplateBuilder.body(i, parameter.getParameterizedType());
             }
         }
     }
