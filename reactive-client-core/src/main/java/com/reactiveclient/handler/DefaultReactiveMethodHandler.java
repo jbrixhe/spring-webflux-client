@@ -50,7 +50,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
         Function<Object, BodyInserter<?, ? super ClientHttpRequest>> objectBodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
 
         return request -> uriSpecSupplier.get()
-                .uri(request.getUri())
+                .uri(methodMetadata.expand(request.getVariables()))
                 .headers(request.getHttpHeaders())
                 .exchange(objectBodyInserterFunction.apply(request.getBody()));
     }
@@ -93,6 +93,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
             ParameterizedType parameterizedType = (ParameterizedType) bodyType;
             Class<?> argumentType = (Class<?>)parameterizedType.getActualTypeArguments()[0];
             Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+
             if (Publisher.class.isAssignableFrom(rawType)) {
                 return body -> BodyInserters.fromPublisher(Publisher.class.cast(body), argumentType);
             }

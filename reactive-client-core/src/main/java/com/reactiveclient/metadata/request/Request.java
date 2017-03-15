@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Data
 public class Request {
-    private URI uri;
+    private Map<String, Object> variables;
     private HttpHeaders httpHeaders;
     private Object body;
 }

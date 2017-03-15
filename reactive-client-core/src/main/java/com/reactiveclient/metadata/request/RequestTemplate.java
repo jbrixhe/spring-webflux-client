@@ -18,24 +18,23 @@ public class RequestTemplate {
     private HttpMethod httpMethod;
     private RequestHeaders requestHeaders;
     private Integer bodyIndex;
-    private UriBuilder uriBuilder;
     private MultiValueMap<Integer, String> variableIndexToName;
 
     public Request apply(Object[] args) {
         Request request = new Request();
-        request.setUri(buildUri(args));
+        request.setVariables(nameToVariable(args));
         request.setHttpHeaders(requestHeaders.encode(args));
         request.setBody(buildBody(args));
         return request;
     }
 
-    private URI buildUri(Object[] args) {
+    private Map<String, Object> nameToVariable(Object[] args) {
         Map<String, Object> nameToVariable = new HashMap<>();
         for (Map.Entry<Integer, List<String>> integerListEntry : variableIndexToName.entrySet()) {
             Object variable = processVariable(args[integerListEntry.getKey()]);
             integerListEntry.getValue().forEach(variableName -> nameToVariable.put(variableName, variable));
         }
-        return uriBuilder.build(nameToVariable);
+        return nameToVariable;
     }
 
     private Object buildBody(Object[] args) {

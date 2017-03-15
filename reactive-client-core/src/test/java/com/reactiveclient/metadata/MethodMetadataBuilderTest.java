@@ -17,7 +17,7 @@ public class MethodMetadataBuilderTest {
                 .addPath("/api/{id}")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("id", 132)))
+        assertThat(requestTemplate.getUriBuilder().build(Collections.singletonMap("id", 132)))
                 .isEqualTo(URI.create("http://localhost:8080/api/132"));
     }
 
@@ -29,7 +29,7 @@ public class MethodMetadataBuilderTest {
                 .addPath("/contact")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("id", 123)))
+        assertThat(requestTemplate.getUriBuilder().build(Collections.singletonMap("id", 123)))
                 .isEqualTo(URI.create("http://localhost:8080/api/users/123/contact"));
     }
 
@@ -40,7 +40,7 @@ public class MethodMetadataBuilderTest {
                 .addParameter(1, "name")
                 .build();
 
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build(Collections.singletonMap("name", "Jérémy")))
+        assertThat(requestTemplate.getUriBuilder().build(Collections.singletonMap("name", "Jérémy")))
                 .isEqualTo(URI.create("http://localhost:8080/api/users?name=J%C3%A9r%C3%A9my"));
     }
 }

@@ -22,16 +22,21 @@ public class MethodMetadata {
     private Type responseType;
     private Type bodyType;
     private RequestTemplate requestTemplate;
+    private UriBuilder uriBuilder;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
         responseType = targetMethod == null ? null : targetMethod.getGenericReturnType();
         bodyType = builder.bodyType;
+        uriBuilder = builder.uriBuilder;
         requestTemplate = new RequestTemplate(builder.httpMethod,
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
                 builder.bodyIndex,
-                builder.uriBuilder,
                 builder.variableIndexToName);
+    }
+
+    public URI expand(Map<String, Object> requestVariables) {
+        return uriBuilder.build(requestVariables);
     }
 
     public static Builder newBuilder(URI baseUri) {
@@ -69,7 +74,7 @@ public class MethodMetadata {
 
         public Builder(MethodMetadata other) {
             this();
-            uriBuilder = new DefaultUriBuilderFactory(other.getRequestTemplate().getUriBuilder().build().toString()).builder();
+            uriBuilder = new DefaultUriBuilderFactory(other.getUriBuilder().build().toString()).builder();
             variableIndexToName.putAll(other.getRequestTemplate().getVariableIndexToName());
             headers.putAll(other.getRequestTemplate().getRequestHeaders().getHeaders());
             headerIndexToName.putAll(other.getRequestTemplate().getRequestHeaders().getIndexToName());

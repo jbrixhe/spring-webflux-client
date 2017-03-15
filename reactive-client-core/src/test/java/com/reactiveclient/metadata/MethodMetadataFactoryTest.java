@@ -25,21 +25,21 @@ public class MethodMetadataFactoryTest {
     @Test
     public void processRootMethodMetadata_withSingleInterface() {
         MethodMetadata requestTemplate = methodMetadataFactory.processTarget(ParentReactiveClient.class, URI.create(""));
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("/parent"));
     }
 
     @Test
     public void processRootMethodMetadata_withOneParentInterface() {
         MethodMetadata requestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create(""));
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("/parent/child"));
     }
 
     @Test
     public void processRootMethodMetadata_withNoRequestMappingOnClass() {
         MethodMetadata requestTemplate = methodMetadataFactory.processTarget(SimpleInterface.class, URI.create(""));
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create(""));
     }
 
@@ -52,7 +52,7 @@ public class MethodMetadataFactoryTest {
     @Test
     public void processRootMethodMetadata_withTargetUri() {
         MethodMetadata requestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create("http://localhost:8080/api"));
-        assertThat(requestTemplate.getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080/api/parent/child"));
     }
 
@@ -60,7 +60,7 @@ public class MethodMetadataFactoryTest {
     public void parsePath() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create("http://localhost:8080"));
         methodMetadataFactory.parsePath(singletonMap("value", new String[]{"/api"}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplateBuilder.build().getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080/api"));
     }
 
@@ -68,7 +68,7 @@ public class MethodMetadataFactoryTest {
     public void parsePath_withNoValue() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create("http://localhost:8080"));
         methodMetadataFactory.parsePath(singletonMap("value", new String[]{}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplateBuilder.build().getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080"));
     }
 
