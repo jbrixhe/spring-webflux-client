@@ -44,7 +44,6 @@
         <dependency>
             <groupId>io.projectreactor.addons</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

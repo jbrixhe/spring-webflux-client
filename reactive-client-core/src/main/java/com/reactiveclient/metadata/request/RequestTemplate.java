@@ -6,7 +6,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriBuilder;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -15,17 +14,18 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 public class RequestTemplate {
+    private UriBuilder uriBuilder;
     private HttpMethod httpMethod;
     private RequestHeaders requestHeaders;
     private Integer bodyIndex;
     private MultiValueMap<Integer, String> variableIndexToName;
 
-    public Request apply(Object[] args) {
-        Request request = new Request();
-        request.setVariables(nameToVariable(args));
-        request.setHttpHeaders(requestHeaders.encode(args));
-        request.setBody(buildBody(args));
-        return request;
+    public ClientRequest apply(Object[] args) {
+        return new ClientRequest(uriBuilder,
+                httpMethod,
+                requestHeaders.encode(args),
+                nameToVariable(args),
+                buildBody(args));
     }
 
     private Map<String, Object> nameToVariable(Object[] args) {

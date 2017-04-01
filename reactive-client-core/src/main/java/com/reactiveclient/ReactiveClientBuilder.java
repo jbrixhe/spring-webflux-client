@@ -5,14 +5,12 @@ import com.reactiveclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.reactiveclient.handler.ReactiveInvocationHandlerFactory;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.MethodMetadataFactory;
-import com.reactiveclient.metadata.request.Request;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ReactiveClientBuilder {
     private List<ErrorDecoder> errorDecoders;
