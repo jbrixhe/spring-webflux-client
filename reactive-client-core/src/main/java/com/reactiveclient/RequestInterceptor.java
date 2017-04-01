@@ -1,8 +1,8 @@
 package com.reactiveclient;
 
-import com.reactiveclient.metadata.request.ClientRequest;
+import com.reactiveclient.metadata.request.ReactiveRequest;
 
 @FunctionalInterface
 public interface RequestInterceptor {
-    void accept(ClientRequest clientRequest);
+    void accept(ReactiveRequest reactiveRequest);
 }

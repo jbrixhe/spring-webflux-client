@@ -1,5 +1,6 @@
 package com.reactiveclient.core.example;
 
+import com.reactiveclient.ReactiveClientBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -19,5 +20,12 @@ public interface BeerClient {
 
     @PutMapping(path = "/{code}", produces = {MediaType.APPLICATION_JSON_VALUE})
     Mono<Beer> updateMessage(@PathVariable("code") String code, Mono<Beer> newMessage);
+
+    static BeerClient create(){
+        return ReactiveClientBuilder
+                .builder()
+                .errorDecoder(new NotFoundErrorDecoder())
+                .build(BeerClient.class, "http://localhost:8080");
+    }
 
 }

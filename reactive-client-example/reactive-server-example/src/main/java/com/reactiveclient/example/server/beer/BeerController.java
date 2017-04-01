@@ -2,6 +2,7 @@ package com.reactiveclient.example.server.beer;
 
 import com.reactiveclient.example.server.DuplicateResourceException;
 import com.reactiveclient.example.server.ResourceNotFoundException;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -66,7 +68,7 @@ public class BeerController {
 
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    public Mono<String> handleException(Exception e) {
-        return Mono.just(e.getMessage());
+    public String handleException(Exception e) {
+        return e.getMessage();
     }
 }

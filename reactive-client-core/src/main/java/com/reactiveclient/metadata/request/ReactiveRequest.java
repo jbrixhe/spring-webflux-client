@@ -13,7 +13,7 @@ import java.util.Map;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ClientRequest {
+public class ReactiveRequest {
     private UriBuilder uriBuilder;
     @Setter
     @Getter

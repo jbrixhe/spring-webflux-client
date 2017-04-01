@@ -25,8 +25,7 @@ class ExtendedExchangeFunction implements ExchangeFunction {
         Assert.notNull(request, "'request' must not be null");
 
         return this.connector
-                .connect(request.method(), request.url(),
-                        clientHttpRequest -> request.writeTo(clientHttpRequest, this.strategies))
+                .connect(request.method(), request.url(),  clientHttpRequest -> request.writeTo(clientHttpRequest, this.strategies))
                 .log("org.springframework.web.reactive.function.client", Level.FINE)
                 .map(clientHttpResponse -> new ExtendedClientResponse(clientHttpResponse, this.strategies));
     }

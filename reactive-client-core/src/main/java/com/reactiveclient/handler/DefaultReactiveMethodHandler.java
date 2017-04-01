@@ -2,7 +2,7 @@ package com.reactiveclient.handler;
 
 import com.reactiveclient.RequestInterceptor;
 import com.reactiveclient.metadata.MethodMetadata;
-import com.reactiveclient.metadata.request.ClientRequest;
+import com.reactiveclient.metadata.request.ReactiveRequest;
 import org.reactivestreams.Publisher;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
@@ -23,7 +22,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
     private WebClient client;
     private MethodMetadata methodMetadata;
     private List<RequestInterceptor> requestInterceptors;
-    private Function<ClientRequest, Publisher<?>> requestFunction;
+    private Function<ReactiveRequest, Publisher<?>> requestFunction;
 
     public DefaultReactiveMethodHandler(MethodMetadata methodMetadata, WebClient client, List<RequestInterceptor> requestInterceptors) {
         this.client = client;
@@ -35,16 +34,16 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
 
     @Override
     public Object invoke(Object[] args) {
-        ClientRequest clientRequest = methodMetadata.getRequestTemplate().apply(args);
+        ReactiveRequest reactiveRequest = methodMetadata.getReactiveRequestTemplate().apply(args);
 
-        requestInterceptors.forEach(requestInterceptor -> requestInterceptor.accept(clientRequest));
+        requestInterceptors.forEach(requestInterceptor -> requestInterceptor.accept(reactiveRequest));
 
-        return requestFunction.apply(clientRequest);
+        return requestFunction.apply(reactiveRequest);
     }
 
-    private Function<ClientRequest, Mono<ClientResponse>> buildWebClient(MethodMetadata methodMetadata) {
+    private Function<ReactiveRequest, Mono<ClientResponse>> buildWebClient(MethodMetadata methodMetadata) {
 
-        Function<ClientRequest, BodyInserter<?, ? super ClientHttpRequest>> clientRequestBodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
+        Function<ReactiveRequest, BodyInserter<?, ? super ClientHttpRequest>> clientRequestBodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
 
         return request -> client.method(request.getHttpMethod())
                 .uri(request.expand())
@@ -71,7 +70,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
         throw new IllegalArgumentException();
     }
 
-    Function<ClientRequest, BodyInserter<?, ? super ClientHttpRequest>> bodyInserter(Type bodyType) {
+    Function<ReactiveRequest, BodyInserter<?, ? super ClientHttpRequest>> bodyInserter(Type bodyType) {
         if (bodyType == null) {
             return o -> BodyInserters.empty();
         } else if (ParameterizedType.class.isInstance(bodyType)) {
@@ -80,10 +79,10 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
             Class<?> rawType = (Class<?>) parameterizedType.getRawType();
 
             if (Publisher.class.isAssignableFrom(rawType)) {
-                return clientRequest -> BodyInserters.fromPublisher(Publisher.class.cast(clientRequest.getBody()), argumentType);
+                return reactiveRequest -> BodyInserters.fromPublisher(Publisher.class.cast(reactiveRequest.getBody()), argumentType);
             }
         }
 
-        return clientRequest -> BodyInserters.fromObject(clientRequest.getBody());
+        return reactiveRequest -> BodyInserters.fromObject(reactiveRequest.getBody());
     }
 }
