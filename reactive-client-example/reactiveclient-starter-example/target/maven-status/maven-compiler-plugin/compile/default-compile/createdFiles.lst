@@ -1,0 +1,5 @@
+com/reactiveclient/starter/example/NotFoundErrorDecoder.class
+com/reactiveclient/starter/example/ResourceNotFoundException.class
+com/reactiveclient/starter/example/Beer.class
+com/reactiveclient/starter/example/BeerClient.class
+com/reactiveclient/starter/example/ReactiveClientStarterExampleApplication.class
