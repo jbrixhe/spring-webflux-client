@@ -28,6 +28,11 @@ public class ReactiveClientBuilder {
         return new ReactiveClientBuilder();
     }
 
+    public static <T> T create(Class<T> target, String uri) {
+        return new ReactiveClientBuilder()
+                .build(target, uri);
+    }
+
     public ReactiveClientBuilder errorDecoders(Iterable<ErrorDecoder> errorDecoders) {
         this.errorDecoders.clear();
         for (ErrorDecoder errorDecoder : errorDecoders) {

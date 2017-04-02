@@ -9,7 +9,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.Arrays.asList;
 
 @EqualsAndHashCode
 @AllArgsConstructor
@@ -24,11 +27,22 @@ public class ReactiveRequest {
     @Setter
     @Getter
     private Map<String, Object> variables;
-    @Setter
     @Getter
     private Object body;
 
     public URI expand(){
         return uriBuilder.build(variables);
+    }
+
+    public List<String> header(String header) {
+        return httpHeaders.get(header);
+    }
+
+    public void addHeader(String header, String... values) {
+        addHeader(header, asList(values));
+    }
+
+    public void addHeader(String header, List<String> values) {
+        httpHeaders.put(header, values);
     }
 }
