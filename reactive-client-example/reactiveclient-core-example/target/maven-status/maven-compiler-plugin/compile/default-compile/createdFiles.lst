@@ -1,6 +1,0 @@
-com/reactiveclient/core/example/BeerClient.class
-com/reactiveclient/core/example/ClientConfiguration.class
-com/reactiveclient/core/example/ResourceNotFoundException.class
-com/reactiveclient/core/example/ClientExampleApplication.class
-com/reactiveclient/core/example/Beer.class
-com/reactiveclient/core/example/NotFoundErrorDecoder.class
