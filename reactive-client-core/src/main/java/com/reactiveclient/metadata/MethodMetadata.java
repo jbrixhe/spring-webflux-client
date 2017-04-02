@@ -4,6 +4,7 @@ import com.reactiveclient.metadata.request.RequestHeader;
 import com.reactiveclient.metadata.request.RequestHeaders;
 import com.reactiveclient.metadata.request.ReactiveRequestTemplate;
 import lombok.Getter;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -19,13 +20,13 @@ import java.util.Map;
 @Getter
 public class MethodMetadata {
     private Method targetMethod;
-    private Type responseType;
-    private Type bodyType;
+    private ResolvableType responseType;
+    private ResolvableType bodyType;
     private ReactiveRequestTemplate reactiveRequestTemplate;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
-        responseType = targetMethod == null ? null : targetMethod.getGenericReturnType();
+        responseType = builder.returnType;
         bodyType = builder.bodyType;
         reactiveRequestTemplate = new ReactiveRequestTemplate(
                 builder.uriBuilder,
@@ -51,7 +52,8 @@ public class MethodMetadata {
         private HttpMethod httpMethod;
         private Method targetMethod;
         private Integer bodyIndex;
-        private Type bodyType;
+        private ResolvableType returnType;
+        private ResolvableType bodyType;
 
         private Builder() {
             variableIndexToName = new LinkedMultiValueMap<>();
@@ -116,12 +118,13 @@ public class MethodMetadata {
             }
 
             this.bodyIndex = bodyIndex;
-            this.bodyType = bodyType;
+            this.bodyType = ResolvableType.forType(bodyType);
             return this;
         }
 
         public Builder targetMethod(Method targetMethod) {
             this.targetMethod = targetMethod;
+            this.returnType = ResolvableType.forMethodReturnType(targetMethod);
             return this;
         }
 

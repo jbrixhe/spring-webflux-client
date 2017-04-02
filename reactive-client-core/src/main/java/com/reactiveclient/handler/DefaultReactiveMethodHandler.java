@@ -4,16 +4,14 @@ import com.reactiveclient.RequestInterceptor;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.ReactiveRequest;
 import org.reactivestreams.Publisher;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.function.Function;
 
@@ -28,7 +26,7 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
         this.client = client;
         this.methodMetadata = methodMetadata;
         this.requestInterceptors = requestInterceptors;
-        this.requestFunction = buildWebClient(methodMetadata)
+        this.requestFunction = buildWebClient(methodMetadata.getBodyType())
                 .andThen(responseExtractor(methodMetadata.getResponseType()));
     }
 
@@ -41,48 +39,32 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
         return requestFunction.apply(reactiveRequest);
     }
 
-    private Function<ReactiveRequest, Mono<ClientResponse>> buildWebClient(MethodMetadata methodMetadata) {
-
-        Function<ReactiveRequest, BodyInserter<?, ? super ClientHttpRequest>> clientRequestBodyInserterFunction = bodyInserter(methodMetadata.getBodyType());
-
+    private Function<ReactiveRequest, WebClient.ResponseSpec> buildWebClient(ResolvableType bodyType) {
         return request -> client.method(request.getHttpMethod())
                 .uri(request.expand())
                 .headers(request.getHttpHeaders())
-                .body(clientRequestBodyInserterFunction.apply(request))
-                .exchange();
+                .body(toBodyInserter(bodyType, request.getBody()))
+                .retrieve();
     }
 
-    Function<Mono<ClientResponse>, Publisher<?>> responseExtractor(Type returnType) {
-        if (ParameterizedType.class.isInstance(returnType)) {
-            ParameterizedType parameterizedType = (ParameterizedType) returnType;
-            Class<?> argumentType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
-
-            if (Mono.class.isAssignableFrom(rawType)) {
-                return clientResponseMono -> clientResponseMono.then(clientResponse -> clientResponse.bodyToMono(argumentType));
-            } else if (Flux.class.isAssignableFrom(rawType)) {
-                return clientResponseMono -> clientResponseMono.flatMap(clientResponse -> clientResponse.bodyToFlux(argumentType));
-            }
-        } else if (void.class.equals(returnType)) {
-            return Mono::then;
+    private Function<WebClient.ResponseSpec, Publisher<?>> responseExtractor(ResolvableType returnType) {
+        if (Mono.class.isAssignableFrom(returnType.getRawClass())) {
+            return responseSpec -> responseSpec.bodyToMono(returnType.getGeneric(0).getRawClass());
+        } else if (Flux.class.isAssignableFrom(returnType.getRawClass())) {
+            return responseSpec -> responseSpec.bodyToFlux(returnType.getGeneric(0).getRawClass());
+        } else if(void.class.isAssignableFrom(returnType.getRawClass())) {
+            return responseSpec -> null;
         }
-
         throw new IllegalArgumentException();
     }
 
-    Function<ReactiveRequest, BodyInserter<?, ? super ClientHttpRequest>> bodyInserter(Type bodyType) {
+    private BodyInserter<?, ? super ClientHttpRequest> toBodyInserter(ResolvableType bodyType, Object body) {
         if (bodyType == null) {
-            return o -> BodyInserters.empty();
-        } else if (ParameterizedType.class.isInstance(bodyType)) {
-            ParameterizedType parameterizedType = (ParameterizedType) bodyType;
-            Class<?> argumentType = (Class<?>)parameterizedType.getActualTypeArguments()[0];
-            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
-
-            if (Publisher.class.isAssignableFrom(rawType)) {
-                return reactiveRequest -> BodyInserters.fromPublisher(Publisher.class.cast(reactiveRequest.getBody()), argumentType);
-            }
+            return BodyInserters.empty();
+        } else if (Publisher.class.isAssignableFrom(bodyType.getRawClass())) { //
+            return BodyInserters.fromPublisher(Publisher.class.cast(body), bodyType.getGeneric(0));
+        } else {
+            return BodyInserters.fromObject(body);
         }
-
-        return reactiveRequest -> BodyInserters.fromObject(reactiveRequest.getBody());
     }
 }
