@@ -66,12 +66,12 @@ There is two way to configure the request body of the request.
 With the Spring annotation @RequestBody :
 ```java
 @PostMapping(value = "/accounts")
-Flux<Account> getAccounts(@RequestBody Account newAccount);
+Flux<Account> createAccounts(@RequestBody Account newAccount);
 ```
 Without annotation. Be careful, you can only have one parameter without annation on each method.
 ```java
 @PostMapping(value = "/accounts")
-Flux<Account> getAccounts(Account newAccount);
+Flux<Account> createAccounts(Account newAccount);
 ```
 
 ### Request interceptor
