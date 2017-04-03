@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jgsqware/projectAlpha.svg?branch=master)](https://travis-ci.org/jbrixhe/projectAlpha)
+
 # Reactive-Client
 The goal of this library is to ease the use of latest Spring Reactive library [Spring-Webflux](http://docs.spring.io/spring-framework/docs/5.0.0.M1/spring-framework-reference/html/web-reactive.html) that can be a bit verbose sometimes.
 
