@@ -18,6 +18,9 @@ before_script:
   - echo $JAVA_OPTS
   - echo $MAVEN_OPTS
 
+jdk:
+  - oraclejdk8
+  
 env:
   global:
     - JAVA_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmn48M -Xmx512M"
