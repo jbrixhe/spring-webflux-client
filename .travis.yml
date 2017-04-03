@@ -1,0 +1,26 @@
+language: java
+
+sudo: false
+
+cache:
+ directories:
+   - $HOME/.m2
+
+before_install:
+  - rm ~/.m2/settings.xml
+  - export MAVEN_SKIP_RC=true
+  - mvn -Xmx32M -v | grep 1.7.0; if [ $? = 0 ]; then export MAVEN_OPTS="-XX:MaxPermSize=200M"; else export MAVEN_OPTS="-XX:MaxMetaspaceSize=200M -XX:CompressedClassSpaceSize=200M"; fi
+  - export MAVEN_OPTS="-Xmx512M $MAVEN_OPTS"
+
+before_script:
+  - export PATH="`pwd`/bin:$PATH"
+  - echo $HOME
+  - echo $JAVA_OPTS
+  - echo $MAVEN_OPTS
+
+env:
+  global:
+    - JAVA_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmn48M -Xmx512M"
+    - MALLOC_ARENA_MAX=2
+
+script: mvn clean verify
