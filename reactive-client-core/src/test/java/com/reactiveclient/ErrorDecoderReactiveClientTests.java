@@ -18,7 +18,6 @@ package com.reactiveclient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reactiveclient.client.StringErrorDecoder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -74,7 +75,7 @@ public class ErrorDecoderReactiveClientTests {
     public void mono_withDefaultErrorDecoder() {
         Mono<SimpleDTO> hello = ErrorDecoderClient.create("http://localhost:" + port).monoWithInternalException();
         StepVerifier.create(hello)
-                .consumeErrorWith(this::assertHttpReactiveClientException)
+                .consumeErrorWith(this::assertHttpServerErrorException)
                 .verify();
     }
 
@@ -106,7 +107,7 @@ public class ErrorDecoderReactiveClientTests {
     public void flux_withDefaultErrorDecoder() {
         Flux<SimpleDTO> hellos = ErrorDecoderClient.create("http://localhost:" + port).fluxWithInternalException();
         StepVerifier.create(hellos)
-                .consumeErrorWith(this::assertHttpReactiveClientException)
+                .consumeErrorWith(this::assertHttpServerErrorException)
                 .verify();
     }
 
@@ -122,8 +123,8 @@ public class ErrorDecoderReactiveClientTests {
         static ErrorDecoderClient create(String url) {
             return ReactiveClientBuilder
                     .builder()
-                    .errorDecoder(ErrorDecoders.notFoundExceptionDecoder())
-                    .errorDecoder(ErrorDecoders.badRequestExceptionDecoder())
+                    .errorDecoder(TestErrorDecoders.notFoundExceptionDecoder())
+                    .errorDecoder(TestErrorDecoders.badRequestExceptionDecoder())
                     .build(ErrorDecoderClient.class, url);
         }
 
@@ -146,11 +147,11 @@ public class ErrorDecoderReactiveClientTests {
         Flux<SimpleDTO> fluxWithBadRequestException(@Valid @RequestBody Flux<SimpleDTO> newHellos);
     }
 
-    private void assertHttpReactiveClientException(Throwable throwable) {
+    private void assertHttpServerErrorException(Throwable throwable) {
         assertThat(throwable)
-                .isInstanceOf(HttpReactiveClientException.class)
-                .extracting("httpStatus", "message")
-                .containsExactly(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_EXCEPTION_MESSAGE);
+                .isInstanceOf(HttpServerErrorException.class)
+                .extracting("statusCode", "message")
+                .containsExactly(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value()+ " " +INTERNAL_SERVER_EXCEPTION_MESSAGE);
     }
 
     private void assertNotFoundException(Throwable throwable) {
@@ -238,14 +239,14 @@ public class ErrorDecoderReactiveClientTests {
         }
     }
 
-    private static class ErrorDecoders {
+    private static class TestErrorDecoders {
         static ErrorDecoder notFoundExceptionDecoder() {
-            return new StringErrorDecoder(HttpStatus.NOT_FOUND::equals, (httpStatus, responseBody) -> new NotFoundException(responseBody));
+            return ErrorDecoders.stringErrorDecoder(HttpStatus.NOT_FOUND::equals, NotFoundException.class);
         }
 
         static ErrorDecoder badRequestExceptionDecoder() {
             ObjectMapper objectMapper = new ObjectMapper();
-            return new StringErrorDecoder(HttpStatus.BAD_REQUEST::equals, (httpStatus, responseBody) -> {
+            return ErrorDecoder.of(HttpStatus.BAD_REQUEST::equals, (httpStatus, responseBody) -> {
                 try {
                     return new BadRequestException(objectMapper.readValue(responseBody, new TypeReference<List<ValidationError>>() {}));
                 } catch (IOException e) {
@@ -255,8 +256,8 @@ public class ErrorDecoderReactiveClientTests {
         }
     }
 
-    private static class NotFoundException extends RuntimeException {
-        NotFoundException(String message) {
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException(String message) {
             super(message);
         }
     }

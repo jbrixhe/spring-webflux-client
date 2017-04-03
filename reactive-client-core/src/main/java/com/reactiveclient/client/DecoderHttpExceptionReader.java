@@ -3,6 +3,7 @@ package com.reactiveclient.client;
 import com.reactiveclient.ErrorDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
