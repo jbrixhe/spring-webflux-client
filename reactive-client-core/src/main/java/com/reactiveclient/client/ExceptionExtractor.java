@@ -1,5 +1,6 @@
 package com.reactiveclient.client;
 
+import com.reactiveclient.HttpErrorReader;
 import org.springframework.http.client.reactive.ClientHttpResponse;
 
 import java.util.function.Supplier;
@@ -12,7 +13,7 @@ interface ExceptionExtractor<T, M extends ClientHttpResponse> {
 
     interface Context {
 
-        Supplier<Stream<HttpExceptionReader>> exceptionReaders();
+        Supplier<Stream<HttpErrorReader>> exceptionReaders();
 
     }
 

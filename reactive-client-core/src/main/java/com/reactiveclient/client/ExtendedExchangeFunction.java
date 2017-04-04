@@ -1,5 +1,6 @@
 package com.reactiveclient.client;
 
+import com.reactiveclient.HttpErrorReader;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -15,9 +16,9 @@ class ExtendedExchangeFunction implements ExchangeFunction {
 
     private final ExtendedExchangeStrategies strategies;
 
-    ExtendedExchangeFunction(List<HttpExceptionReader> httpExceptionReaders) {
+    ExtendedExchangeFunction(List<HttpErrorReader> httpErrorReaders) {
         this.connector = new ExtendedClientHttpConnector();
-        this.strategies = new DefaultExtendedExchangeStrategies(httpExceptionReaders);
+        this.strategies = new DefaultExtendedExchangeStrategies(httpErrorReaders);
     }
 
     @Override

@@ -241,7 +241,7 @@ public class ErrorDecoderReactiveClientTests {
 
     private static class TestErrorDecoders {
         static ErrorDecoder notFoundExceptionDecoder() {
-            return ErrorDecoders.stringErrorDecoder(HttpStatus.NOT_FOUND::equals, NotFoundException.class);
+            return ErrorDecoders.stringErrorDecoder(HttpStatus.NOT_FOUND::equals, NotFoundException::new);
         }
 
         static ErrorDecoder badRequestExceptionDecoder() {

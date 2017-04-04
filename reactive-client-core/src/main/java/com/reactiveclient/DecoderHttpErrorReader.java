@@ -1,17 +1,15 @@
-package com.reactiveclient.client;
+package com.reactiveclient;
 
-import com.reactiveclient.ErrorDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class DecoderHttpExceptionReader implements HttpExceptionReader {
+public class DecoderHttpErrorReader implements HttpErrorReader {
 
     private ErrorDecoder errorDecoder;
 
-    DecoderHttpExceptionReader(ErrorDecoder errorDecoder) {
+    public DecoderHttpErrorReader(ErrorDecoder errorDecoder) {
         this.errorDecoder = errorDecoder;
     }
 

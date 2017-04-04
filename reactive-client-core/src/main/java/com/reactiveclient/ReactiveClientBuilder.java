@@ -8,6 +8,7 @@ import com.reactiveclient.metadata.MethodMetadataFactory;
 import com.reactiveclient.metadata.request.ReactiveRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,6 +17,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ReactiveClientBuilder {
+    private MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
+    private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
+    private DefaultWebClientFactory defaultWebClientFactory = new DefaultWebClientFactory();
     private List<ErrorDecoder> errorDecoders;
     private List<Consumer<ReactiveRequest>> requestInterceptors;
 
@@ -60,16 +64,19 @@ public class ReactiveClientBuilder {
     }
 
     public <T> T build(Class<T> target, String uri) {
-        MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
-        WebClient webClient = new DefaultWebClientFactory().create(errorDecoders);
-        List<MethodMetadata> requestTemplates = methodMetadataFactory.build(target, URI.create(uri));
+        return build(target, URI.create(uri));
+    }
 
-        ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
 
+    public <T> T build(Class<T> target, URI uri) {
         Consumer<ReactiveRequest> requestInterceptor = requestInterceptors.stream()
                 .reduce(Consumer::andThen)
                 .orElse(reactiveRequest ->{});
 
-        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, reactiveInvocationHandlerFactory.create(requestTemplates, webClient, requestInterceptor));
+        WebClient webClient = defaultWebClientFactory.create(errorDecoders);
+        List<MethodMetadata> methodMetadatas = methodMetadataFactory.build(target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.create(methodMetadatas, webClient, requestInterceptor);
+
+        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }

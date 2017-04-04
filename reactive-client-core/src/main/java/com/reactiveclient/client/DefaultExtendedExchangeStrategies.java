@@ -1,5 +1,6 @@
 package com.reactiveclient.client;
 
+import com.reactiveclient.HttpErrorReader;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -12,11 +13,11 @@ import java.util.stream.Stream;
 
 class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
 
-    private List<HttpExceptionReader> exceptionReaders;
+    private List<HttpErrorReader> exceptionReaders;
 
     private ExchangeStrategies exchangeStrategies;
 
-    DefaultExtendedExchangeStrategies(List<HttpExceptionReader> exceptionReaders) {
+    DefaultExtendedExchangeStrategies(List<HttpErrorReader> exceptionReaders) {
         this.exceptionReaders = unmodifiableCopy(exceptionReaders);
         this.exchangeStrategies = ExchangeStrategies.withDefaults();
     }
@@ -26,7 +27,7 @@ class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
     }
 
     @Override
-    public Supplier<Stream<HttpExceptionReader>> exceptionReader() {
+    public Supplier<Stream<HttpErrorReader>> exceptionReader() {
         return exceptionReaders::stream;
     }
 
