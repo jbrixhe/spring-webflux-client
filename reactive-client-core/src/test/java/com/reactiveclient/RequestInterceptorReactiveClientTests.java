@@ -33,7 +33,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
+import java.net.URI;
 import java.util.Collections;
 import java.util.stream.Stream;
 
@@ -52,7 +52,7 @@ public class RequestInterceptorReactiveClientTests {
         RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
                 .builder()
                 .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header", Collections.singletonList("My-awesome-custom-header")))
-                .build(RequestInterceptorClient.class, "http://localhost:" + port);
+                .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Mono<String> header = requestInterceptorClient.headerAddedByRequestInterceptor();
         StepVerifier.create(header)
@@ -64,9 +64,9 @@ public class RequestInterceptorReactiveClientTests {
     public void multiHeadersAddedByMultipleRequestInterceptors() {
         RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
                 .builder()
-                .requestInterceptors(Arrays.asList(request -> request.getHttpHeaders().put("my-custom-header-one", Collections.singletonList("My-awesome-custom-header-one")),
-                        request -> request.getHttpHeaders().put("my-custom-header-two", Collections.singletonList("My-awesome-custom-header-two"))))
-                .build(RequestInterceptorClient.class, "http://localhost:" + port);
+                .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header-one", Collections.singletonList("My-awesome-custom-header-one")))
+                .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header-two", Collections.singletonList("My-awesome-custom-header-two")))
+                .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Flux<String> headers = requestInterceptorClient.headersFromRequestInterceptors();
         StepVerifier.create(headers)
@@ -79,7 +79,7 @@ public class RequestInterceptorReactiveClientTests {
         RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
                 .builder()
                 .requestInterceptor(request -> request.getVariables().computeIfPresent("variable", (pathVariableName, pathVariableCurrentValue) -> String.class.cast(pathVariableCurrentValue) + "HasBeenModifier"))
-                .build(RequestInterceptorClient.class, "http://localhost:" + port);
+                .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Mono<String> pathVariable = requestInterceptorClient.pathVariableModifiedByRequestInterceptor("VariableValue");
         StepVerifier.create(pathVariable)

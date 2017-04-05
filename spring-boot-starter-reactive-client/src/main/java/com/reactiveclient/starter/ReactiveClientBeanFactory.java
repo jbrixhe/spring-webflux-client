@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -23,7 +24,7 @@ public class ReactiveClientBeanFactory implements
 
     private Class<?> type;
 
-    private String url;
+    private URI url;
 
     private ApplicationContext applicationContext;
 
