@@ -1,10 +1,9 @@
 package com.reactiveclient.client;
 
 import com.reactiveclient.ErrorDecoder;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpServerErrorException;
-
-import java.io.InputStream;
 
 public class HttpServerErrorDecoder implements ErrorDecoder<HttpServerErrorException> {
     @Override
@@ -13,7 +12,7 @@ public class HttpServerErrorDecoder implements ErrorDecoder<HttpServerErrorExcep
     }
 
     @Override
-    public HttpServerErrorException decode(HttpStatus httpStatus, InputStream inputStream) {
-        return new HttpServerErrorException(httpStatus, DataBuffers.readToString(inputStream));
+    public HttpServerErrorException decode(HttpStatus httpStatus, DataBuffer inputMessage) {
+        return new HttpServerErrorException(httpStatus, DataBuffers.readToString(inputMessage));
     }
 }
