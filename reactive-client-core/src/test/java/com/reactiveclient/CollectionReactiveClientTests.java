@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +68,7 @@ public class CollectionReactiveClientTests {
         static RequestParamMultipleValueClient create(String url) {
             return ReactiveClientBuilder
                     .builder()
-                    .build(RequestParamMultipleValueClient.class, url);
+                    .build(RequestParamMultipleValueClient.class, URI.create(url));
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/requestParams")

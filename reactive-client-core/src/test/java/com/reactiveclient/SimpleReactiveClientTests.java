@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.Serializable;
+import java.net.URI;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SimpleReactiveClientTests.Application.class,
@@ -97,7 +98,7 @@ public class SimpleReactiveClientTests {
         static HelloClient create(String url) {
             return ReactiveClientBuilder
                     .builder()
-                    .build(HelloClient.class, url);
+                    .build(HelloClient.class, URI.create(url));
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/hellos/first")

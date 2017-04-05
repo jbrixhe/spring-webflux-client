@@ -24,18 +24,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.stream.Stream;
+import java.net.URI;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = HeaderReactiveClientTests.Application.class,
@@ -51,7 +47,7 @@ public class HeaderReactiveClientTests {
     public void headerFromMethodParam() {
         HeaderClient requestInterceptorClient = ReactiveClientBuilder
                 .builder()
-                .build(HeaderClient.class, "http://localhost:" + port);
+                .build(HeaderClient.class, URI.create("http://localhost:" + port));
 
         Mono<String> pathVariable = requestInterceptorClient.headerFromMethodParam("MyHeader");
         StepVerifier.create(pathVariable)

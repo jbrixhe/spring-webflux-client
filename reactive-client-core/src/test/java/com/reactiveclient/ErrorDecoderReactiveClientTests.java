@@ -18,6 +18,7 @@ package com.reactiveclient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,13 +50,16 @@ import reactor.test.StepVerifier;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.reactiveclient.client.DataBuffers.readToString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -123,9 +126,9 @@ public class ErrorDecoderReactiveClientTests {
         static ErrorDecoderClient create(String url) {
             return ReactiveClientBuilder
                     .builder()
-                    .errorDecoder(TestErrorDecoders.notFoundExceptionDecoder())
-                    .errorDecoder(TestErrorDecoders.badRequestExceptionDecoder())
-                    .build(ErrorDecoderClient.class, url);
+                    .errorDecoder(new BadRequestErrorDecoder())
+                    .errorDecoder(new NotFoundErrorDecoder())
+                    .build(ErrorDecoderClient.class, URI.create(url));
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/internal/mono")
@@ -239,20 +242,39 @@ public class ErrorDecoderReactiveClientTests {
         }
     }
 
-    private static class TestErrorDecoders {
-        static ErrorDecoder notFoundExceptionDecoder() {
-            return ErrorDecoders.stringErrorDecoder(HttpStatus.NOT_FOUND::equals, NotFoundException.class);
+    static class BadRequestErrorDecoder implements ErrorDecoder<BadRequestException> {
+
+        private final ObjectReader objectReader;
+
+        public BadRequestErrorDecoder() {
+            objectReader = new ObjectMapper().readerFor(new TypeReference<List<ValidationError>>() {});
         }
 
-        static ErrorDecoder badRequestExceptionDecoder() {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return ErrorDecoder.of(HttpStatus.BAD_REQUEST::equals, (httpStatus, responseBody) -> {
-                try {
-                    return new BadRequestException(objectMapper.readValue(responseBody, new TypeReference<List<ValidationError>>() {}));
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
+        @Override
+        public boolean canDecode(HttpStatus httpStatus) {
+            return HttpStatus.BAD_REQUEST.equals(httpStatus);
+        }
+
+        @Override
+        public BadRequestException decode(HttpStatus httpStatus, InputStream inputStream) {
+            try {
+                return new BadRequestException(objectReader.readValue(inputStream));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
+    static class NotFoundErrorDecoder implements ErrorDecoder<NotFoundException> {
+
+        @Override
+        public boolean canDecode(HttpStatus httpStatus) {
+            return HttpStatus.NOT_FOUND.equals(httpStatus);
+        }
+
+        @Override
+        public NotFoundException decode(HttpStatus httpStatus, InputStream inputStream) {
+            return new NotFoundException(readToString(inputStream));
         }
     }
 

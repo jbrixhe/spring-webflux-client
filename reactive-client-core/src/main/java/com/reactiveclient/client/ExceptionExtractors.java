@@ -1,5 +1,6 @@
 package com.reactiveclient.client;
 
+import com.reactiveclient.HttpErrorReader;
 import com.reactiveclient.ReactiveClientConfigurationException;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
@@ -26,14 +27,14 @@ class ExceptionExtractors {
     private static <T, S extends Publisher<T>> S readWithMessageReaders(
             HttpStatus httpStatus,
             ExceptionExtractor.Context context,
-            Function<HttpExceptionReader, S> readerFunction) {
+            Function<HttpErrorReader, S> readerFunction) {
 
-        HttpExceptionReader httpExceptionReader = context.exceptionReaders()
+        HttpErrorReader httpErrorReader = context.exceptionReaders()
                 .get()
                 .filter(r -> r.canRead(httpStatus))
                 .findFirst()
-                .orElseThrow(() -> new ReactiveClientConfigurationException("No HttpExceptionReader available for status: " + httpStatus.value()));
+                .orElseThrow(() -> new ReactiveClientConfigurationException("No HttpErrorReader available for status: " + httpStatus.value()));
 
-        return readerFunction.apply(httpExceptionReader);
+        return readerFunction.apply(httpErrorReader);
     }
 }

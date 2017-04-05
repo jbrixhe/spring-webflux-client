@@ -8,14 +8,22 @@ import com.reactiveclient.metadata.MethodMetadataFactory;
 import com.reactiveclient.metadata.request.ReactiveRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ *  A mutable builder to configure a Proxy
+ *
+ * @author Jérémy Brixhe
+ * */
 public class ReactiveClientBuilder {
+    private MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
+    private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
+    private DefaultWebClientFactory defaultWebClientFactory = new DefaultWebClientFactory();
     private List<ErrorDecoder> errorDecoders;
     private List<Consumer<ReactiveRequest>> requestInterceptors;
 
@@ -24,52 +32,76 @@ public class ReactiveClientBuilder {
         this.requestInterceptors = new ArrayList<>();
     }
 
+    /**
+     * Return a mutable builder with the default initialization.
+     */
     public static ReactiveClientBuilder builder() {
         return new ReactiveClientBuilder();
     }
 
-    public static <T> T create(Class<T> target, String uri) {
+    /**
+     * Convenient method to create a new proxy with default initialization.
+     *
+     * @param target The interface class to initialize the proxy.
+     * @param uri The base URI for all request
+     * */
+    public static <T> T create(Class<T> target, URI uri) {
         return new ReactiveClientBuilder()
                 .build(target, uri);
     }
 
+    /**
+     * Add the given {@link ErrorDecoder} to this builder. This is a convenient alternative to adding a
+     * {@link DecoderHttpErrorReader} that wraps the given decoder.
+     * @param errorDecoder the decoder to add
+     * @return this builder
+     */
+    public ReactiveClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
+        this.errorDecoders.add(errorDecoder);
+        return this;
+    }
+
     public ReactiveClientBuilder errorDecoders(Iterable<ErrorDecoder> errorDecoders) {
-        this.errorDecoders.clear();
         for (ErrorDecoder errorDecoder : errorDecoders) {
             this.errorDecoders.add(errorDecoder);
         }
         return this;
     }
 
-    public ReactiveClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
-        this.errorDecoders.add(errorDecoder);
+    /**
+     * Add a {@link Consumer} to the builder.
+     *
+     * @param requestInterceptor The request consumer to use.
+     * @return this builder
+     * */
+    public ReactiveClientBuilder requestInterceptor(Consumer<ReactiveRequest> requestInterceptor) {
+        this.requestInterceptors.add(requestInterceptor);
         return this;
     }
 
     public ReactiveClientBuilder requestInterceptors(Iterable<Consumer<ReactiveRequest>> requestInterceptors) {
-        this.requestInterceptors.clear();
         for (Consumer<ReactiveRequest> requestInterceptor : requestInterceptors) {
             this.requestInterceptors.add(requestInterceptor);
         }
         return this;
     }
 
-    public ReactiveClientBuilder requestInterceptor(Consumer<ReactiveRequest> requestInterceptor) {
-        this.requestInterceptors.add(requestInterceptor);
-        return this;
-    }
-
-    public <T> T build(Class<T> target, String uri) {
-        MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
-        WebClient webClient = new DefaultWebClientFactory().create(errorDecoders);
-        List<MethodMetadata> requestTemplates = methodMetadataFactory.build(target, URI.create(uri));
-
-        ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
-
+    /**
+     * Build the proxy instance
+     *
+     * @param target The interface class to initialize the new proxy.
+     * @param uri The base Uri for all request
+     * @return a configured Porxy for the target class
+     * */
+    public <T> T build(Class<T> target, URI uri) {
         Consumer<ReactiveRequest> requestInterceptor = requestInterceptors.stream()
                 .reduce(Consumer::andThen)
                 .orElse(reactiveRequest ->{});
 
-        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, reactiveInvocationHandlerFactory.create(requestTemplates, webClient, requestInterceptor));
+        WebClient webClient = defaultWebClientFactory.create(errorDecoders);
+        List<MethodMetadata> methodMetadatas = methodMetadataFactory.build(target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.create(methodMetadatas, webClient, requestInterceptor);
+
+        return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }
