@@ -5,10 +5,18 @@ import org.springframework.http.client.reactive.ClientHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * {@code HttpErrorReader} that wraps and delegates to a {@link ErrorDecoder}.
+ *
+ * @author Jérémy Brixhe
+ */
 public class DecoderHttpErrorReader implements HttpErrorReader {
 
     private ErrorDecoder errorDecoder;
 
+    /**
+     * Create an instance wrapping the given {@link ErrorDecoder}.
+     */
     public DecoderHttpErrorReader(ErrorDecoder errorDecoder) {
         this.errorDecoder = errorDecoder;
     }
