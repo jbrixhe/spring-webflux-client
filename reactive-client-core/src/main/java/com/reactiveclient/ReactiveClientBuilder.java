@@ -1,6 +1,7 @@
 package com.reactiveclient;
 
 import com.reactiveclient.client.DefaultWebClientFactory;
+import com.reactiveclient.client.codec.ExtendedClientCodecConfigurer;
 import com.reactiveclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.reactiveclient.handler.ReactiveInvocationHandlerFactory;
 import com.reactiveclient.metadata.MethodMetadata;
@@ -23,11 +24,11 @@ public class ReactiveClientBuilder {
     private MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
     private DefaultWebClientFactory defaultWebClientFactory = new DefaultWebClientFactory();
-    private List<ErrorDecoder> errorDecoders;
+    private ExtendedClientCodecConfigurer codecs;
     private List<RequestInterceptor> requestInterceptors;
 
     private ReactiveClientBuilder() {
-        this.errorDecoders = new ArrayList<>();
+        this.codecs = new ExtendedClientCodecConfigurer();
         this.requestInterceptors = new ArrayList<>();
     }
 
@@ -56,13 +57,13 @@ public class ReactiveClientBuilder {
      * @return this builder
      */
     public ReactiveClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
-        this.errorDecoders.add(errorDecoder);
+        this.codecs.customCodec().errorDecoder(errorDecoder);
         return this;
     }
 
     public ReactiveClientBuilder errorDecoders(Iterable<ErrorDecoder> errorDecoders) {
         for (ErrorDecoder errorDecoder : errorDecoders) {
-            this.errorDecoders.add(errorDecoder);
+            errorDecoder(errorDecoder);
         }
         return this;
     }
@@ -97,7 +98,7 @@ public class ReactiveClientBuilder {
                 .reduce(RequestInterceptor::andThen)
                 .orElse(reactiveRequest ->{});
 
-        WebClient webClient = defaultWebClientFactory.create(errorDecoders, requestInterceptor);
+        WebClient webClient = defaultWebClientFactory.create(codecs);
         List<MethodMetadata> methodMetadatas = methodMetadataFactory.build(target, uri);
         InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.create(methodMetadatas, webClient, requestInterceptor);
 
