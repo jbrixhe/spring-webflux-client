@@ -49,7 +49,7 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void headerAddedByRequestInterceptor() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
                 .requestInterceptor(request -> request.addHeader("my-custom-header","My-awesome-custom-header"))
                 .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
@@ -62,7 +62,7 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void multiHeadersAddedByMultipleRequestInterceptors() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
                 .requestInterceptor(request -> request.addHeader("my-custom-header-one","My-awesome-custom-header-one"))
                 .requestInterceptor(request -> request.addHeader("my-custom-header-two","My-awesome-custom-header-two"))
@@ -76,7 +76,7 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void pathVariableModifiedByRequestInterceptor() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
                 .requestInterceptor(request -> request.getVariables().computeIfPresent("variable", (pathVariableName, pathVariableCurrentValue) -> String.class.cast(pathVariableCurrentValue) + "HasBeenModified"))
                 .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));

@@ -125,7 +125,7 @@ public class ErrorDecoderReactiveClientTests {
 
     private interface ErrorDecoderClient {
         static ErrorDecoderClient create(String url) {
-            return ReactiveClientBuilder
+            return ClientBuilder
                     .builder()
                     .errorDecoder(new BadRequestErrorDecoder())
                     .errorDecoder(new NotFoundErrorDecoder())

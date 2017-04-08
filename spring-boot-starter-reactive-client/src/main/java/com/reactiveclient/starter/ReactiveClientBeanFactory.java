@@ -1,17 +1,17 @@
 package com.reactiveclient.starter;
 
-import com.reactiveclient.ErrorDecoder;
-import com.reactiveclient.ReactiveClientBuilder;
+import com.reactiveclient.ClientBuilder;
+import com.reactiveclient.HttpErrorReader;
 import com.reactiveclient.RequestInterceptor;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.http.codec.HttpMessageReader;
+import org.springframework.http.codec.HttpMessageWriter;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
 
 @Setter
 public class ReactiveClientBeanFactory implements
@@ -31,16 +31,14 @@ public class ReactiveClientBeanFactory implements
 
     @Override
     public Object getObject() throws Exception {
-        Map<String, ErrorDecoder> errorDecoders = applicationContext.getBeansOfType(ErrorDecoder.class);
+        ClientBuilder builder = ClientBuilder.builder();
 
-        Collection<RequestInterceptor> requestInterceptorBeans = applicationContext.getBeansOfType(RequestInterceptor.class)
-                .values();
+        applicationContext.getBeansOfType(RequestInterceptor.class).values().forEach(builder::requestInterceptor);
+        applicationContext.getBeansOfType(HttpMessageWriter.class).values().forEach(builder::messageWriter);
+        applicationContext.getBeansOfType(HttpMessageReader.class).values().forEach(builder::messageReader);
+        applicationContext.getBeansOfType(HttpErrorReader.class).values().forEach(builder::errorReader);
 
-        return ReactiveClientBuilder
-                .builder()
-                .errorDecoders(errorDecoders.values())
-                .requestInterceptors(requestInterceptorBeans)
-                .build(type, url);
+        return builder.build(type, url);
     }
 
     @Override

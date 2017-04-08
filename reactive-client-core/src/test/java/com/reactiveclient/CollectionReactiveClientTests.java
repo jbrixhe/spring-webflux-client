@@ -66,7 +66,7 @@ public class CollectionReactiveClientTests {
 
     private interface RequestParamMultipleValueClient {
         static RequestParamMultipleValueClient create(String url) {
-            return ReactiveClientBuilder
+            return ClientBuilder
                     .builder()
                     .build(RequestParamMultipleValueClient.class, URI.create(url));
         }
