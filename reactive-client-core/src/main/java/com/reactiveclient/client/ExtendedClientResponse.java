@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.client.reactive.ClientHttpResponse;
 import org.springframework.http.codec.HttpMessageReader;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -77,6 +78,11 @@ class ExtendedClientResponse implements ClientResponse {
                 @Override
                 public Supplier<Stream<HttpMessageReader<?>>> messageReaders() {
                     return strategies.messageReaders();
+                }
+
+                @Override
+                public Optional<ServerHttpResponse> serverResponse() {
+                    return Optional.empty();
                 }
 
                 @Override

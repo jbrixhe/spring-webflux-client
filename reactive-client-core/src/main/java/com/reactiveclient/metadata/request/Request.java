@@ -16,7 +16,7 @@ import static java.util.Arrays.asList;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ReactiveRequest {
+public class Request {
     private UriBuilder uriBuilder;
     @Setter
     @Getter

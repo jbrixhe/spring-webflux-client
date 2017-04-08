@@ -13,15 +13,15 @@ import java.util.Map;
 
 @Getter
 @AllArgsConstructor
-public class ReactiveRequestTemplate {
+public class RequestTemplate {
     private UriBuilder uriBuilder;
     private HttpMethod httpMethod;
     private RequestHeaders requestHeaders;
     private Integer bodyIndex;
     private MultiValueMap<Integer, String> variableIndexToName;
 
-    public ReactiveRequest apply(Object[] args) {
-        return new ReactiveRequest(uriBuilder,
+    public Request apply(Object[] args) {
+        return new Request(uriBuilder,
                 httpMethod,
                 requestHeaders.encode(args),
                 nameToVariable(args),

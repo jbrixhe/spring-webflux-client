@@ -5,7 +5,6 @@ import com.reactiveclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.reactiveclient.handler.ReactiveInvocationHandlerFactory;
 import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.MethodMetadataFactory;
-import com.reactiveclient.metadata.request.ReactiveRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,7 +24,7 @@ public class ReactiveClientBuilder {
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
     private DefaultWebClientFactory defaultWebClientFactory = new DefaultWebClientFactory();
     private List<ErrorDecoder> errorDecoders;
-    private List<Consumer<ReactiveRequest>> requestInterceptors;
+    private List<RequestInterceptor> requestInterceptors;
 
     private ReactiveClientBuilder() {
         this.errorDecoders = new ArrayList<>();
@@ -74,13 +73,13 @@ public class ReactiveClientBuilder {
      * @param requestInterceptor The request consumer to use.
      * @return this builder
      * */
-    public ReactiveClientBuilder requestInterceptor(Consumer<ReactiveRequest> requestInterceptor) {
+    public ReactiveClientBuilder requestInterceptor(RequestInterceptor requestInterceptor) {
         this.requestInterceptors.add(requestInterceptor);
         return this;
     }
 
-    public ReactiveClientBuilder requestInterceptors(Iterable<Consumer<ReactiveRequest>> requestInterceptors) {
-        for (Consumer<ReactiveRequest> requestInterceptor : requestInterceptors) {
+    public ReactiveClientBuilder requestInterceptors(Iterable<RequestInterceptor> requestInterceptors) {
+        for (RequestInterceptor requestInterceptor : requestInterceptors) {
             this.requestInterceptors.add(requestInterceptor);
         }
         return this;
@@ -94,11 +93,11 @@ public class ReactiveClientBuilder {
      * @return a configured Porxy for the target class
      * */
     public <T> T build(Class<T> target, URI uri) {
-        Consumer<ReactiveRequest> requestInterceptor = requestInterceptors.stream()
-                .reduce(Consumer::andThen)
+        RequestInterceptor requestInterceptor = requestInterceptors.stream()
+                .reduce(RequestInterceptor::andThen)
                 .orElse(reactiveRequest ->{});
 
-        WebClient webClient = defaultWebClientFactory.create(errorDecoders);
+        WebClient webClient = defaultWebClientFactory.create(errorDecoders, requestInterceptor);
         List<MethodMetadata> methodMetadatas = methodMetadataFactory.build(target, uri);
         InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.create(methodMetadatas, webClient, requestInterceptor);
 
