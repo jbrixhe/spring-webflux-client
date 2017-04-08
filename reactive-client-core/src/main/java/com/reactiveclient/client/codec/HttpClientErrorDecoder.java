@@ -6,7 +6,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
-public class HttpClientErrorDecoder implements ErrorDecoder<HttpClientErrorException> {
+class HttpClientErrorDecoder implements ErrorDecoder<HttpClientErrorException> {
     @Override
     public boolean canDecode(HttpStatus httpStatus) {
         return httpStatus.is4xxClientError();
