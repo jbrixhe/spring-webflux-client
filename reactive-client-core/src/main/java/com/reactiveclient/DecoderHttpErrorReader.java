@@ -39,7 +39,7 @@ public class DecoderHttpErrorReader implements HttpErrorReader {
     private <T> Flux<T> decodeInternal(ClientHttpResponse inputMessage) {
         return Flux.from(inputMessage.getBody())
                 .map(dataBuffer -> {
-                    throw errorDecoder.decode(inputMessage.getStatusCode(), dataBuffer.asInputStream());
+                    throw errorDecoder.decode(inputMessage.getStatusCode(), dataBuffer);
                 });
     }
 }

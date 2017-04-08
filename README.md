@@ -13,8 +13,8 @@ public interface AccountClient {
 	Mono<Account> getAccount(@PathVariable("id") Integer id);
 }
 ...
-AccountClient accountClient = return ReactiveClientBuilder
-	.create(HelloClient.class, "http://example.com");
+AccountClient accountClient = return ClientBuilder
+	.defaults(HelloClient.class, "http://example.com");
 ```
 
 #### Using Spring-webflux:
@@ -82,14 +82,14 @@ Flux<Account> createAccounts(Account newAccount);
 You can configure request interceptors on every Client. These interceptors will be called on every request created by the client.
 
 ```java
-public class TokenRequestInterceptor implements Consumer<ReactiveRequest> {
+public class TokenRequestInterceptor implements RequestInterceptor {
     @Override public void accept(ReactiveRequest request) {
     	request.addHeader("x-token", "encoded-token");
     }
 }
 ...
-AccountClient accountClient = return ReactiveClientBuilder
-    					.builder()
-    					.requestInterceptor(new TokenRequestInterceptor())
-					.build(HelloClient.class, "http://example.com");
+AccountClient accountClient = return ClientBuilder
+                    .builder()
+                    .requestInterceptor(new TokenRequestInterceptor())
+                    .build(HelloClient.class, "http://example.com");
 ```

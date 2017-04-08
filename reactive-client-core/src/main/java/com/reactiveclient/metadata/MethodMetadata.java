@@ -2,7 +2,7 @@ package com.reactiveclient.metadata;
 
 import com.reactiveclient.metadata.request.RequestHeader;
 import com.reactiveclient.metadata.request.RequestHeaders;
-import com.reactiveclient.metadata.request.ReactiveRequestTemplate;
+import com.reactiveclient.metadata.request.RequestTemplate;
 import lombok.Getter;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
@@ -22,13 +22,13 @@ public class MethodMetadata {
     private Method targetMethod;
     private ResolvableType responseType;
     private ResolvableType bodyType;
-    private ReactiveRequestTemplate reactiveRequestTemplate;
+    private RequestTemplate requestTemplate;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
         responseType = builder.returnType;
         bodyType = builder.bodyType;
-        reactiveRequestTemplate = new ReactiveRequestTemplate(
+        requestTemplate = new RequestTemplate(
                 builder.uriBuilder,
                 builder.httpMethod,
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
@@ -72,11 +72,11 @@ public class MethodMetadata {
 
         public Builder(MethodMetadata other) {
             this();
-            uriBuilder = new DefaultUriBuilderFactory(other.getReactiveRequestTemplate().getUriBuilder().build().toString()).builder();
-            variableIndexToName.putAll(other.getReactiveRequestTemplate().getVariableIndexToName());
-            headers.putAll(other.getReactiveRequestTemplate().getRequestHeaders().getHeaders());
-            headerIndexToName.putAll(other.getReactiveRequestTemplate().getRequestHeaders().getIndexToName());
-            httpMethod = other.getReactiveRequestTemplate().getHttpMethod();
+            uriBuilder = new DefaultUriBuilderFactory(other.getRequestTemplate().getUriBuilder().build().toString()).builder();
+            variableIndexToName.putAll(other.getRequestTemplate().getVariableIndexToName());
+            headers.putAll(other.getRequestTemplate().getRequestHeaders().getHeaders());
+            headerIndexToName.putAll(other.getRequestTemplate().getRequestHeaders().getIndexToName());
+            httpMethod = other.getRequestTemplate().getHttpMethod();
             targetMethod = other.getTargetMethod();
         }
 

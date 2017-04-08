@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -124,7 +125,7 @@ public class ErrorDecoderReactiveClientTests {
 
     private interface ErrorDecoderClient {
         static ErrorDecoderClient create(String url) {
-            return ReactiveClientBuilder
+            return ClientBuilder
                     .builder()
                     .errorDecoder(new BadRequestErrorDecoder())
                     .errorDecoder(new NotFoundErrorDecoder())
@@ -256,9 +257,9 @@ public class ErrorDecoderReactiveClientTests {
         }
 
         @Override
-        public BadRequestException decode(HttpStatus httpStatus, InputStream inputStream) {
+        public BadRequestException decode(HttpStatus httpStatus, DataBuffer inputMessage) {
             try {
-                return new BadRequestException(objectReader.readValue(inputStream));
+                return new BadRequestException(objectReader.readValue(inputMessage.asInputStream()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -273,8 +274,8 @@ public class ErrorDecoderReactiveClientTests {
         }
 
         @Override
-        public NotFoundException decode(HttpStatus httpStatus, InputStream inputStream) {
-            return new NotFoundException(readToString(inputStream));
+        public NotFoundException decode(HttpStatus httpStatus, DataBuffer inputMessage) {
+            return new NotFoundException(readToString(inputMessage));
         }
     }
 

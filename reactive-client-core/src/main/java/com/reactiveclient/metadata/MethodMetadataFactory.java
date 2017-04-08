@@ -123,7 +123,7 @@ public class MethodMetadataFactory {
 
     void parseMethod(Map<String, Object> requestMappingAttributes, MethodMetadata.Builder requestTemplateBuilder) {
         RequestMethod[] methods = (RequestMethod[]) requestMappingAttributes.get("method");
-        Assert.isTrue(methods.length <= 1, "Too many ReactiveRequest httpMethod for annotation");
+        Assert.isTrue(methods.length <= 1, "Too many Request httpMethod for annotation");
         if (methods.length == 0) {
             requestTemplateBuilder.httpMethod(HttpMethod.GET);
         } else {
@@ -158,13 +158,13 @@ public class MethodMetadataFactory {
 
     void extractHeader(String header, MethodMetadata.Builder requestTemplateBuilder) {
         int index = header.indexOf('=');
-        Assert.isTrue(index != -1, () -> String.format("Invalid apply header [%s], the symbol '=' is required to separate the header name and value", header));
+        Assert.isTrue(index != -1, () -> String.format("Invalid apply addHeader [%s], the symbol '=' is required to separate the addHeader name and value", header));
 
         String name = header.substring(0, index);
-        Assert.isTrue(StringUtils.hasText(name), "ReactiveRequest header name can't not be empty");
+        Assert.isTrue(StringUtils.hasText(name), "Request addHeader name can't not be empty");
 
         String value = header.substring(index + 1);
-        Assert.isTrue(StringUtils.hasText(value), "ReactiveRequest header value can't not be empty");
+        Assert.isTrue(StringUtils.hasText(value), "Request addHeader value can't not be empty");
 
         requestTemplateBuilder.addHeader(name, value);
     }

@@ -96,7 +96,7 @@ public class SimpleReactiveClientTests {
 
     private interface HelloClient {
         static HelloClient create(String url) {
-            return ReactiveClientBuilder
+            return ClientBuilder
                     .builder()
                     .build(HelloClient.class, URI.create(url));
         }

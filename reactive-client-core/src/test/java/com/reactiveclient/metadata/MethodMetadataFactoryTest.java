@@ -1,7 +1,7 @@
 package com.reactiveclient.metadata;
 
 import com.reactiveclient.metadata.request.RequestHeader.BasicRequestHeader;
-import com.reactiveclient.metadata.request.ReactiveRequestTemplate;
+import com.reactiveclient.metadata.request.RequestTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,22 +25,22 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void processRootMethodMetadata_withSingleInterface() {
-        ReactiveRequestTemplate reactiveRequestTemplate = methodMetadataFactory.processTarget(ParentReactiveClient.class, URI.create("")).getReactiveRequestTemplate();
-        assertThat(reactiveRequestTemplate.getUriBuilder().build())
+        RequestTemplate requestTemplate = methodMetadataFactory.processTarget(ParentReactiveClient.class, URI.create("")).getRequestTemplate();
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("/parent"));
     }
 
     @Test
     public void processRootMethodMetadata_withOneParentInterface() {
-        ReactiveRequestTemplate reactiveRequestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create("")).getReactiveRequestTemplate();
-        assertThat(reactiveRequestTemplate.getUriBuilder().build())
+        RequestTemplate requestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create("")).getRequestTemplate();
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("/parent/child"));
     }
 
     @Test
     public void processRootMethodMetadata_withNoRequestMappingOnClass() {
-        ReactiveRequestTemplate reactiveRequestTemplate = methodMetadataFactory.processTarget(SimpleInterface.class, URI.create("")).getReactiveRequestTemplate();
-        assertThat(reactiveRequestTemplate.getUriBuilder().build())
+        RequestTemplate requestTemplate = methodMetadataFactory.processTarget(SimpleInterface.class, URI.create("")).getRequestTemplate();
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create(""));
     }
 
@@ -52,8 +52,8 @@ public class MethodMetadataFactoryTest {
 
     @Test
     public void processRootMethodMetadata_withTargetUri() {
-        ReactiveRequestTemplate reactiveRequestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create("http://localhost:8080/api")).getReactiveRequestTemplate();
-        assertThat(reactiveRequestTemplate.getUriBuilder().build())
+        RequestTemplate requestTemplate = methodMetadataFactory.processTarget(ChildReactiveClient.class, URI.create("http://localhost:8080/api")).getRequestTemplate();
+        assertThat(requestTemplate.getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080/api/parent/child"));
     }
 
@@ -61,7 +61,7 @@ public class MethodMetadataFactoryTest {
     public void parsePath() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create("http://localhost:8080"));
         methodMetadataFactory.parsePath(singletonMap("value", new String[]{"/api"}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getReactiveRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplateBuilder.build().getRequestTemplate().getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080/api"));
     }
 
@@ -69,7 +69,7 @@ public class MethodMetadataFactoryTest {
     public void parsePath_withNoValue() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create("http://localhost:8080"));
         methodMetadataFactory.parsePath(singletonMap("value", new String[]{}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getReactiveRequestTemplate().getUriBuilder().build())
+        assertThat(requestTemplateBuilder.build().getRequestTemplate().getUriBuilder().build())
                 .isEqualTo(URI.create("http://localhost:8080"));
     }
 
@@ -83,14 +83,14 @@ public class MethodMetadataFactoryTest {
     public void parseMethod() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create(""));
         methodMetadataFactory.parseMethod(singletonMap("method", new RequestMethod[]{RequestMethod.GET}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getReactiveRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(requestTemplateBuilder.build().getRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
     public void parseMethod_withNoMethod() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create(""));
         methodMetadataFactory.parseMethod(singletonMap("method", new RequestMethod[]{}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getReactiveRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(requestTemplateBuilder.build().getRequestTemplate().getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class MethodMetadataFactoryTest {
     public void parseHeaders() {
         MethodMetadata.Builder requestTemplateBuilder = MethodMetadata.newBuilder(URI.create(""));
         methodMetadataFactory.parseHeaders(singletonMap("headers", new String[]{"header1=value1", "header2=value2"}), requestTemplateBuilder);
-        assertThat(requestTemplateBuilder.build().getReactiveRequestTemplate().getRequestHeaders().getHeaders())
+        assertThat(requestTemplateBuilder.build().getRequestTemplate().getRequestHeaders().getHeaders())
                 .containsOnlyKeys("header1", "header2")
                 .containsValues(new BasicRequestHeader("header1", "value1"), new BasicRequestHeader("header2", "value2"));
     }
@@ -144,7 +144,7 @@ public class MethodMetadataFactoryTest {
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
-        assertThat(requestTemplate.getReactiveRequestTemplate().getVariableIndexToName())
+        assertThat(requestTemplate.getRequestTemplate().getVariableIndexToName())
                 .contains(new SimpleEntry<>(0, singletonList("requestParameter1")),
                         new SimpleEntry<>(1, singletonList("requestParameter2")));
     }
@@ -155,7 +155,7 @@ public class MethodMetadataFactoryTest {
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
-        assertThat(requestTemplate.getReactiveRequestTemplate().getVariableIndexToName())
+        assertThat(requestTemplate.getRequestTemplate().getVariableIndexToName())
                 .contains(new SimpleEntry<>(0, singletonList("pathVariable1")),
                         new SimpleEntry<>(1, singletonList("pathVariable2")));
     }
@@ -166,7 +166,7 @@ public class MethodMetadataFactoryTest {
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
-        assertThat(requestTemplate.getReactiveRequestTemplate().getRequestHeaders().getIndexToName())
+        assertThat(requestTemplate.getRequestTemplate().getRequestHeaders().getIndexToName())
                 .contains(new SimpleEntry<>(0, "requestHeader1"),
                         new SimpleEntry<>(1, "requestHeader2"));
     }
@@ -177,7 +177,7 @@ public class MethodMetadataFactoryTest {
         assertThat(visit)
                 .hasSize(1);
         MethodMetadata requestTemplate = visit.get(0);
-        assertThat(requestTemplate.getReactiveRequestTemplate().getVariableIndexToName())
+        assertThat(requestTemplate.getRequestTemplate().getVariableIndexToName())
                 .contains(new SimpleEntry<>(0, singletonList("requestParameter1")),
                         new SimpleEntry<>(1, singletonList("pathVariable1")));
     }

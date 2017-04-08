@@ -45,7 +45,7 @@ public class HeaderReactiveClientTests {
 
     @Test
     public void headerFromMethodParam() {
-        HeaderClient requestInterceptorClient = ReactiveClientBuilder
+        HeaderClient requestInterceptorClient = ClientBuilder
                 .builder()
                 .build(HeaderClient.class, URI.create("http://localhost:" + port));
 

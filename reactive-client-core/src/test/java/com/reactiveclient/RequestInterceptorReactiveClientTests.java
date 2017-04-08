@@ -49,9 +49,9 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void headerAddedByRequestInterceptor() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
-                .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header", Collections.singletonList("My-awesome-custom-header")))
+                .requestInterceptor(request -> request.addHeader("my-custom-header","My-awesome-custom-header"))
                 .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Mono<String> header = requestInterceptorClient.headerAddedByRequestInterceptor();
@@ -62,10 +62,10 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void multiHeadersAddedByMultipleRequestInterceptors() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
-                .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header-one", Collections.singletonList("My-awesome-custom-header-one")))
-                .requestInterceptor(request -> request.getHttpHeaders().put("my-custom-header-two", Collections.singletonList("My-awesome-custom-header-two")))
+                .requestInterceptor(request -> request.addHeader("my-custom-header-one","My-awesome-custom-header-one"))
+                .requestInterceptor(request -> request.addHeader("my-custom-header-two","My-awesome-custom-header-two"))
                 .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Flux<String> headers = requestInterceptorClient.headersFromRequestInterceptors();
@@ -76,14 +76,14 @@ public class RequestInterceptorReactiveClientTests {
 
     @Test
     public void pathVariableModifiedByRequestInterceptor() {
-        RequestInterceptorClient requestInterceptorClient = ReactiveClientBuilder
+        RequestInterceptorClient requestInterceptorClient = ClientBuilder
                 .builder()
-                .requestInterceptor(request -> request.getVariables().computeIfPresent("variable", (pathVariableName, pathVariableCurrentValue) -> String.class.cast(pathVariableCurrentValue) + "HasBeenModifier"))
+                .requestInterceptor(request -> request.getVariables().computeIfPresent("variable", (pathVariableName, pathVariableCurrentValue) -> String.class.cast(pathVariableCurrentValue) + "HasBeenModified"))
                 .build(RequestInterceptorClient.class, URI.create("http://localhost:" + port));
 
         Mono<String> pathVariable = requestInterceptorClient.pathVariableModifiedByRequestInterceptor("VariableValue");
         StepVerifier.create(pathVariable)
-                .expectNext("VariableValueHasBeenModifier")
+                .expectNext("VariableValueHasBeenModified")
                 .verifyComplete();
     }
 
