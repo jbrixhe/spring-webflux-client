@@ -89,7 +89,7 @@ public class TokenRequestInterceptor implements RequestInterceptor {
 }
 ...
 AccountClient accountClient = return ClientBuilder
-    					.builder()
-    					.requestInterceptor(new TokenRequestInterceptor())
-					    .build(HelloClient.class, "http://example.com");
+                    .builder()
+                    .requestInterceptor(new TokenRequestInterceptor())
+                    .build(HelloClient.class, "http://example.com");
 ```
