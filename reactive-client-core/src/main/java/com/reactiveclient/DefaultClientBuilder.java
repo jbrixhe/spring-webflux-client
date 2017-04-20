@@ -26,7 +26,7 @@ class DefaultClientBuilder implements ClientBuilder {
     private List<RequestInterceptor> requestInterceptors;
 
     DefaultClientBuilder() {
-        this.codecs = new ExtendedClientCodecConfigurer();
+        this.codecs = ExtendedClientCodecConfigurer.create();
         this.requestInterceptors = new ArrayList<>();
     }
 
@@ -38,37 +38,37 @@ class DefaultClientBuilder implements ClientBuilder {
 
     @Override
     public ClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
-        codecs.customCodec().errorDecoder(errorDecoder);
+        codecs.customCodecs().errorDecoder(errorDecoder);
         return this;
     }
 
     @Override
     public ClientBuilder errorReader(HttpErrorReader httpErrorReader) {
-        codecs.customCodec().errorReader(httpErrorReader);
+        codecs.customCodecs().errorReader(httpErrorReader);
         return this;
     }
 
     @Override
     public ClientBuilder decoder(Decoder<?> decoder) {
-        codecs.customCodec().decoder(decoder);
+        codecs.customCodecs().decoder(decoder);
         return this;
     }
 
     @Override
     public ClientBuilder messageReader(HttpMessageReader<?> httpMessageReader) {
-        codecs.customCodec().reader(httpMessageReader);
+        codecs.customCodecs().reader(httpMessageReader);
         return this;
     }
 
     @Override
     public ClientBuilder encoder(Encoder<?> encoder) {
-        codecs.customCodec().encoder(encoder);
+        codecs.customCodecs().encoder(encoder);
         return this;
     }
 
     @Override
     public ClientBuilder messageWriter(HttpMessageWriter<?> httpMessageWriter) {
-        codecs.customCodec().writer(httpMessageWriter);
+        codecs.customCodecs().writer(httpMessageWriter);
         return this;
     }
 

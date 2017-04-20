@@ -13,31 +13,28 @@ import java.util.stream.Stream;
 
 class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
 
-    private List<HttpErrorReader> exceptionReaders;
+    private List<HttpMessageWriter<?>> httpMessageWriters;
+    private List<HttpMessageReader<?>> httpMessageReaders;
+    private List<HttpErrorReader> httpExceptionReaders;
 
-    private ExchangeStrategies exchangeStrategies;
-
-    DefaultExtendedExchangeStrategies(List<HttpErrorReader> exceptionReaders) {
-        this.exceptionReaders = unmodifiableCopy(exceptionReaders);
-        this.exchangeStrategies = ExchangeStrategies.withDefaults();
-    }
-
-    private <T> List<T> unmodifiableCopy(List<? extends T> list) {
-        return Collections.unmodifiableList(new ArrayList<>(list));
+    DefaultExtendedExchangeStrategies(List<HttpMessageWriter<?>> httpMessageWriters, List<HttpMessageReader<?>> httpMessageReaders, List<HttpErrorReader> httpExceptionReaders) {
+        this.httpMessageWriters = httpMessageWriters;
+        this.httpMessageReaders = httpMessageReaders;
+        this.httpExceptionReaders = httpExceptionReaders;
     }
 
     @Override
     public Supplier<Stream<HttpErrorReader>> exceptionReader() {
-        return exceptionReaders::stream;
+        return httpExceptionReaders::stream;
     }
 
     @Override
     public Supplier<Stream<HttpMessageReader<?>>> messageReaders() {
-        return exchangeStrategies.messageReaders();
+        return httpMessageReaders::stream;
     }
 
     @Override
     public Supplier<Stream<HttpMessageWriter<?>>> messageWriters() {
-        return exchangeStrategies.messageWriters();
+        return httpMessageWriters::stream;
     }
 }

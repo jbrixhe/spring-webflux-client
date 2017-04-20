@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,6 +51,9 @@ public class CollectionReactiveClientTests {
 
     @Test
     public void collectionAsRequestParam() {
+
+        ClassUtils.isPresent("reactor.test.DefaultStepVerifierBuilder",
+                CollectionReactiveClientTests.class.getClassLoader());
         Flux<String> hello = RequestParamMultipleValueClient.create("http://localhost:" + port).collectionAsRequestParam(Arrays.asList(requestParamMultipleValues));
         StepVerifier.create(hello)
                 .expectNext(requestParamMultipleValues)

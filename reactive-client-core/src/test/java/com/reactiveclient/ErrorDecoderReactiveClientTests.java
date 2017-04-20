@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -51,7 +52,6 @@ import reactor.test.StepVerifier;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -193,22 +193,22 @@ public class ErrorDecoderReactiveClientTests {
 
         @RequestMapping(method = RequestMethod.GET, path = "/internal/mono")
         public Mono<SimpleDTO> monoWithInternalException(){
-            return Mono.error(new Exception(INTERNAL_SERVER_EXCEPTION_MESSAGE));
+            throw new RuntimeException(INTERNAL_SERVER_EXCEPTION_MESSAGE);
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/internal/flux")
-        public Flux<SimpleDTO> fluxWithInternalException(){
-            return Flux.error(new Exception(INTERNAL_SERVER_EXCEPTION_MESSAGE));
+        public Flux<SimpleDTO> fluxWithInternalException() {
+            throw new RuntimeException(INTERNAL_SERVER_EXCEPTION_MESSAGE);
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/notFound/mono")
         public Mono<SimpleDTO> monoWithNotFoundException() {
-            return Mono.error(new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE));
+            throw new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE);
         }
 
         @RequestMapping(method = RequestMethod.GET, path = "/notFound/flux")
         public Flux<SimpleDTO> fluxWithNotFoundException() {
-            return Flux.error(new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE));
+            throw new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE);
         }
 
         @RequestMapping(method = RequestMethod.POST, path = "/badRequest/mono")
@@ -221,14 +221,15 @@ public class ErrorDecoderReactiveClientTests {
             return newHellos;
         }
 
-        @ExceptionHandler(NotFoundException.class)
+        @ExceptionHandler({NotFoundException.class})
         @ResponseStatus(HttpStatus.NOT_FOUND)
         public String handleNotFoundException(NotFoundException e) {
             return e.getMessage();
         }
 
-        @ExceptionHandler(WebExchangeBindException.class)
+        @ExceptionHandler({WebExchangeBindException.class})
         @ResponseStatus(HttpStatus.BAD_REQUEST)
+        @ResponseBody
         public List<ValidationError> handleWebExchangeBindException(WebExchangeBindException e) {
             return e.getFieldErrors()
                     .stream()
@@ -236,7 +237,7 @@ public class ErrorDecoderReactiveClientTests {
                     .collect(Collectors.toList());
         }
 
-        @ExceptionHandler(Exception.class)
+        @ExceptionHandler({Exception.class})
         @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
         public String handleException(Exception e) {
             return e.getMessage();

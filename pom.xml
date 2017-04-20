@@ -29,10 +29,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.projectreactor.addons</groupId>
-                <artifactId>reactor-test</artifactId>
-                <version>3.0.5.RELEASE</version>
-                <scope>test</scope>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-bom</artifactId>
+                <version>Bismuth-BUILD-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <!-- Import dependency management from Spring Boot -->
