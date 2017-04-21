@@ -5,7 +5,12 @@ import com.reactiveclient.metadata.MethodMetadata;
 import com.reactiveclient.metadata.request.Request;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +32,9 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
         this.requestInterceptor = requestInterceptor;
         this.requestFunction = buildWebClient(methodMetadata.getBodyType())
                 .andThen(responseExtractor(methodMetadata.getResponseType()));
+    }
+
+    DefaultReactiveMethodHandler() {
     }
 
     @Override
@@ -60,10 +68,31 @@ public class DefaultReactiveMethodHandler implements ReactiveMethodHandler {
     private BodyInserter<?, ? super ClientHttpRequest> toBodyInserter(ResolvableType bodyType, Object body) {
         if (bodyType == null) {
             return BodyInserters.empty();
-        } else if (Publisher.class.isAssignableFrom(bodyType.getRawClass())) { //
-            return BodyInserters.fromPublisher(Publisher.class.cast(body), bodyType.getGeneric(0));
+        } else if (Publisher.class.isAssignableFrom(bodyType.getRawClass())) {
+            ResolvableType contentType = bodyType.getGeneric(0);
+            if (DataBuffer.class.isAssignableFrom(contentType.getRawClass())) {
+                return BodyInserters.fromDataBuffers((Publisher<DataBuffer>) body);
+            } else {
+                return BodyInserters.fromPublisher((Publisher<?>) body, contentType);
+            }
+        } else if (Resource.class.isAssignableFrom(bodyType.getRawClass())) {
+            return BodyInserters.fromResource((Resource) body);
+        } else if (isFormData(bodyType)) {
+            return BodyInserters.fromFormData((MultiValueMap<String, String>) body);
         } else {
             return BodyInserters.fromObject(body);
         }
+    }
+
+    boolean isFormData(ResolvableType bodyType) {
+        if (MultiValueMap.class.isAssignableFrom(bodyType.getRawClass())) {
+            ResolvableType keyType = bodyType.getGeneric(0);
+            ResolvableType valueType = bodyType.getGeneric(1);
+            if (String.class.isAssignableFrom(keyType.getRawClass()) && String.class.isAssignableFrom(valueType.getRawClass())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
