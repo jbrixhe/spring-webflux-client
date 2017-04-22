@@ -18,7 +18,6 @@
 
     <modules>
         <module>reactive-client-core</module>
-        <module>spring-boot-starter-reactive-client</module>
     </modules>
 
     <properties>
