@@ -1,19 +1,3 @@
-/*
- * Copyright 2013-2015 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.reactiveclient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -61,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.reactiveclient.client.DataBuffers.readToString;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -93,7 +79,7 @@ public class ErrorDecoderReactiveClientTests {
 
     @Test
     public void mono_withCustomExceptionPayload() {
-        Mono<SimpleDTO> hello = ErrorDecoderClient.create("http://localhost:" + port).monoWithBadRequestException(Mono.fromSupplier(SimpleDTO::new));
+        Mono<SimpleDTO> hello = ErrorDecoderClient.create("http://localhost:" + port).monoWithBadRequestException();
         StepVerifier.create(hello)
                 .consumeErrorWith(this::assertBadRequestException)
                 .verify();
@@ -117,7 +103,7 @@ public class ErrorDecoderReactiveClientTests {
 
     @Test
     public void flux_withCustomExceptionPayload() {
-        Flux<SimpleDTO> hellos = ErrorDecoderClient.create("http://localhost:" + port).fluxWithBadRequestException(Flux.fromStream(Stream.of(new SimpleDTO())));
+        Flux<SimpleDTO> hellos = ErrorDecoderClient.create("http://localhost:" + port).fluxWithBadRequestException();
         StepVerifier.create(hellos)
                 .consumeErrorWith(this::assertBadRequestException)
                 .verify();
@@ -132,23 +118,23 @@ public class ErrorDecoderReactiveClientTests {
                     .build(ErrorDecoderClient.class, URI.create(url));
         }
 
-        @RequestMapping(method = RequestMethod.GET, path = "/internal/mono")
+        @GetMapping(path = "/internal/mono")
         Mono<SimpleDTO> monoWithInternalException();
 
-        @RequestMapping(method = RequestMethod.GET, path = "/internal/flux")
+        @GetMapping(path = "/internal/flux")
         Flux<SimpleDTO> fluxWithInternalException();
 
-        @RequestMapping(method = RequestMethod.GET, path = "/notFound/mono")
+        @GetMapping(path = "/notFound/mono")
         Mono<SimpleDTO> monoWithNotFoundException();
 
-        @RequestMapping(method = RequestMethod.GET, path = "/notFound/flux")
+        @GetMapping(path = "/notFound/flux")
         Flux<SimpleDTO> fluxWithNotFoundException();
 
-        @RequestMapping(method = RequestMethod.POST, path = "/badRequest/mono")
-        Mono<SimpleDTO> monoWithBadRequestException(@Valid @RequestBody Mono<SimpleDTO> newHello);
+        @GetMapping(path = "/badRequest/mono")
+        Mono<SimpleDTO> monoWithBadRequestException();
 
-        @RequestMapping(method = RequestMethod.POST, path = "/badRequest/flux")
-        Flux<SimpleDTO> fluxWithBadRequestException(@Valid @RequestBody Flux<SimpleDTO> newHellos);
+        @GetMapping(path = "/badRequest/flux")
+        Flux<SimpleDTO> fluxWithBadRequestException();
     }
 
     private void assertHttpServerErrorException(Throwable throwable) {
@@ -169,7 +155,7 @@ public class ErrorDecoderReactiveClientTests {
         assertThat(throwable)
                 .isInstanceOf(BadRequestException.class)
                 .extracting("validationErrors")
-                .containsExactly(Collections.singletonList(new ValidationError("message", "null", "may not be null")));
+                .containsExactly(singletonList(new ValidationError("message", "null", "may not be null")));
     }
 
     @Data
@@ -191,34 +177,34 @@ public class ErrorDecoderReactiveClientTests {
                     .run(args);
         }
 
-        @RequestMapping(method = RequestMethod.GET, path = "/internal/mono")
+        @GetMapping(path = "/internal/mono")
         public Mono<SimpleDTO> monoWithInternalException(){
             throw new RuntimeException(INTERNAL_SERVER_EXCEPTION_MESSAGE);
         }
 
-        @RequestMapping(method = RequestMethod.GET, path = "/internal/flux")
+        @GetMapping(path = "/internal/flux")
         public Flux<SimpleDTO> fluxWithInternalException() {
             throw new RuntimeException(INTERNAL_SERVER_EXCEPTION_MESSAGE);
         }
 
-        @RequestMapping(method = RequestMethod.GET, path = "/notFound/mono")
+        @GetMapping(path = "/notFound/mono")
         public Mono<SimpleDTO> monoWithNotFoundException() {
             throw new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE);
         }
 
-        @RequestMapping(method = RequestMethod.GET, path = "/notFound/flux")
+        @GetMapping(path = "/notFound/flux")
         public Flux<SimpleDTO> fluxWithNotFoundException() {
             throw new NotFoundException(NOT_FOUND_EXCEPTION_MESSAGE);
         }
 
-        @RequestMapping(method = RequestMethod.POST, path = "/badRequest/mono")
-        public Mono<SimpleDTO> monoWithBadRequestException(@Valid @RequestBody Mono<SimpleDTO> newHello) {
-            return newHello;
+        @GetMapping(path = "/badRequest/mono")
+        public Mono<SimpleDTO> monoWithBadRequestException() {
+            throw new BadRequestException(singletonList(new ValidationError("message", "null", "may not be null")));
         }
 
-        @RequestMapping(method = RequestMethod.POST, path = "/badRequest/flux")
-        public Flux<SimpleDTO> fluxWithBadRequestException(@Valid @RequestBody Flux<SimpleDTO> newHellos) {
-            return newHellos;
+        @GetMapping(path = "/badRequest/flux")
+        public Flux<SimpleDTO> fluxWithBadRequestException() {
+            throw new BadRequestException(singletonList(new ValidationError("message", "null", "may not be null")));
         }
 
         @ExceptionHandler({NotFoundException.class})
@@ -227,14 +213,11 @@ public class ErrorDecoderReactiveClientTests {
             return e.getMessage();
         }
 
-        @ExceptionHandler({WebExchangeBindException.class})
+        @ExceptionHandler({BadRequestException.class})
         @ResponseStatus(HttpStatus.BAD_REQUEST)
         @ResponseBody
-        public List<ValidationError> handleWebExchangeBindException(WebExchangeBindException e) {
-            return e.getFieldErrors()
-                    .stream()
-                    .map(objectError -> new ValidationError(objectError.getField(), String.valueOf(objectError.getRejectedValue()), objectError.getDefaultMessage()))
-                    .collect(Collectors.toList());
+        public List<ValidationError> handleBadRequestException(BadRequestException e) {
+            return e.getValidationErrors();
         }
 
         @ExceptionHandler({Exception.class})
