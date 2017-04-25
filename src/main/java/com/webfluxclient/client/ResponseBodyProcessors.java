@@ -1,44 +1,45 @@
 package com.webfluxclient.client;
 
-
 import org.springframework.core.ResolvableType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static com.webfluxclient.utils.Types.*;
+
 class ResponseBodyProcessors {
 
     static ResponseBodyProcessor forType(ResolvableType responseBodyType) {
-        if (Mono.class.isAssignableFrom(responseBodyType.getRawClass())) {
+        if (isMono(responseBodyType)) {
             return forMono(responseBodyType.getGeneric(0));
-        } else if (Flux.class.isAssignableFrom(responseBodyType.getRawClass())) {
+        } else if (isFlux(responseBodyType)) {
             return forFlux(responseBodyType.getGeneric(0));
-        } else if(void.class.isAssignableFrom(responseBodyType.getRawClass())) {
+        } else if (isVoid(responseBodyType)) {
             return forVoid();
         } else {
             return forObject(responseBodyType);
         }
     }
 
-    static ResponseBodyProcessor forMono(ResolvableType monoContentType) {
+    static ResponseBodyProcessor<Mono> forMono(ResolvableType monoContentType) {
         return clientResponseMono -> clientResponseMono
                 .flatMap(clientResponse -> clientResponse
                         .bodyToMono(monoContentType.getRawClass()));
     }
 
-    static ResponseBodyProcessor forFlux(ResolvableType fluxContentType) {
+    static ResponseBodyProcessor<Flux> forFlux(ResolvableType fluxContentType) {
         return clientResponseMono -> clientResponseMono
                 .flatMapMany(clientResponse -> clientResponse
                         .bodyToFlux(fluxContentType.getRawClass()));
     }
 
-    static ResponseBodyProcessor forObject(ResolvableType fluxContentType) {
+    static ResponseBodyProcessor<Object> forObject(ResolvableType fluxContentType) {
         return clientResponseMono -> clientResponseMono
                 .map(clientResponse -> clientResponse
                         .bodyToMono(fluxContentType.getRawClass())
                         .block());
     }
 
-    static ResponseBodyProcessor forVoid() {
+    static ResponseBodyProcessor<Void> forVoid() {
         return clientResponse -> null;
     }
 }

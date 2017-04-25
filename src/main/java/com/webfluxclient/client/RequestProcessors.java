@@ -7,9 +7,10 @@ import reactor.core.publisher.Mono;
 
 public class RequestProcessors {
 
-    public static RequestProcessor defaults(ResolvableType requestBodyType, ResolvableType responseBodyType){
+    public static RequestProcessor defaults(ResolvableType requestBodyType,
+                                            ResolvableType responseBodyType) {
         return requestProcessorFor(RequestBodyProcessors.forType(requestBodyType),
-                ResponseBodyProcessors.forType(responseBodyType));
+                                   ResponseBodyProcessors.forType(responseBodyType));
     }
 
     private static RequestProcessor requestProcessorFor(RequestBodyProcessor requestBodyProcessor,

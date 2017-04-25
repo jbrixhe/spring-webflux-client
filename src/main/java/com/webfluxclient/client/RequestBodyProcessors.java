@@ -1,5 +1,6 @@
 package com.webfluxclient.client;
 
+import com.webfluxclient.utils.Types;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.Resource;
@@ -7,26 +8,49 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import static com.webfluxclient.utils.ResolvableTypeUtils.isFormData;
+import static com.webfluxclient.utils.Types.*;
 
-public class RequestBodyProcessors {
+class RequestBodyProcessors {
 
-    public static RequestBodyProcessor forType(ResolvableType bodyType) {
+    static RequestBodyProcessor<?> forType(ResolvableType bodyType) {
         if (bodyType == null) {
-            return body -> BodyInserters.empty();
-        } else if (Publisher.class.isAssignableFrom(bodyType.getRawClass())) {
-            ResolvableType contentType = bodyType.getGeneric(0);
-            if (DataBuffer.class.isAssignableFrom(contentType.getRawClass())) {
-                return body -> BodyInserters.fromDataBuffers((Publisher<DataBuffer>) body);
-            } else {
-                return body -> BodyInserters.fromPublisher((Publisher<?>) body, contentType);
-            }
-        } else if (Resource.class.isAssignableFrom(bodyType.getRawClass())) {
-            return body ->  BodyInserters.fromResource((Resource) body);
+            return forEmpty();
+        } else if (isDataBuffer(bodyType)) {
+            return forDataBuffer();
+        } else if (isPublisher(bodyType)) {
+            return forPublisher(bodyType.getGeneric(0));
+        } else if (Types.isResource(bodyType)) {
+            return forResource();
         } else if (isFormData(bodyType)) {
-            return body ->  BodyInserters.fromFormData((MultiValueMap<String, String>) body);
+            return forFormData();
         } else {
-            return body ->  BodyInserters.fromObject(body);
+            return forObject();
         }
     }
+
+    static RequestBodyProcessor<Publisher<DataBuffer>> forDataBuffer() {
+        return BodyInserters::fromDataBuffers;
+    }
+
+    static <T> RequestBodyProcessor<Publisher<T>> forPublisher(ResolvableType contentType) {
+        return body -> BodyInserters.fromPublisher(body, contentType);
+    }
+
+    static RequestBodyProcessor<Resource> forResource() {
+        return BodyInserters::fromResource;
+    }
+
+    static RequestBodyProcessor<MultiValueMap<String, String>> forFormData() {
+        return BodyInserters::fromFormData;
+    }
+
+
+    static RequestBodyProcessor<Object> forObject() {
+        return BodyInserters::fromObject;
+    }
+
+    static RequestBodyProcessor<?> forEmpty() {
+        return body -> BodyInserters.empty();
+    }
+
 }
