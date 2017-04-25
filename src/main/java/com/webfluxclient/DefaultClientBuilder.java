@@ -1,16 +1,12 @@
 package com.webfluxclient;
 
-import com.webfluxclient.client.DefaultWebClientFactory;
 import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.webfluxclient.handler.ReactiveInvocationHandlerFactory;
-import com.webfluxclient.metadata.MethodMetadata;
-import com.webfluxclient.metadata.MethodMetadataFactory;
 import org.springframework.core.codec.Decoder;
 import org.springframework.core.codec.Encoder;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -19,56 +15,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 class DefaultClientBuilder implements ClientBuilder {
-    private MethodMetadataFactory methodMetadataFactory = new MethodMetadataFactory();
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
-    private DefaultWebClientFactory defaultWebClientFactory = new DefaultWebClientFactory();
-    private ExtendedClientCodecConfigurer codecs;
+    private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestInterceptor> requestInterceptors;
 
     DefaultClientBuilder() {
-        this.codecs = ExtendedClientCodecConfigurer.create();
+        this.codecConfigurer = ExtendedClientCodecConfigurer.create();
         this.requestInterceptors = new ArrayList<>();
     }
 
     @Override
     public ClientBuilder registerDefaultCodecs(boolean registerDefaults) {
-        codecs.registerDefaults(registerDefaults);
+        codecConfigurer.registerDefaults(registerDefaults);
         return this;
     }
 
     @Override
     public ClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
-        codecs.customCodecs().errorDecoder(errorDecoder);
+        codecConfigurer.customCodecs().errorDecoder(errorDecoder);
         return this;
     }
 
     @Override
     public ClientBuilder errorReader(HttpErrorReader httpErrorReader) {
-        codecs.customCodecs().errorReader(httpErrorReader);
+        codecConfigurer.customCodecs().errorReader(httpErrorReader);
         return this;
     }
 
     @Override
     public ClientBuilder decoder(Decoder<?> decoder) {
-        codecs.customCodecs().decoder(decoder);
+        codecConfigurer.customCodecs().decoder(decoder);
         return this;
     }
 
     @Override
     public ClientBuilder messageReader(HttpMessageReader<?> httpMessageReader) {
-        codecs.customCodecs().reader(httpMessageReader);
+        codecConfigurer.customCodecs().reader(httpMessageReader);
         return this;
     }
 
     @Override
     public ClientBuilder encoder(Encoder<?> encoder) {
-        codecs.customCodecs().encoder(encoder);
+        codecConfigurer.customCodecs().encoder(encoder);
         return this;
     }
 
     @Override
     public ClientBuilder messageWriter(HttpMessageWriter<?> httpMessageWriter) {
-        codecs.customCodecs().writer(httpMessageWriter);
+        codecConfigurer.customCodecs().writer(httpMessageWriter);
         return this;
     }
 
@@ -84,9 +78,7 @@ class DefaultClientBuilder implements ClientBuilder {
                 .reduce(RequestInterceptor::andThen)
                 .orElse(reactiveRequest ->{});
 
-        WebClient webClient = defaultWebClientFactory.create(codecs);
-        List<MethodMetadata> methodMetadatas = methodMetadataFactory.build(target, uri);
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.create(methodMetadatas, webClient, requestInterceptor);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestInterceptor, target, uri);
 
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }

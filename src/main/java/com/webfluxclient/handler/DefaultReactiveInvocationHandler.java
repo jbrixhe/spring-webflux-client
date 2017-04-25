@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class DefaultReactiveInvocationHandler implements InvocationHandler {
 
-    private Map<Method, ReactiveMethodHandler> invocationDispatcher;
+    private Map<Method, ClientMethodHandler> invocationDispatcher;
 
-    public DefaultReactiveInvocationHandler(Map<Method, ReactiveMethodHandler> invocationDispatcher) {
+    public DefaultReactiveInvocationHandler(Map<Method, ClientMethodHandler> invocationDispatcher) {
         this.invocationDispatcher = invocationDispatcher;
     }
 

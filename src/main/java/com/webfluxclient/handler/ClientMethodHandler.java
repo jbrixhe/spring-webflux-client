@@ -1,5 +1,5 @@
 package com.webfluxclient.handler;
 
-public interface ReactiveMethodHandler {
+public interface ClientMethodHandler {
     Object invoke(Object[] args);
 }
