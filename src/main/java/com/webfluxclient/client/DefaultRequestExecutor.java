@@ -13,10 +13,10 @@ public class DefaultRequestExecutor implements RequestExecutor {
     @Override
     public Mono<ClientResponse> execute(Request request) {
         return webClient
-                .method(request.getHttpMethod())
+                .method(request.httpMethod())
                 .uri(request.expand())
-                .headers(request.getHttpHeaders())
-                .body(request.getBodyInserter())
+                .headers(request.headers())
+                .body(request.bodyInserter())
                 .exchange();
     }
     

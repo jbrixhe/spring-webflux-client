@@ -1,16 +1,12 @@
 package com.webfluxclient.handler;
 
 import com.webfluxclient.RequestInterceptor;
-import com.webfluxclient.client.DefaultRequestExecutor;
 import com.webfluxclient.client.DefaultResponseBodyProcessor;
 import com.webfluxclient.client.RequestExecutor;
 import com.webfluxclient.client.ResponseBodyProcessor;
 import com.webfluxclient.metadata.MethodMetadata;
 import com.webfluxclient.metadata.request.Request;
-import com.webfluxclient.metadata.request.RequestTemplate;
-import org.springframework.core.ResolvableType;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 public class DefaultClientMethodHandler implements ClientMethodHandler {

@@ -31,7 +31,7 @@ public class RequestTemplate {
     private MultiValueMap<Integer, String> variableIndexToName;
 
     public Request apply(Object[] args) {
-        return new Request(uriBuilder,
+        return new DefaultRequest(uriBuilder,
                 httpMethod,
                 requestHeaders.encode(args),
                 nameToVariable(args),
