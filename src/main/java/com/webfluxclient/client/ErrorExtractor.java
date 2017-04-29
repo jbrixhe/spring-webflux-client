@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @FunctionalInterface
-interface ExceptionExtractor<T, M extends ClientHttpResponse> {
+interface ErrorExtractor<T, M extends ClientHttpResponse> {
 
     T extract(M inputMessage, Context context);
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
@@ -28,9 +30,9 @@ public class Request {
     @Getter
     private Map<String, Object> variables;
     @Getter
-    private Object body;
+    private BodyInserter<?, ? super ClientHttpRequest> bodyInserter;
 
-    public URI expand(){
+    public URI expand() {
         return uriBuilder.build(variables);
     }
 

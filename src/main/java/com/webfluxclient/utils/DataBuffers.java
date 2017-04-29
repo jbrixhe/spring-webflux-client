@@ -1,4 +1,4 @@
-package com.webfluxclient.client;
+package com.webfluxclient.utils;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.util.FileCopyUtils;

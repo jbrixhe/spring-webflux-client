@@ -1,37 +1,40 @@
 package com.webfluxclient.handler;
 
 import com.webfluxclient.RequestInterceptor;
-import com.webfluxclient.client.RequestProcessor;
+import com.webfluxclient.client.DefaultRequestExecutor;
+import com.webfluxclient.client.DefaultResponseBodyProcessor;
+import com.webfluxclient.client.RequestExecutor;
+import com.webfluxclient.client.ResponseBodyProcessor;
 import com.webfluxclient.metadata.MethodMetadata;
 import com.webfluxclient.metadata.request.Request;
 import com.webfluxclient.metadata.request.RequestTemplate;
+import org.springframework.core.ResolvableType;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 public class DefaultClientMethodHandler implements ClientMethodHandler {
 
-    private WebClient webClient;
-    private RequestTemplate requestTemplate;
+    private MethodMetadata methodMetadata;
     private RequestInterceptor requestInterceptor;
-    private RequestProcessor requestProcessor;
-
-    DefaultClientMethodHandler(
-            WebClient webClient,
-            RequestTemplate requestTemplate,
-            RequestProcessor requestProcessor,
-            RequestInterceptor requestInterceptor) {
-        this.webClient = webClient;
-        this.requestTemplate = requestTemplate;
+    private RequestExecutor requestExecutor;
+    private ResponseBodyProcessor responseBodyProcessor;
+    DefaultClientMethodHandler(MethodMetadata methodMetadata, RequestExecutor requestExecutor, RequestInterceptor requestInterceptor) {
+        this.methodMetadata = methodMetadata;
+        this.requestExecutor = requestExecutor;
         this.requestInterceptor = requestInterceptor;
-        this.requestProcessor = requestProcessor;
+        this.responseBodyProcessor = new DefaultResponseBodyProcessor();
     }
 
     @Override
     public Object invoke(Object[] args) {
-        Request request = requestTemplate.apply(args);
+        Request request = methodMetadata.getRequestTemplate().apply(args);
 
         requestInterceptor.accept(request);
-
-        return requestProcessor.execute(webClient, request);
+    
+        Mono<ClientResponse> execute = requestExecutor.execute(request);
+    
+        return responseBodyProcessor.process(execute, methodMetadata.getResponseBodyType());
     }
 
 }

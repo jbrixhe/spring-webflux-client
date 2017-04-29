@@ -1,10 +1,11 @@
 package com.webfluxclient.handler;
 
 import com.webfluxclient.RequestInterceptor;
-import com.webfluxclient.client.DefaultWebClientFactory;
-import com.webfluxclient.client.RequestProcessor;
-import com.webfluxclient.client.RequestProcessors;
-import com.webfluxclient.client.WebClientFactory;
+import com.webfluxclient.client.DefaultRequestExecutor;
+import com.webfluxclient.client.DefaultResponseBodyProcessor;
+import com.webfluxclient.client.DefaultRequestExecutorFactory;
+import com.webfluxclient.client.RequestExecutor;
+import com.webfluxclient.client.RequestExecutorFactory;
 import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.metadata.MethodMetadata;
 import com.webfluxclient.metadata.MethodMetadataFactory;
@@ -19,26 +20,27 @@ import java.util.stream.Collectors;
 public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocationHandlerFactory {
 
     private MethodMetadataFactory methodMetadataFactory;
-    private WebClientFactory webClientFactory;
+    private RequestExecutorFactory requestExecutorFactory;
 
     public DefaultReactiveInvocationHandlerFactory() {
         this.methodMetadataFactory = new MethodMetadataFactory();
-        this.webClientFactory = new DefaultWebClientFactory();
+        this.requestExecutorFactory = new DefaultRequestExecutorFactory();
     }
 
     @Override
     public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, RequestInterceptor requestInterceptor, Class<?> target, URI uri) {
-        WebClient webClient = webClientFactory.create(codecConfigurer);
+        RequestExecutor requestExecutor = requestExecutorFactory.create(codecConfigurer);
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)
                 .stream()
-                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> buildReactiveMethodHandler(methodMetadata, webClient, requestInterceptor)));
+                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> buildReactiveMethodHandler(methodMetadata, requestExecutor, requestInterceptor)));
 
         return new DefaultReactiveInvocationHandler(invocationDispatcher);
     }
 
-    private ClientMethodHandler buildReactiveMethodHandler(MethodMetadata methodMetadata, WebClient webClient, RequestInterceptor requestInterceptor){
-        RequestProcessor requestProcessor = RequestProcessors.defaults(methodMetadata.getRequestBodyType(), methodMetadata.getResponseBodyType());
-
-        return new DefaultClientMethodHandler(webClient, methodMetadata.getRequestTemplate(), requestProcessor, requestInterceptor);
+    private ClientMethodHandler buildReactiveMethodHandler(MethodMetadata methodMetadata, RequestExecutor requestExecutor, RequestInterceptor requestInterceptor){
+        return new DefaultClientMethodHandler(
+                methodMetadata,
+                requestExecutor,
+                requestInterceptor);
     }
 }

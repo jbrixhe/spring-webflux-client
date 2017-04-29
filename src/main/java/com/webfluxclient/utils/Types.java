@@ -20,7 +20,7 @@ public abstract class Types {
     private static final ResolvableType FLUX_TYPE =
             ResolvableType.forClass(Flux.class);
 
-    private static final ResolvableType DATABUFFER_TYPE =
+    private static final ResolvableType DATABUFFER_PUBLISHER_TYPE =
             ResolvableType.forClassWithGenerics(Publisher.class, DataBuffer.class);
 
     private static final ResolvableType FORM_TYPE =
@@ -44,8 +44,8 @@ public abstract class Types {
         return FLUX_TYPE.isAssignableFrom(bodyType);
     }
 
-    public static boolean isDataBuffer(ResolvableType bodyType) {
-        return DATABUFFER_TYPE.isAssignableFrom(bodyType);
+    public static boolean isDataBufferPublisher(ResolvableType bodyType) {
+        return DATABUFFER_PUBLISHER_TYPE.isAssignableFrom(bodyType);
     }
 
     public static boolean isFormData(ResolvableType bodyType) {
