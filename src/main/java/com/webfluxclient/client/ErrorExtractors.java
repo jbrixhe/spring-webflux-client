@@ -10,15 +10,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-class ExceptionExtractors {
+class ErrorExtractors {
 
-    static <T> ExceptionExtractor<Mono<T>, ClientHttpResponse> toMono() {
-        return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),
+    static <T> ErrorExtractor<Mono<T>, ClientHttpResponse> toMono() {
+        return (inputMessage, context) -> readWithMessageReaders(
+                inputMessage.getStatusCode(),
                 context,
                 httpExceptionReader -> httpExceptionReader.readMono(inputMessage));
     }
 
-    static <T> ExceptionExtractor<Flux<T>, ClientHttpResponse> toFlux() {
+    static <T> ErrorExtractor<Flux<T>, ClientHttpResponse> toFlux() {
         return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),
                 context,
                 httpExceptionReader -> httpExceptionReader.read(inputMessage));
@@ -26,7 +27,7 @@ class ExceptionExtractors {
 
     private static <T, S extends Publisher<T>> S readWithMessageReaders(
             HttpStatus httpStatus,
-            ExceptionExtractor.Context context,
+            ErrorExtractor.Context context,
             Function<HttpErrorReader, S> readerFunction) {
 
         HttpErrorReader httpErrorReader = context.exceptionReaders()

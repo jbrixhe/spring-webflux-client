@@ -20,19 +20,18 @@ import java.util.Map;
 @Getter
 public class MethodMetadata {
     private Method targetMethod;
-    private ResolvableType responseType;
-    private ResolvableType bodyType;
+    private ResolvableType responseBodyType;
     private RequestTemplate requestTemplate;
 
     private MethodMetadata(Builder builder) {
         targetMethod = builder.targetMethod;
-        responseType = builder.returnType;
-        bodyType = builder.bodyType;
+        responseBodyType = builder.returnType;
         requestTemplate = new RequestTemplate(
                 builder.uriBuilder,
                 builder.httpMethod,
                 new RequestHeaders(builder.headers, builder.headerIndexToName),
                 builder.bodyIndex,
+                builder.bodyType,
                 builder.variableIndexToName);
     }
 
