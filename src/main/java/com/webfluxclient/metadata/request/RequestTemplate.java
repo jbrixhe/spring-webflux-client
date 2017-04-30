@@ -13,9 +13,7 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.util.UriBuilder;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.webfluxclient.utils.Types.*;
@@ -38,19 +36,11 @@ public class RequestTemplate {
                 buildBody(args));
     }
 
-    private Map<String, Object> nameToVariable(Object[] args) {
-        Map<String, Object> nameToVariable = new HashMap<>();
-        for (Map.Entry<Integer, List<String>> integerListEntry : variableIndexToName.entrySet()) {
-            Object variable = processVariable(args[integerListEntry.getKey()]);
-            integerListEntry.getValue().forEach(variableName -> nameToVariable.put(variableName, variable));
-        }
-        return nameToVariable;
-    }
-
     private BodyInserter<?, ? super ClientHttpRequest> buildBody(Object[] args) {
         if (bodyIndex == null) {
             return BodyInserters.empty();
         }
+        
         Object body = args[bodyIndex];
         if (isDataBufferPublisher(requestBodyType)) {
             return BodyInserters.fromDataBuffers((Publisher<DataBuffer>) body);
@@ -64,11 +54,13 @@ public class RequestTemplate {
             return BodyInserters.fromObject(body);
         }
     }
-
-    private Object processVariable(Object variable) {
-        if (Collection.class.isInstance(variable)) {
-            return ((Collection<?>) variable).toArray();
-        }
-        return variable;
+    
+    private Map<String, Object> nameToVariable(Object[] args) {
+        Map<String, Object> nameToVariable = new HashMap<>();
+        variableIndexToName.forEach((variableIndex, variableNames) -> {
+            variableNames
+                    .forEach(variableName -> nameToVariable.put(variableName, args[variableIndex]));
+        });
+        return nameToVariable;
     }
 }
