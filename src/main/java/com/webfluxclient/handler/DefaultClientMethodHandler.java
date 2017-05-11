@@ -15,7 +15,9 @@ public class DefaultClientMethodHandler implements ClientMethodHandler {
     private RequestInterceptor requestInterceptor;
     private RequestExecutor requestExecutor;
     private ResponseBodyProcessor responseBodyProcessor;
-    DefaultClientMethodHandler(MethodMetadata methodMetadata, RequestExecutor requestExecutor, RequestInterceptor requestInterceptor) {
+    DefaultClientMethodHandler(MethodMetadata methodMetadata,
+                               RequestExecutor requestExecutor,
+                               RequestInterceptor requestInterceptor) {
         this.methodMetadata = methodMetadata;
         this.requestExecutor = requestExecutor;
         this.requestInterceptor = requestInterceptor;
