@@ -1,6 +1,6 @@
 package com.webfluxclient.client;
 
-import com.webfluxclient.HttpErrorReader;
+import com.webfluxclient.codec.HttpErrorReader;
 import com.webfluxclient.ReactiveClientConfigurationException;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;

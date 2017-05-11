@@ -1,4 +1,4 @@
-package com.webfluxclient;
+package com.webfluxclient.codec;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
