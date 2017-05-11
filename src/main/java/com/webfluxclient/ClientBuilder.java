@@ -1,6 +1,7 @@
 package com.webfluxclient;
 
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
+import com.webfluxclient.handler.DefaultReactiveInvocationHandlerFactory;
 
 import java.net.URI;
 import java.util.function.Consumer;
@@ -41,11 +42,11 @@ public interface ClientBuilder {
      * Return a mutable builder with the default initialization.
      */
     static ClientBuilder builder(){
-        return new DefaultClientBuilder();
+        return new DefaultClientBuilder(new DefaultReactiveInvocationHandlerFactory());
     }
 
     static <T> T defaults(Class<T> target, URI uri) {
-        return new DefaultClientBuilder()
+        return builder()
                 .build(target, uri);
     }
 }

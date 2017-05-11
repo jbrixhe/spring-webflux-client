@@ -1,7 +1,6 @@
 package com.webfluxclient;
 
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
-import com.webfluxclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.webfluxclient.handler.ReactiveInvocationHandlerFactory;
 
 import java.lang.reflect.InvocationHandler;
@@ -15,12 +14,6 @@ class DefaultClientBuilder implements ClientBuilder {
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory;
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestInterceptor> requestInterceptors;
-
-    DefaultClientBuilder() {
-        this.reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
-        this.codecConfigurer = ExtendedClientCodecConfigurer.create();
-        this.requestInterceptors = new ArrayList<>();
-    }
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
@@ -54,12 +47,7 @@ class DefaultClientBuilder implements ClientBuilder {
 
     @Override
     public <T> T build(Class<T> target, URI uri) {
-        RequestInterceptor requestInterceptor = requestInterceptors.stream()
-                .reduce(RequestInterceptor::andThen)
-                .orElse(reactiveRequest ->{});
-
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestInterceptor, target, uri);
-
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestInterceptors, target, uri);
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }

@@ -11,6 +11,7 @@ import com.webfluxclient.metadata.MethodMetadataFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,11 @@ public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocati
     }
 
     @Override
-    public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, RequestInterceptor requestInterceptor, Class<?> target, URI uri) {
+    public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestInterceptor> requestInterceptors, Class<?> target, URI uri) {
+        RequestInterceptor requestInterceptor = requestInterceptors.stream()
+                .reduce(RequestInterceptor::andThen)
+                .orElse(reactiveRequest ->{});
+        
         RequestExecutor requestExecutor = requestExecutorFactory.create(codecConfigurer);
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)
                 .stream()
