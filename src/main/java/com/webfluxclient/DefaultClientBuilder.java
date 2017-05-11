@@ -1,12 +1,8 @@
 package com.webfluxclient;
 
-import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
+import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.handler.DefaultReactiveInvocationHandlerFactory;
 import com.webfluxclient.handler.ReactiveInvocationHandlerFactory;
-import org.springframework.core.codec.Decoder;
-import org.springframework.core.codec.Encoder;
-import org.springframework.http.codec.HttpMessageReader;
-import org.springframework.http.codec.HttpMessageWriter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;

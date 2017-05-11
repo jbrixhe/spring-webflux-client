@@ -1,7 +1,9 @@
 package com.webfluxclient;
 
 
-import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
+import com.webfluxclient.codec.ErrorDecoder;
+import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
+import com.webfluxclient.codec.HttpErrorReader;
 import com.webfluxclient.handler.ReactiveInvocationHandlerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +11,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 
 import java.net.URI;

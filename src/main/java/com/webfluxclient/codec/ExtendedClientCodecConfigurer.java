@@ -1,8 +1,5 @@
-package com.webfluxclient.client.codec;
+package com.webfluxclient.codec;
 
-import com.webfluxclient.ErrorDecoder;
-import com.webfluxclient.HttpErrorReader;
-import org.springframework.core.codec.Decoder;
 import org.springframework.http.codec.ClientCodecConfigurer;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.webfluxclient.client;
 
-import com.webfluxclient.HttpErrorReader;
+import com.webfluxclient.codec.HttpErrorReader;
 import org.springframework.http.client.reactive.ClientHttpResponse;
 
 import java.util.function.Supplier;

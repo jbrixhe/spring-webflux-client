@@ -1,11 +1,6 @@
 package com.webfluxclient;
 
-import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
-import org.springframework.core.codec.Decoder;
-import org.springframework.core.codec.Encoder;
-import org.springframework.http.codec.HttpMessageReader;
-import org.springframework.http.codec.HttpMessageWriter;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 
 import java.net.URI;
 import java.util.function.Consumer;

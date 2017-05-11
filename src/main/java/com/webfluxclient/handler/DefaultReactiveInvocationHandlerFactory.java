@@ -1,15 +1,12 @@
 package com.webfluxclient.handler;
 
 import com.webfluxclient.RequestInterceptor;
-import com.webfluxclient.client.DefaultRequestExecutor;
-import com.webfluxclient.client.DefaultResponseBodyProcessor;
 import com.webfluxclient.client.DefaultRequestExecutorFactory;
 import com.webfluxclient.client.RequestExecutor;
 import com.webfluxclient.client.RequestExecutorFactory;
-import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
+import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.metadata.MethodMetadata;
 import com.webfluxclient.metadata.MethodMetadataFactory;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

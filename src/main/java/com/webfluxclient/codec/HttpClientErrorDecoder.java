@@ -1,6 +1,5 @@
-package com.webfluxclient.client.codec;
+package com.webfluxclient.codec;
 
-import com.webfluxclient.ErrorDecoder;
 import com.webfluxclient.utils.DataBuffers;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
