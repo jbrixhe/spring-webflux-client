@@ -6,8 +6,11 @@ import com.webfluxclient.HttpErrorReader;
 import org.springframework.core.codec.Decoder;
 import org.springframework.core.codec.Encoder;
 import org.springframework.http.codec.ClientCodecConfigurer;
+import org.springframework.http.codec.DecoderHttpMessageReader;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,16 +21,16 @@ import java.util.function.Supplier;
 class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigurer {
     private ClientCodecConfigurer clientCodecConfigurer = ClientCodecConfigurer.create();
     private ExtendedCustomCodecsConfigurer extendedCustomCodecsConfigurer = new ExtendedCustomCodecsConfigurer(clientCodecConfigurer.customCodecs());
-    private DefaultErrorReaders defaultErrorReaders = new DefaultErrorReaders();
+    private ExtendedClientDefaultCodecsConfigurer extendedClientDefaultCodecsConfigurer = new ExtendedClientDefaultCodecsConfigurer(clientCodecConfigurer.defaultCodecs());
     @Override
     public void registerDefaults(boolean registerDefaults) {
         clientCodecConfigurer.registerDefaults(registerDefaults);
-        defaultErrorReaders.setSuppressed(!registerDefaults);
+        extendedClientDefaultCodecsConfigurer.setSuppressed(!registerDefaults);
     }
 
     @Override
-    public ClientDefaultCodecsConfigurer defaultCodecs() {
-        return clientCodecConfigurer.defaultCodecs();
+    public ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer defaultCodecs() {
+        return extendedClientDefaultCodecsConfigurer;
     }
 
     @Override
@@ -40,7 +43,7 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         List<HttpErrorReader> errorReaders = new ArrayList<>();
 
         extendedCustomCodecsConfigurer.addErrorReadersTo(errorReaders);
-        defaultErrorReaders.addTypedReadersTo(errorReaders);
+        extendedClientDefaultCodecsConfigurer.addTypedReadersTo(errorReaders);
 
         return errorReaders;
     }
@@ -55,9 +58,15 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         return clientCodecConfigurer.getWriters();
     }
 
-    private class DefaultErrorReaders {
+    private class ExtendedClientDefaultCodecsConfigurer implements ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer{
         private boolean suppressed = false;
+        private ClientDefaultCodecsConfigurer codecsConfigurer;
         private Map<Class<?>, HttpErrorReader> errorReaders = new HashMap<>();
+
+        private ExtendedClientDefaultCodecsConfigurer(ClientDefaultCodecsConfigurer codecsConfigurer){
+            this.codecsConfigurer = codecsConfigurer;
+        }
+
 
         private void setSuppressed(boolean suppressed) {
             this.suppressed = suppressed;
@@ -81,6 +90,31 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
             if (!this.suppressed) {
                 result.add(reader.get());
             }
+        }
+
+        @Override
+        public void jackson2Decoder(Jackson2JsonDecoder jackson2JsonDecoder) {
+            codecsConfigurer.jackson2Decoder(jackson2JsonDecoder);
+        }
+
+        @Override
+        public void jackson2Encoder(Jackson2JsonEncoder jackson2JsonEncoder) {
+            codecsConfigurer.jackson2Encoder(jackson2JsonEncoder);
+        }
+
+        @Override
+        public void clientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder) {
+            this.errorReaders.put(HttpClientErrorDecoder.class, new DecoderHttpErrorReader(clientErrorDecoder));
+        }
+
+        @Override
+        public void serverErrorDecoder(HttpServerErrorDecoder serverErrorDecoder) {
+            this.errorReaders.put(HttpServerErrorDecoder.class, new DecoderHttpErrorReader(serverErrorDecoder));
+        }
+
+        @Override
+        public void serverSentEventDecoder(Decoder<?> decoder) {
+            codecsConfigurer.serverSentEventDecoder(decoder);
         }
     }
 

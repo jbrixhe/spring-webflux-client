@@ -1,11 +1,14 @@
 package com.webfluxclient;
 
+import com.webfluxclient.client.codec.ExtendedClientCodecConfigurer;
 import org.springframework.core.codec.Decoder;
 import org.springframework.core.codec.Encoder;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import java.net.URI;
+import java.util.function.Consumer;
 
 /**
  *  A mutable builder to configure a Proxy
@@ -16,50 +19,10 @@ public interface ClientBuilder {
 
     ClientBuilder registerDefaultCodecs(boolean registerDefaults);
 
-    /**
-     * Add the given {@link ErrorDecoder} to this builder. This is a convenient alternative to adding a
-     * {@link DecoderHttpErrorReader} that wraps the given decoder.
-     * @param errorDecoder the error decoder to add
-     * @return this builder
-     */
-    ClientBuilder errorDecoder(ErrorDecoder errorDecoder);
+    ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer> defaultCodecsConfigurerConsumer);
 
-    /**
-     * Add the given {@link HttpErrorReader} to this builder.
-     * @param httpErrorReader the decoder to add
-     * @return this builder
-     */
-    ClientBuilder errorReader(HttpErrorReader httpErrorReader);
+    ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecsConfigurer> customCodecsConfigurerConsumer);
 
-    /**
-     * Add the given {@link Decoder} to this builder. This is a convenient alternative to adding a
-     * {@link org.springframework.http.codec.DecoderHttpMessageReader} that wraps the given decoder.
-     * @param decoder the decoder to add
-     * @return this builder
-     */
-    ClientBuilder decoder(Decoder<?> decoder);
-
-    /**
-     * Add the given {@link HttpMessageReader} to this builder.
-     * @param httpMessageReader the decoder to add
-     * @return this builder
-     */
-    ClientBuilder messageReader(HttpMessageReader<?> httpMessageReader);
-
-    /**
-     * Add the given {@link Encoder} to this builder. This is a convenient alternative to adding a
-     * {@link org.springframework.http.codec.EncoderHttpMessageWriter} that wraps the given decoder.
-     * @param encoder the encoder to add
-     * @return this builder
-     */
-    ClientBuilder encoder(Encoder<?> encoder);
-
-    /**
-     * Add the given {@link HttpMessageWriter} to this builder.
-     * @param httpMessageWriter the decoder to add
-     * @return this builder
-     */
-    ClientBuilder messageWriter(HttpMessageWriter<?> httpMessageWriter);
 
     /**
      * Add a {@link RequestInterceptor} to the builder.

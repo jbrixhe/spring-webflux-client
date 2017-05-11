@@ -13,13 +13,21 @@ import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 class DefaultClientBuilder implements ClientBuilder {
-    private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
+    private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory;
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestInterceptor> requestInterceptors;
 
     DefaultClientBuilder() {
+        this.reactiveInvocationHandlerFactory = new DefaultReactiveInvocationHandlerFactory();
+        this.codecConfigurer = ExtendedClientCodecConfigurer.create();
+        this.requestInterceptors = new ArrayList<>();
+    }
+
+    DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
+        this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
         this.codecConfigurer = ExtendedClientCodecConfigurer.create();
         this.requestInterceptors = new ArrayList<>();
     }
@@ -31,38 +39,14 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
-    public ClientBuilder errorDecoder(ErrorDecoder errorDecoder) {
-        codecConfigurer.customCodecs().errorDecoder(errorDecoder);
+    public ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer> defaultCodecsConfigurerConsumer) {
+        defaultCodecsConfigurerConsumer.accept(codecConfigurer.defaultCodecs());
         return this;
     }
 
     @Override
-    public ClientBuilder errorReader(HttpErrorReader httpErrorReader) {
-        codecConfigurer.customCodecs().errorReader(httpErrorReader);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder decoder(Decoder<?> decoder) {
-        codecConfigurer.customCodecs().decoder(decoder);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder messageReader(HttpMessageReader<?> httpMessageReader) {
-        codecConfigurer.customCodecs().reader(httpMessageReader);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder encoder(Encoder<?> encoder) {
-        codecConfigurer.customCodecs().encoder(encoder);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder messageWriter(HttpMessageWriter<?> httpMessageWriter) {
-        codecConfigurer.customCodecs().writer(httpMessageWriter);
+    public ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecsConfigurer> customCodecsConfigurerConsumer) {
+        customCodecsConfigurerConsumer.accept(codecConfigurer.customCodecs());
         return this;
     }
 
