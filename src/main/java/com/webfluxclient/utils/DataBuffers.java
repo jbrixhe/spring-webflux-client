@@ -7,11 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class DataBuffers {
-
+    
     public static String readToString(DataBuffer dataBuffer) {
         try {
             return FileCopyUtils.copyToString(new InputStreamReader(dataBuffer.asInputStream()));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             return "";
         }
     }

@@ -1,5 +1,6 @@
 package com.webfluxclient.codec;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
@@ -13,7 +14,7 @@ import reactor.core.publisher.Mono;
  */
 public class DecoderHttpErrorReader implements HttpErrorReader {
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private ErrorDecoder errorDecoder;
 
     /**
