@@ -9,8 +9,8 @@ The goal of this library is to ease the use of latest Spring Reactive library [S
 
 ```java
 public interface AccountClient {
-	@GetMapping(value = "/accounts/{id}", consumes = APPLICATION_JSON_VALUE)
-	Mono<Account> getAccount(@PathVariable("id") Integer id);
+    @GetMapping(value = "/accounts/{id}", consumes = APPLICATION_JSON_VALUE)
+    Mono<Account> getAccount(@PathVariable("id") Integer id);
 }
 ...
 AccountClient accountClient = return ClientBuilder
@@ -22,13 +22,13 @@ This is the code you have to write in order to achieve the same result as in the
 
 ```java
 public class AccountClient {
-	public Mono<Account> getAccount(Integer id) {
-	    WebClient client = WebClient.create("http://example.com");
-	    return client.get()
-          		.url("/accounts/{id}", id)
-          		.accept(APPLICATION_JSON)
-          		.exchange(request)
-          		.then(response -> response.bodyToMono(Account.class));
+    public Mono<Account> getAccount(Integer id) {
+        WebClient client = WebClient.create("http://example.com");
+        return client.get()
+            .url("/accounts/{id}", id)
+            .accept(APPLICATION_JSON)
+            .exchange(request)
+            .then(response -> response.bodyToMono(Account.class));
     }
 }
 ```
@@ -84,12 +84,72 @@ You can configure request interceptors on every Client. These interceptors will 
 ```java
 public class TokenRequestInterceptor implements RequestInterceptor {
     @Override public void accept(ReactiveRequest request) {
-    	request.addHeader("x-token", "encoded-token");
+        request.addHeader("x-token", "encoded-token");
     }
 }
 ...
 AccountClient accountClient = return ClientBuilder
-                    .builder()
-                    .requestInterceptor(new TokenRequestInterceptor())
-                    .build(HelloClient.class, "http://example.com");
+    .builder()
+    .requestInterceptor(new TokenRequestInterceptor())
+    .build(HelloClient.class, "http://example.com");
 ```
+
+### Codecs
+There is 3 kinds of codecs you can configure within the ClientBuilder: 
+* HttpMessageWriter 
+* HttpMessageReader 
+* HttpErrorReader
+
+HttpMessageWriter and HttpMessageReader standard codecs used within the Spring-webflux.  
+ 
+
+1. HttpErrorReader 
+
+ These readers are used when the response status code is 4xx or 5xx so you can deserialize custom error payload.
+
+ By default there is 2 HttpErrorReader that will process the response and wrap the body as String. 
+* Statuses 5xx response will be wrap in a HttpServerException
+* Statuses 4xx response will be wrap in a HttpServerException
+
+
+2. Override default codecs.
+
+During the building phase of your client you can configure some of the default codec decoders used by the client. 
+```java
+ClientBuilder.builder()
+    .defaultCodecs(defaultCodecsConfigurerConsumer -> {
+        defaultCodecsConfigurerConsumer.jackson2Encoder(new CustomJackson2JsonEncoder());
+        defaultCodecsConfigurerConsumer.jackson2Decoder(new CustomJackson2JsonDecoder());
+        defaultCodecsConfigurerConsumer.serverSentEventDecoder(new CustomDecoder());
+        defaultCodecsConfigurerConsumer.clientErrorDecoder(new CustomClientErrorDecoder());
+        defaultCodecsConfigurerConsumer.serverErrorDecoder(new CustomServerErrorDecoder);
+    })
+    .build(HelloClient.class, "http://example.com");
+```
+
+3. Configure custom codecs.
+
+ During the building phase of your client you can configure add custom codecs to fit your specifics needs.
+
+3.1 HttpMessageWriter, HttpMessageReader and HttpErrorReader  
+```java
+ClientBuilder.builder()
+    .customCodecs(customCodecsConfigurer -> {
+        customCodecsConfigurer.reader(new CustomHttpMessageReader());
+        customCodecsConfigurer.writer(new CustomHttpMessageWriter());
+        customCodecsConfigurer.errorReader(new CustomHttpErrorReader());
+    })
+    .build(HelloClient.class, "http://example.com");
+```
+
+3.2 Encoder, Decoder and ErrorDecoder 
+ 
+ ```java
+ ClientBuilder.builder()
+     .customCodecs(customCodecsConfigurer -> {
+         customCodecsConfigurer.decoder(new CustomDecoder());
+         customCodecsConfigurer.encoder(new CustomEncoder());
+         customCodecsConfigurer.errorDecoder(new CustomErrorDecoder());
+     })
+     .build(HelloClient.class, "http://example.com");
+ ```
