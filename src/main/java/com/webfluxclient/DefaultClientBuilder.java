@@ -17,7 +17,7 @@ class DefaultClientBuilder implements ClientBuilder {
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
-        this.codecConfigurer = ExtendedClientCodecConfigurer.create();
+        this.codecConfigurer = com.webfluxclient.codec.ExtendedClientCodecConfigurer.create();
         this.requestInterceptors = new ArrayList<>();
     }
 
@@ -28,13 +28,13 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
-    public ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer> defaultCodecsConfigurerConsumer) {
+    public ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedDefaultCodecs> defaultCodecsConfigurerConsumer) {
         defaultCodecsConfigurerConsumer.accept(codecConfigurer.defaultCodecs());
         return this;
     }
 
     @Override
-    public ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecsConfigurer> customCodecsConfigurerConsumer) {
+    public ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer) {
         customCodecsConfigurerConsumer.accept(codecConfigurer.customCodecs());
         return this;
     }

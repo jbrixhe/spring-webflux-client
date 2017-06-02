@@ -13,7 +13,7 @@ public class DataBuffers {
             return FileCopyUtils.copyToString(new InputStreamReader(dataBuffer.asInputStream()));
         }
         catch (IOException e) {
-            return "";
+            return e.getMessage();
         }
     }
 }

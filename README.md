@@ -134,10 +134,10 @@ ClientBuilder.builder()
 3.1 HttpMessageWriter, HttpMessageReader and HttpErrorReader  
 ```java
 ClientBuilder.builder()
-    .customCodecs(customCodecsConfigurer -> {
-        customCodecsConfigurer.reader(new CustomHttpMessageReader());
-        customCodecsConfigurer.writer(new CustomHttpMessageWriter());
-        customCodecsConfigurer.errorReader(new CustomHttpErrorReader());
+    .customCodecs(customCodecs -> {
+        customCodecs.reader(new CustomHttpMessageReader());
+        customCodecs.writer(new CustomHttpMessageWriter());
+        customCodecs.errorReader(new CustomHttpErrorReader());
     })
     .build(HelloClient.class, "http://example.com");
 ```
@@ -146,10 +146,10 @@ ClientBuilder.builder()
  
  ```java
  ClientBuilder.builder()
-     .customCodecs(customCodecsConfigurer -> {
-         customCodecsConfigurer.decoder(new CustomDecoder());
-         customCodecsConfigurer.encoder(new CustomEncoder());
-         customCodecsConfigurer.errorDecoder(new CustomErrorDecoder());
+     .customCodecs(customCodecs -> {
+         customCodecs.decoder(new CustomDecoder());
+         customCodecs.encoder(new CustomEncoder());
+         customCodecs.errorDecoder(new CustomErrorDecoder());
      })
      .build(HelloClient.class, "http://example.com");
  ```

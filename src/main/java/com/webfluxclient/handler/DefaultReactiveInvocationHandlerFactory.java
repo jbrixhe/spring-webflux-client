@@ -34,15 +34,8 @@ public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocati
         RequestExecutor requestExecutor = requestExecutorFactory.create(codecConfigurer);
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)
                 .stream()
-                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> buildReactiveMethodHandler(methodMetadata, requestExecutor, requestInterceptor)));
+                .collect(Collectors.toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultClientMethodHandler(methodMetadata, requestExecutor, requestInterceptor)));
 
         return new DefaultReactiveInvocationHandler(invocationDispatcher);
-    }
-
-    private ClientMethodHandler buildReactiveMethodHandler(MethodMetadata methodMetadata, RequestExecutor requestExecutor, RequestInterceptor requestInterceptor){
-        return new DefaultClientMethodHandler(
-                methodMetadata,
-                requestExecutor,
-                requestInterceptor);
     }
 }

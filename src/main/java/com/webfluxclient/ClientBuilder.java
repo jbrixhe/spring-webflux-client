@@ -15,9 +15,9 @@ public interface ClientBuilder {
 
     ClientBuilder registerDefaultCodecs(boolean registerDefaults);
 
-    ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecsConfigurer> defaultCodecsConfigurerConsumer);
+    ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedDefaultCodecs> defaultCodecsConfigurerConsumer);
 
-    ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecsConfigurer> customCodecsConfigurerConsumer);
+    ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer);
 
 
     /**

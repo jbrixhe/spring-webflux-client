@@ -77,7 +77,7 @@ class ExtendedClientResponse implements ClientResponse {
         else {
             return bodyExtractor.extract(this.response, new BodyExtractor.Context() {
                 @Override
-                public Supplier<Stream<HttpMessageReader<?>>> messageReaders() {
+                public List<HttpMessageReader<?>> messageReaders() {
                     return strategies.messageReaders();
                 }
                 

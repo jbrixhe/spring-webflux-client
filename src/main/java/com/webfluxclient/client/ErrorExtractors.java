@@ -1,7 +1,6 @@
 package com.webfluxclient.client;
 
 import com.webfluxclient.codec.HttpErrorReader;
-import com.webfluxclient.ReactiveClientConfigurationException;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
@@ -31,10 +30,10 @@ class ErrorExtractors {
             Function<HttpErrorReader, S> readerFunction) {
 
         HttpErrorReader httpErrorReader = context.exceptionReaders()
-                .get()
+                .stream()
                 .filter(r -> r.canRead(httpStatus))
                 .findFirst()
-                .orElseThrow(() -> new ReactiveClientConfigurationException("No HttpErrorReader available for status: " + httpStatus.value()));
+                .orElseThrow(() -> new IllegalArgumentException("No HttpErrorReader available for status: " + httpStatus.value()));
 
         return readerFunction.apply(httpErrorReader);
     }

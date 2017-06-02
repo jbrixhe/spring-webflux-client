@@ -5,8 +5,8 @@ import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
 
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+
+import static java.util.Collections.unmodifiableList;
 
 class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
 
@@ -15,23 +15,23 @@ class DefaultExtendedExchangeStrategies implements ExtendedExchangeStrategies {
     private List<HttpErrorReader> httpExceptionReaders;
 
     DefaultExtendedExchangeStrategies(List<HttpMessageWriter<?>> httpMessageWriters, List<HttpMessageReader<?>> httpMessageReaders, List<HttpErrorReader> httpExceptionReaders) {
-        this.httpMessageWriters = httpMessageWriters;
-        this.httpMessageReaders = httpMessageReaders;
-        this.httpExceptionReaders = httpExceptionReaders;
+        this.httpMessageWriters = unmodifiableList(httpMessageWriters);
+        this.httpMessageReaders = unmodifiableList(httpMessageReaders);
+        this.httpExceptionReaders = unmodifiableList(httpExceptionReaders);
     }
 
     @Override
-    public Supplier<Stream<HttpErrorReader>> exceptionReader() {
-        return httpExceptionReaders::stream;
+    public List<HttpErrorReader> exceptionReader() {
+        return httpExceptionReaders;
     }
 
     @Override
-    public Supplier<Stream<HttpMessageReader<?>>> messageReaders() {
-        return httpMessageReaders::stream;
+    public List<HttpMessageReader<?>> messageReaders() {
+        return httpMessageReaders;
     }
 
     @Override
-    public Supplier<Stream<HttpMessageWriter<?>>> messageWriters() {
-        return httpMessageWriters::stream;
+    public List<HttpMessageWriter<?>> messageWriters() {
+        return httpMessageWriters;
     }
 }
