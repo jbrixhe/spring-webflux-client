@@ -42,7 +42,7 @@ public class DefaultClientBuilderTest {
         
         when(reactiveInvocationHandlerFactory.build(codecConfigurerArgumentCaptor.capture(), anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
-        create().registerDefaultCodecs(false)
+        createBuilder().registerDefaultCodecs(false)
                 .build(TestClient.class, targetUri);
 
         ExtendedClientCodecConfigurer codecConfigurer = codecConfigurerArgumentCaptor.getValue();
@@ -63,7 +63,7 @@ public class DefaultClientBuilderTest {
         
         when(reactiveInvocationHandlerFactory.build(codecConfigurerArgumentCaptor.capture(), anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
-        create().build(TestClient.class, targetUri);
+        createBuilder().build(TestClient.class, targetUri);
 
         ExtendedClientCodecConfigurer codecConfigurer = codecConfigurerArgumentCaptor.getValue();
         assertThat(codecConfigurer.getReaders())
@@ -83,7 +83,7 @@ public class DefaultClientBuilderTest {
         
         when(reactiveInvocationHandlerFactory.build(codecConfigurerArgumentCaptor.capture(), anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
-        create()
+        createBuilder()
                 .registerDefaultCodecs(false)
                 .customCodecs(customCodecsConfigurer -> customCodecsConfigurer.errorDecoder(ErrorDecoder.of(HttpStatus.BAD_REQUEST::equals, (httpStatus, dataBuffer) -> new IllegalArgumentException())))
                 .build(TestClient.class, targetUri);
@@ -105,7 +105,7 @@ public class DefaultClientBuilderTest {
     
         when(reactiveInvocationHandlerFactory.build(codecConfigurerArgumentCaptor.capture(), anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
         
-        create()
+        createBuilder()
                 .defaultCodecs(defaultCodecsConfigurerConsumer -> {
                     defaultCodecsConfigurerConsumer.clientErrorDecoder(clientErrorDecoder);
                     defaultCodecsConfigurerConsumer.serverErrorDecoder(serverErrorDecoder);
@@ -128,7 +128,7 @@ public class DefaultClientBuilderTest {
         RequestInterceptor requestInterceptor = request -> {System.out.println(request);};
         when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestInterceptorsArgumentCaptor.capture(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
     
-        create()
+        createBuilder()
                 .requestInterceptor(requestInterceptor)
                 .build(TestClient.class, targetUri);
         
@@ -145,7 +145,7 @@ public class DefaultClientBuilderTest {
         return httpErrorReaders.stream().filter(httpErrorReader -> httpErrorReader.canRead(httpStatus)).findFirst();
     }
 
-    private DefaultClientBuilder create(){
+    private DefaultClientBuilder createBuilder(){
         return new DefaultClientBuilder(reactiveInvocationHandlerFactory);
     }
 

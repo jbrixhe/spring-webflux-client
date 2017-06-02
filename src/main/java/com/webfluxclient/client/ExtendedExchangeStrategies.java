@@ -4,12 +4,13 @@ import com.webfluxclient.codec.HttpErrorReader;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 interface ExtendedExchangeStrategies extends ExchangeStrategies {
 
-    Supplier<Stream<HttpErrorReader>> exceptionReader();
+    List<HttpErrorReader> exceptionReader();
 
     static ExtendedExchangeStrategies of(ExtendedClientCodecConfigurer configurer) {
         return new DefaultExtendedExchangeStrategies(

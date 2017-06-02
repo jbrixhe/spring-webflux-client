@@ -8,20 +8,20 @@ public interface ExtendedClientCodecConfigurer extends ClientCodecConfigurer {
 
     List<HttpErrorReader> getErrorReaders();
 
-    ExtendedCustomCodecsConfigurer customCodecs();
+    ExtendedCustomCodecs customCodecs();
 
-    ExtendedClientDefaultCodecsConfigurer defaultCodecs();
+    ExtendedDefaultCodecs defaultCodecs();
 
     static ExtendedClientCodecConfigurer create(){
         return new DefaultExtendedClientCodecConfigurer();
     }
 
-    interface ExtendedClientDefaultCodecsConfigurer extends ClientDefaultCodecsConfigurer {
+    interface ExtendedDefaultCodecs extends ClientDefaultCodecs {
         void clientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder);
         void serverErrorDecoder(HttpServerErrorDecoder serverErrorDecoder);
     }
 
-    interface ExtendedCustomCodecsConfigurer extends CustomCodecsConfigurer{
+    interface ExtendedCustomCodecs extends CustomCodecs{
         void errorReader(HttpErrorReader errorReader);
         void errorDecoder(ErrorDecoder errorDecoder);
     }
