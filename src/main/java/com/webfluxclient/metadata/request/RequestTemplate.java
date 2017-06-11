@@ -45,7 +45,7 @@ public class RequestTemplate {
         if (isDataBufferPublisher(requestBodyType)) {
             return BodyInserters.fromDataBuffers((Publisher<DataBuffer>) body);
         } else if (isPublisher(requestBodyType)) {
-            return BodyInserters.fromPublisher((Publisher) body, requestBodyType.getGeneric(0));
+            return BodyInserters.fromPublisher((Publisher) body, requestBodyType.getGeneric(0).getRawClass());
         } else if (isResource(requestBodyType)) {
             return BodyInserters.fromResource((Resource) body);
         } else if (isFormData(requestBodyType)) {
