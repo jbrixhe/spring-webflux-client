@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/jgsqware/projectAlpha.svg?branch=master)](https://travis-ci.org/jbrixhe/projectAlpha)
 
 # Reactive-Client
-The goal of this library is to ease the use of latest Spring Reactive library [Spring-Webflux](http://docs.spring.io/spring-framework/docs/5.0.0.M1/spring-framework-reference/html/web-reactive.html) that can be a bit verbose sometimes.
+The goal of this library is to ease the use of latest Spring Reactive library [Spring-Webflux](http://docs.spring.io/spring/docs/5.0.0.RC1/spring-framework-reference/web.html#web-reactive) that can be a bit verbose sometimes.
 
 
 ## Comparison
@@ -22,8 +22,9 @@ This is the code you have to write in order to achieve the same result as in the
 
 ```java
 public class AccountClient {
+    private WebClient client = WebClient.create("http://example.com");
+    
     public Mono<Account> getAccount(Integer id) {
-        WebClient client = WebClient.create("http://example.com");
         return client.get()
             .url("/accounts/{id}", id)
             .accept(APPLICATION_JSON)
