@@ -107,8 +107,8 @@ public class DefaultClientBuilderTest {
         
         createBuilder()
                 .defaultCodecs(defaultCodecsConfigurerConsumer -> {
-                    defaultCodecsConfigurerConsumer.clientErrorDecoder(clientErrorDecoder);
-                    defaultCodecsConfigurerConsumer.serverErrorDecoder(serverErrorDecoder);
+                    defaultCodecsConfigurerConsumer.httpClientErrorDecoder(clientErrorDecoder);
+                    defaultCodecsConfigurerConsumer.httpServerErrorDecoder(serverErrorDecoder);
                 })
                 .build(TestClient.class, targetUri);
         

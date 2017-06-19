@@ -10,15 +10,15 @@ public interface ExtendedClientCodecConfigurer extends ClientCodecConfigurer {
 
     ExtendedCustomCodecs customCodecs();
 
-    ExtendedDefaultCodecs defaultCodecs();
+    ExtendedClientDefaultCodecs defaultCodecs();
 
     static ExtendedClientCodecConfigurer create(){
         return new DefaultExtendedClientCodecConfigurer();
     }
 
-    interface ExtendedDefaultCodecs extends ClientDefaultCodecs {
-        void clientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder);
-        void serverErrorDecoder(HttpServerErrorDecoder serverErrorDecoder);
+    interface ExtendedClientDefaultCodecs extends ClientDefaultCodecs {
+        void httpClientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder);
+        void httpServerErrorDecoder(HttpServerErrorDecoder serverErrorDecoder);
     }
 
     interface ExtendedCustomCodecs extends CustomCodecs{

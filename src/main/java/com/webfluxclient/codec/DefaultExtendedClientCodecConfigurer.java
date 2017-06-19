@@ -16,8 +16,8 @@ import java.util.function.Supplier;
 
 class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigurer {
     private ClientCodecConfigurer clientCodecConfigurer = ClientCodecConfigurer.create();
-    private ExtendedCustomCodecs extendedCustomCodecConfigurer = new ExtendedCustomCodecs(clientCodecConfigurer.customCodecs());
-    private DefaultExtendedDefaultCodecs defaultExtendedClientCodecConfigurer = new DefaultExtendedDefaultCodecs(clientCodecConfigurer.defaultCodecs());
+    private DefaultExtendedCustomCodecs extendedCustomCodecConfigurer = new DefaultExtendedCustomCodecs(clientCodecConfigurer.customCodecs());
+    private ExtendedClientDefaultCodecsImpl defaultExtendedClientCodecConfigurer = new ExtendedClientDefaultCodecsImpl(clientCodecConfigurer.defaultCodecs());
     @Override
     public void registerDefaults(boolean registerDefaults) {
         clientCodecConfigurer.registerDefaults(registerDefaults);
@@ -25,7 +25,7 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
     }
 
     @Override
-    public ExtendedDefaultCodecs defaultCodecs() {
+    public ExtendedClientDefaultCodecs defaultCodecs() {
         return defaultExtendedClientCodecConfigurer;
     }
 
@@ -54,12 +54,12 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         return clientCodecConfigurer.getWriters();
     }
 
-    private class DefaultExtendedDefaultCodecs implements ExtendedDefaultCodecs {
+    private class ExtendedClientDefaultCodecsImpl implements ExtendedClientDefaultCodecs {
         private boolean suppressed = false;
         private ClientDefaultCodecs clientDefaultCodecs;
         private Map<Class<?>, HttpErrorReader> errorReaders = new HashMap<>();
 
-        private DefaultExtendedDefaultCodecs(ClientDefaultCodecs clientDefaultCodecs){
+        private ExtendedClientDefaultCodecsImpl(ClientDefaultCodecs clientDefaultCodecs){
             this.clientDefaultCodecs = clientDefaultCodecs;
         }
 
@@ -74,12 +74,12 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         }
 
         @Override
-        public void clientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder) {
+        public void httpClientErrorDecoder(HttpClientErrorDecoder clientErrorDecoder) {
             this.errorReaders.put(HttpClientErrorDecoder.class, new DecoderHttpErrorReader(clientErrorDecoder));
         }
 
         @Override
-        public void serverErrorDecoder(HttpServerErrorDecoder serverErrorDecoder) {
+        public void httpServerErrorDecoder(HttpServerErrorDecoder serverErrorDecoder) {
             this.errorReaders.put(HttpServerErrorDecoder.class, new DecoderHttpErrorReader(serverErrorDecoder));
         }
 
@@ -118,11 +118,11 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         }
     }
 
-    private class ExtendedCustomCodecs implements ExtendedClientCodecConfigurer.ExtendedCustomCodecs {
+    private class DefaultExtendedCustomCodecs implements ExtendedClientCodecConfigurer.ExtendedCustomCodecs {
         private CustomCodecs customCodecs;
         private List<HttpErrorReader> customErrorReaders;
 
-        private ExtendedCustomCodecs(CustomCodecs customCodecs){
+        private DefaultExtendedCustomCodecs(CustomCodecs customCodecs){
             this.customCodecs = customCodecs;
             this.customErrorReaders = new ArrayList<>();
         }
