@@ -15,7 +15,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
         return webClient
                 .method(request.httpMethod())
                 .uri(request.expand())
-                .headers(request.headers())
+                .headers(headers -> headers.addAll(request.headers()))
                 .body(request.bodyInserter())
                 .exchange();
     }

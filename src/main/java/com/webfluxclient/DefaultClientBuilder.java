@@ -28,7 +28,7 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
-    public ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedDefaultCodecs> defaultCodecsConfigurerConsumer) {
+    public ClientBuilder defaultCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedClientDefaultCodecs> defaultCodecsConfigurerConsumer) {
         defaultCodecsConfigurerConsumer.accept(codecConfigurer.defaultCodecs());
         return this;
     }
