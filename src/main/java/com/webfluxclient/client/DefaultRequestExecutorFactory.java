@@ -9,18 +9,23 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
+import static com.webfluxclient.client.ExchangeFilterFunctions.requestInterceptorFilterFunction;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunction.ofRequestProcessor;
 
 public class DefaultRequestExecutorFactory implements RequestExecutorFactory {
 
     @Override
-    public RequestExecutor create(ExtendedClientCodecConfigurer codecs, RequestInterceptor requestInterceptor) {
+    public RequestExecutor build(ExtendedClientCodecConfigurer codecs, List<RequestInterceptor> requestInterceptors) {
         ExtendedExchangeStrategies extendedExchangeStrategies = ExtendedExchangeStrategies.of(codecs);
+
         WebClient webClient = WebClient
                 .builder()
-                .filter(ofRequestProcessor(clientRequest -> Mono.just(clientRequest).map(requestInterceptor::process)))
+                .filter(requestInterceptorFilterFunction(requestInterceptors))
                 .exchangeFunction(new ExtendedExchangeFunction(extendedExchangeStrategies))
                 .build();
+
         return new DefaultRequestExecutor(webClient);
     }
 }

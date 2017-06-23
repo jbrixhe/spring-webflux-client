@@ -13,7 +13,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -29,11 +28,7 @@ public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocati
 
     @Override
     public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestInterceptor> requestInterceptors, Class<?> target, URI uri) {
-        RequestInterceptor requestInterceptor = requestInterceptors.stream()
-                .reduce(RequestInterceptor::andThen)
-                .orElseGet(() -> reactiveRequest -> reactiveRequest);
-        
-        RequestExecutor requestExecutor = requestExecutorFactory.create(codecConfigurer, requestInterceptor);
+        RequestExecutor requestExecutor = requestExecutorFactory.build(codecConfigurer, requestInterceptors);
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)
                 .stream()
                 .collect(toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultClientMethodHandler(methodMetadata, requestExecutor)));
