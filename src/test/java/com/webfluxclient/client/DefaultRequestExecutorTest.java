@@ -34,8 +34,7 @@ public class DefaultRequestExecutorTest {
         requestExecutor = create();
         when(this.exchangeFunction.exchange(captor.capture())).thenReturn(Mono.empty());
     }
-    
-    
+
     @Test
     public void execute() {
         Request request = new MockRequest("http://example.ca", HttpMethod.GET);

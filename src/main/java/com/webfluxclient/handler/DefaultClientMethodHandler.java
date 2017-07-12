@@ -1,6 +1,5 @@
 package com.webfluxclient.handler;
 
-import com.webfluxclient.client.DefaultResponseBodyProcessor;
 import com.webfluxclient.client.RequestExecutor;
 import com.webfluxclient.client.ResponseBodyProcessor;
 import com.webfluxclient.metadata.MethodMetadata;
@@ -14,10 +13,11 @@ public class DefaultClientMethodHandler implements ClientMethodHandler {
     private RequestExecutor requestExecutor;
     private ResponseBodyProcessor responseBodyProcessor;
     DefaultClientMethodHandler(MethodMetadata methodMetadata,
-                               RequestExecutor requestExecutor) {
+                               RequestExecutor requestExecutor,
+                               ResponseBodyProcessor responseBodyProcessor) {
         this.methodMetadata = methodMetadata;
         this.requestExecutor = requestExecutor;
-        this.responseBodyProcessor = new DefaultResponseBodyProcessor();
+        this.responseBodyProcessor = responseBodyProcessor;
     }
 
     @Override

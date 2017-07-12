@@ -2,8 +2,11 @@ package com.webfluxclient.handler;
 
 import com.webfluxclient.RequestInterceptor;
 import com.webfluxclient.client.DefaultRequestExecutorFactory;
+import com.webfluxclient.client.DefaultResponseBodyProcessorFactory;
 import com.webfluxclient.client.RequestExecutor;
 import com.webfluxclient.client.RequestExecutorFactory;
+import com.webfluxclient.client.ResponseBodyProcessor;
+import com.webfluxclient.client.ResponseBodyProcessorFactory;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.metadata.MethodMetadata;
 import com.webfluxclient.metadata.MethodMetadataFactory;
@@ -20,18 +23,22 @@ public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocati
 
     private MethodMetadataFactory methodMetadataFactory;
     private RequestExecutorFactory requestExecutorFactory;
+    private ResponseBodyProcessorFactory responseBodyProcessorFactory;
 
     public DefaultReactiveInvocationHandlerFactory() {
         this.methodMetadataFactory = new MethodMetadataFactory();
         this.requestExecutorFactory = new DefaultRequestExecutorFactory();
+        this.responseBodyProcessorFactory = new DefaultResponseBodyProcessorFactory();
     }
 
     @Override
     public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestInterceptor> requestInterceptors, Class<?> target, URI uri) {
         RequestExecutor requestExecutor = requestExecutorFactory.build(codecConfigurer, requestInterceptors);
+        ResponseBodyProcessor responseBodyProcessor = responseBodyProcessorFactory.create(codecConfigurer);
+
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)
                 .stream()
-                .collect(toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultClientMethodHandler(methodMetadata, requestExecutor)));
+                .collect(toMap(MethodMetadata::getTargetMethod, methodMetadata -> new DefaultClientMethodHandler(methodMetadata, requestExecutor, responseBodyProcessor)));
 
         return new DefaultReactiveInvocationHandler(invocationDispatcher);
     }

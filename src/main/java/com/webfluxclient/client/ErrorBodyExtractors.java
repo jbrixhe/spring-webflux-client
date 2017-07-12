@@ -4,32 +4,34 @@ import com.webfluxclient.codec.HttpErrorReader;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpResponse;
+import org.springframework.web.reactive.function.BodyExtractor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.function.Function;
 
-class ErrorExtractors {
+class ErrorBodyExtractors {
 
-    static <T> ErrorExtractor<Mono<T>, ClientHttpResponse> toMono() {
+    static <T> BodyExtractor<Mono<T>, ClientHttpResponse> toMono(List<HttpErrorReader> httpErrorReaders) {
         return (inputMessage, context) -> readWithMessageReaders(
                 inputMessage.getStatusCode(),
-                context,
+                httpErrorReaders,
                 httpExceptionReader -> httpExceptionReader.readMono(inputMessage));
     }
 
-    static <T> ErrorExtractor<Flux<T>, ClientHttpResponse> toFlux() {
+    static <T> BodyExtractor<Flux<T>, ClientHttpResponse> toFlux(List<HttpErrorReader> httpErrorReaders) {
         return (inputMessage, context) -> readWithMessageReaders(inputMessage.getStatusCode(),
-                context,
+                httpErrorReaders,
                 httpExceptionReader -> httpExceptionReader.read(inputMessage));
     }
 
     private static <T, S extends Publisher<T>> S readWithMessageReaders(
             HttpStatus httpStatus,
-            ErrorExtractor.Context context,
+            List<HttpErrorReader> httpErrorReaders,
             Function<HttpErrorReader, S> readerFunction) {
 
-        HttpErrorReader httpErrorReader = context.exceptionReaders()
+        HttpErrorReader httpErrorReader = httpErrorReaders
                 .stream()
                 .filter(r -> r.canRead(httpStatus))
                 .findFirst()
