@@ -37,7 +37,7 @@ public class DefaultClientBuilderTest {
     private ArgumentCaptor<ExtendedClientCodecConfigurer> codecConfigurerArgumentCaptor;
     
     @Captor
-    private ArgumentCaptor<List<RequestInterceptor>> requestInterceptorsArgumentCaptor;
+    private ArgumentCaptor<List<RequestProcessor>> requestProcessorsArgumentCaptor;
 
     @Captor
     private ArgumentCaptor<List<ResponseInterceptor>> responseInterceptorsArgumentCaptor;
@@ -132,60 +132,60 @@ public class DefaultClientBuilderTest {
     @Test
     public void registerRequestInterceptor(){
         URI targetUri = URI.create("http://example.ca");
-        RequestInterceptor requestInterceptor = clientRequest -> {System.out.println(clientRequest); return clientRequest;};
-        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestInterceptorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
+        RequestProcessor requestProcessor = clientRequest -> {System.out.println(clientRequest); return clientRequest;};
+        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestProcessorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
         createBuilder()
-                .requestInterceptor(requestInterceptor)
+                .requestProcessor(requestProcessor)
                 .build(TestClient.class, targetUri);
 
-        List<RequestInterceptor> requestInterceptors = requestInterceptorsArgumentCaptor.getValue();
-        assertThat(requestInterceptors)
+        List<RequestProcessor> requestProcessors = requestProcessorsArgumentCaptor.getValue();
+        assertThat(requestProcessors)
                 .hasSize(1)
-                .containsExactlyInAnyOrder(requestInterceptor);
+                .containsExactlyInAnyOrder(requestProcessor);
 
-        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestInterceptors),  anyList(), eq(TestClient.class), same(targetUri));
+        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestProcessors),  anyList(), eq(TestClient.class), same(targetUri));
         verifyNoMoreInteractions(reactiveInvocationHandlerFactory);
     }
 
     @Test
     public void registerMultipleRequestInterceptors(){
         URI targetUri = URI.create("http://example.ca");
-        RequestInterceptor requestInterceptor1 = clientRequest -> clientRequest;
-        RequestInterceptor requestInterceptor2 = clientRequest -> clientRequest;
-        RequestInterceptor requestInterceptor3 = clientRequest -> clientRequest;
-        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestInterceptorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
+        RequestProcessor requestProcessor1 = clientRequest -> clientRequest;
+        RequestProcessor requestProcessor2 = clientRequest -> clientRequest;
+        RequestProcessor requestProcessor3 = clientRequest -> clientRequest;
+        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestProcessorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
         createBuilder()
-                .requestInterceptor(requestInterceptor1)
-                .requestInterceptors(requestInterceptors -> {
-                    requestInterceptors.add(requestInterceptor2);
-                    requestInterceptors.add(requestInterceptor3);
+                .requestProcessor(requestProcessor1)
+                .requestProcessors(requestInterceptors -> {
+                    requestInterceptors.add(requestProcessor2);
+                    requestInterceptors.add(requestProcessor3);
                 })
                 .build(TestClient.class, targetUri);
 
-        List<RequestInterceptor> requestInterceptors = requestInterceptorsArgumentCaptor.getValue();
-        assertThat(requestInterceptors)
+        List<RequestProcessor> requestProcessors = requestProcessorsArgumentCaptor.getValue();
+        assertThat(requestProcessors)
                 .hasSize(3)
-                .containsExactly(requestInterceptor1, requestInterceptor2, requestInterceptor3);
+                .containsExactly(requestProcessor1, requestProcessor2, requestProcessor3);
 
-        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestInterceptors),  anyList(), eq(TestClient.class), same(targetUri));
+        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestProcessors),  anyList(), eq(TestClient.class), same(targetUri));
         verifyNoMoreInteractions(reactiveInvocationHandlerFactory);
     }
 
     @Test
     public void notRegisterAnyRequestInterceptor(){
         URI targetUri = URI.create("http://example.ca");
-        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestInterceptorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
+        when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestProcessorsArgumentCaptor.capture(),  anyList(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
 
         createBuilder()
                 .build(TestClient.class, targetUri);
 
-        List<RequestInterceptor> requestInterceptors = requestInterceptorsArgumentCaptor.getValue();
-        assertThat(requestInterceptors)
+        List<RequestProcessor> requestProcessors = requestProcessorsArgumentCaptor.getValue();
+        assertThat(requestProcessors)
                 .isEmpty();
 
-        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestInterceptors),  anyList(), eq(TestClient.class), same(targetUri));
+        verify(reactiveInvocationHandlerFactory).build(any(ExtendedClientCodecConfigurer.class), same(requestProcessors),  anyList(), eq(TestClient.class), same(targetUri));
         verifyNoMoreInteractions(reactiveInvocationHandlerFactory);
     }
 

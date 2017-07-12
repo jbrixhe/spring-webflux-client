@@ -79,11 +79,11 @@ Flux<Account> createAccounts(@RequestBody Account newAccount);
 Flux<Account> createAccounts(Account newAccount);
 ```
 
-### Request interceptor
-You can configure request interceptors on every Client. These interceptors will be called on every request created by the client.
+### Request Processor
+You can configure request processors on every Client. These processors will be called on every request created by the client.
 
 ```java
-public class ContentTypeRequestInterceptor implements RequestInterceptor {
+public class ContentTypeRequestProcessor implements RequestProcessor {
     @Override public ClientRequest accept(ClientRequest clientRequest) {
         return ClientRequest.from(clientRequest)
                             .headers(headers -> headers
@@ -94,7 +94,7 @@ public class ContentTypeRequestInterceptor implements RequestInterceptor {
 ...
 AccountClient accountClient = return ClientBuilder
     .builder()
-    .requestInterceptor(new ContentTypeRequestInterceptor())
+    .requestProcessor(new ContentTypeRequestProcessor())
     .build(HelloClient.class, "http://example.com");
 ```
 

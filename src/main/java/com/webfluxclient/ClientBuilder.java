@@ -22,15 +22,14 @@ public interface ClientBuilder {
 
 
     /**
-     * Add a {@link RequestInterceptor} to the builder.
+     * Add a {@link RequestProcessor} to the builder.
      *
-     * @param requestInterceptor The request consumer to use.
+     * @param requestProcessor The request consumer to use.
      * @return this builder
      * */
-    ClientBuilder requestInterceptor(RequestInterceptor requestInterceptor);
+    ClientBuilder requestProcessor(RequestProcessor requestProcessor);
 
-    ClientBuilder requestInterceptors(Consumer<List<RequestInterceptor>> requestInterceptorConsumer);
-
+    ClientBuilder requestProcessors(Consumer<List<RequestProcessor>> requestInterceptorConsumer);
 
     ClientBuilder responseInterceptor(ResponseInterceptor requestInterceptor);
 
