@@ -1,7 +1,7 @@
 package com.webfluxclient.client;
 
 import com.webfluxclient.RequestProcessor;
-import com.webfluxclient.ResponseInterceptor;
+import com.webfluxclient.ResponseProcessor;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
 
@@ -16,9 +16,9 @@ class ExchangeFilterFunctions {
                         .map(requestProcessor::process));
     }
 
-    static ExchangeFilterFunction responseInterceptorFilter(ResponseInterceptor responseInterceptor) {
+    static ExchangeFilterFunction responseInterceptorFilter(ResponseProcessor responseProcessor) {
         return ofResponseProcessor(clientResponse ->
                     Mono.just(clientResponse)
-                        .map(responseInterceptor::process));
+                        .map(responseProcessor::process));
     }
 }

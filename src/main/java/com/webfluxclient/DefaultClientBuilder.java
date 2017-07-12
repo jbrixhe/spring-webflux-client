@@ -14,13 +14,13 @@ class DefaultClientBuilder implements ClientBuilder {
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory;
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestProcessor> requestProcessors;
-    private List<ResponseInterceptor> responseInterceptors;
+    private List<ResponseProcessor> responseProcessors;
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
         this.codecConfigurer = com.webfluxclient.codec.ExtendedClientCodecConfigurer.create();
         this.requestProcessors = new ArrayList<>();
-        this.responseInterceptors = new ArrayList<>();
+        this.responseProcessors = new ArrayList<>();
     }
 
     @Override
@@ -54,20 +54,20 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
-    public ClientBuilder responseInterceptor(ResponseInterceptor responseInterceptor) {
-        responseInterceptors.add(responseInterceptor);
+    public ClientBuilder responseProcessor(ResponseProcessor responseProcessor) {
+        responseProcessors.add(responseProcessor);
         return this;
     }
 
     @Override
-    public ClientBuilder responseInterceptors(Consumer<List<ResponseInterceptor>> responseInterceptorConsumer) {
-        responseInterceptorConsumer.accept(responseInterceptors);
+    public ClientBuilder responseProcessors(Consumer<List<ResponseProcessor>> responseInterceptorConsumer) {
+        responseInterceptorConsumer.accept(responseProcessors);
         return this;
     }
 
     @Override
     public <T> T build(Class<T> target, URI uri) {
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseInterceptors, target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseProcessors, target, uri);
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }

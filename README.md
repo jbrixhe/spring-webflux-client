@@ -98,11 +98,11 @@ AccountClient accountClient = return ClientBuilder
     .build(HelloClient.class, "http://example.com");
 ```
 
-### Response interceptor
+### Response Processor
 You can configure response interceptors on every Client. These interceptors will be called on every response the client receive.
 
 ```java
-public class ConsoleLogResponseInterceptor implements ResponseInterceptor {
+public class ConsoleLogResponseProcessor implements ResponseProcessor {
     @Override public ClientResponse accept(ClientResponse clientResponse) {
         System.out.println(clientResponse);
         return clientResponse;
@@ -111,7 +111,7 @@ public class ConsoleLogResponseInterceptor implements ResponseInterceptor {
 ...
 AccountClient accountClient = return ClientBuilder
     .builder()
-    .responseInterceptor(new ConsoleLogResponseInterceptor())
+    .responseProcessor(new ConsoleLogResponseProcessor())
     .build(HelloClient.class, "http://example.com");
 ```
 

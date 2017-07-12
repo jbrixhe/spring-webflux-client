@@ -31,9 +31,9 @@ public interface ClientBuilder {
 
     ClientBuilder requestProcessors(Consumer<List<RequestProcessor>> requestInterceptorConsumer);
 
-    ClientBuilder responseInterceptor(ResponseInterceptor requestInterceptor);
+    ClientBuilder responseProcessor(ResponseProcessor requestInterceptor);
 
-    ClientBuilder responseInterceptors(Consumer<List<ResponseInterceptor>> responseInterceptorConsumer);
+    ClientBuilder responseProcessors(Consumer<List<ResponseProcessor>> responseInterceptorConsumer);
 
     /**
      * Build the proxy instance

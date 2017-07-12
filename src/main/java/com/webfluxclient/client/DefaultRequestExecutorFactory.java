@@ -1,7 +1,7 @@
 package com.webfluxclient.client;
 
 import com.webfluxclient.RequestProcessor;
-import com.webfluxclient.ResponseInterceptor;
+import com.webfluxclient.ResponseProcessor;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFunctions;
@@ -16,22 +16,22 @@ import static com.webfluxclient.client.ExchangeFilterFunctions.responseIntercept
 public class DefaultRequestExecutorFactory implements RequestExecutorFactory {
 
     @Override
-    public RequestExecutor build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestProcessor> requestProcessors, List<ResponseInterceptor> responseInterceptors) {
+    public RequestExecutor build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestProcessor> requestProcessors, List<ResponseProcessor> responseProcessors) {
         ExchangeStrategies exchangeStrategies = ExtendedExchangeStrategies.of(codecConfigurer);
 
         RequestProcessor requestProcessor = requestProcessors.stream()
                 .reduce(RequestProcessor::andThen)
                 .orElseGet(() -> clientRequest -> clientRequest);
 
-        ResponseInterceptor responseInterceptor = responseInterceptors.stream()
-                .reduce(ResponseInterceptor::andThen)
+        ResponseProcessor responseProcessor = responseProcessors.stream()
+                .reduce(ResponseProcessor::andThen)
                 .orElseGet(() -> clientResponse -> clientResponse);
 
         WebClient webClient = WebClient
                 .builder()
                 .filters(exchangeFilterFunctions -> {
                     exchangeFilterFunctions.add(requestProcessorFilter(requestProcessor));
-                    exchangeFilterFunctions.add(responseInterceptorFilter(responseInterceptor));
+                    exchangeFilterFunctions.add(responseInterceptorFilter(responseProcessor));
                 })
                 .exchangeFunction(ExchangeFunctions.create(new ReactorClientHttpConnector(), exchangeStrategies))
                 .build();
