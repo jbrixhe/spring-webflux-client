@@ -14,7 +14,7 @@ public interface AccountClient {
 }
 ...
 AccountClient accountClient = return ClientBuilder
-	.defaults(HelloClient.class, "http://example.com");
+	.defaults(AccountClient.class, "http://example.com");
 ```
 
 #### Using Spring-webflux:
