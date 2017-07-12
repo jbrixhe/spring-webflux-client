@@ -15,6 +15,8 @@ class DefaultClientBuilder implements ClientBuilder {
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestProcessor> requestProcessors;
     private List<ResponseProcessor> responseProcessors;
+    private ClientLogger clientLogger;
+    private LogLevel logLevel;
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
@@ -38,6 +40,18 @@ class DefaultClientBuilder implements ClientBuilder {
     @Override
     public ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer) {
         customCodecsConfigurerConsumer.accept(codecConfigurer.customCodecs());
+        return this;
+    }
+
+    @Override
+    public ClientBuilder clientLogger(ClientLogger clientLogger) {
+        this.clientLogger = clientLogger;
+        return this;
+    }
+
+    @Override
+    public ClientBuilder logLevel(LogLevel logLevel) {
+        this.logLevel = logLevel;
         return this;
     }
 
