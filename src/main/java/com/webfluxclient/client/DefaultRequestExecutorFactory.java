@@ -13,12 +13,16 @@ import static com.webfluxclient.client.ExchangeFilterFunctions.requestIntercepto
 
 public class DefaultRequestExecutorFactory implements RequestExecutorFactory {
 
+    @Override
     public RequestExecutor build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestInterceptor> requestInterceptors) {
         ExchangeStrategies exchangeStrategies = ExtendedExchangeStrategies.of(codecConfigurer);
+        RequestInterceptor requestInterceptor = requestInterceptors.stream()
+                .reduce(RequestInterceptor::andThen)
+                .orElseGet(() -> reactiveRequest -> reactiveRequest);
 
         WebClient webClient = WebClient
                 .builder()
-                .filter(requestInterceptorFilterFunction(requestInterceptors))
+                .filter(requestInterceptorFilterFunction(requestInterceptor))
                 .exchangeFunction(ExchangeFunctions.create(new ReactorClientHttpConnector(), exchangeStrategies))
                 .build();
 
