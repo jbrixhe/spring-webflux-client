@@ -17,11 +17,12 @@ public class DefaultClientMethodHandler implements ClientMethodHandler {
     private ResponseBodyProcessor responseBodyProcessor;
     DefaultClientMethodHandler(MethodMetadata methodMetadata,
                                RequestExecutor requestExecutor,
-                               RequestInterceptor requestInterceptor) {
+                               RequestInterceptor requestInterceptor,
+                               ResponseBodyProcessor responseBodyProcessor) {
         this.methodMetadata = methodMetadata;
         this.requestExecutor = requestExecutor;
         this.requestInterceptor = requestInterceptor;
-        this.responseBodyProcessor = new DefaultResponseBodyProcessor();
+        this.responseBodyProcessor = responseBodyProcessor;
     }
 
     @Override
