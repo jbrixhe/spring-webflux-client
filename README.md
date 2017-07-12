@@ -98,6 +98,23 @@ AccountClient accountClient = return ClientBuilder
     .build(HelloClient.class, "http://example.com");
 ```
 
+### Response interceptor
+You can configure response interceptors on every Client. These interceptors will be called on every response the client receive.
+
+```java
+public class ConsoleLogResponseInterceptor implements ResponseInterceptor {
+    @Override public ClientResponse accept(ClientResponse clientResponse) {
+        System.out.println(clientResponse);
+        return clientResponse;
+    }
+}
+...
+AccountClient accountClient = return ClientBuilder
+    .builder()
+    .responseInterceptor(new ConsoleLogResponseInterceptor())
+    .build(HelloClient.class, "http://example.com");
+```
+
 ### Codecs
 There is 3 kinds of codecs you can configure within the ClientBuilder: 
 * HttpMessageWriter 

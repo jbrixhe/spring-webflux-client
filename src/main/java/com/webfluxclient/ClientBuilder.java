@@ -4,6 +4,7 @@ import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.handler.DefaultReactiveInvocationHandlerFactory;
 
 import java.net.URI;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +28,13 @@ public interface ClientBuilder {
      * @return this builder
      * */
     ClientBuilder requestInterceptor(RequestInterceptor requestInterceptor);
+
+    ClientBuilder requestInterceptors(Consumer<List<RequestInterceptor>> requestInterceptorConsumer);
+
+
+    ClientBuilder responseInterceptor(ResponseInterceptor requestInterceptor);
+
+    ClientBuilder responseInterceptors(Consumer<List<ResponseInterceptor>> responseInterceptorConsumer);
 
     /**
      * Build the proxy instance

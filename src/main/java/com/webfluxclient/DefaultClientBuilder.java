@@ -14,11 +14,13 @@ class DefaultClientBuilder implements ClientBuilder {
     private ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory;
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestInterceptor> requestInterceptors;
+    private List<ResponseInterceptor> responseInterceptors;
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
         this.codecConfigurer = com.webfluxclient.codec.ExtendedClientCodecConfigurer.create();
         this.requestInterceptors = new ArrayList<>();
+        this.responseInterceptors = new ArrayList<>();
     }
 
     @Override
@@ -46,8 +48,26 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
+    public ClientBuilder requestInterceptors(Consumer<List<RequestInterceptor>> requestInterceptorConsumer) {
+        requestInterceptorConsumer.accept(requestInterceptors);
+        return this;
+    }
+
+    @Override
+    public ClientBuilder responseInterceptor(ResponseInterceptor responseInterceptor) {
+        responseInterceptors.add(responseInterceptor);
+        return this;
+    }
+
+    @Override
+    public ClientBuilder responseInterceptors(Consumer<List<ResponseInterceptor>> responseInterceptorConsumer) {
+        responseInterceptorConsumer.accept(responseInterceptors);
+        return this;
+    }
+
+    @Override
     public <T> T build(Class<T> target, URI uri) {
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestInterceptors, target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestInterceptors, responseInterceptors, target, uri);
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }
