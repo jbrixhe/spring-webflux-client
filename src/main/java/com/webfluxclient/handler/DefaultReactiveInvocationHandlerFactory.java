@@ -1,6 +1,7 @@
 package com.webfluxclient.handler;
 
-import com.webfluxclient.RequestInterceptor;
+import com.webfluxclient.RequestProcessor;
+import com.webfluxclient.ResponseProcessor;
 import com.webfluxclient.client.DefaultRequestExecutorFactory;
 import com.webfluxclient.client.DefaultResponseBodyProcessor;
 import com.webfluxclient.client.RequestExecutor;
@@ -29,8 +30,8 @@ public class DefaultReactiveInvocationHandlerFactory implements ReactiveInvocati
     }
 
     @Override
-    public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestInterceptor> requestInterceptors, Class<?> target, URI uri) {
-        RequestExecutor requestExecutor = requestExecutorFactory.build(codecConfigurer, requestInterceptors);
+    public InvocationHandler build(ExtendedClientCodecConfigurer codecConfigurer, List<RequestProcessor> requestProcessors, List<ResponseProcessor> responseProcessors, Class<?> target, URI uri) {
+        RequestExecutor requestExecutor = requestExecutorFactory.build(codecConfigurer, requestProcessors, responseProcessors);
         ResponseBodyProcessor responseBodyProcessor = new DefaultResponseBodyProcessor(codecConfigurer.getErrorReaders());
 
         Map<Method, ClientMethodHandler> invocationDispatcher = methodMetadataFactory.build(target, uri)

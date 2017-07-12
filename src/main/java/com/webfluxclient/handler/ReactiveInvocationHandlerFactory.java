@@ -1,6 +1,7 @@
 package com.webfluxclient.handler;
 
-import com.webfluxclient.RequestInterceptor;
+import com.webfluxclient.RequestProcessor;
+import com.webfluxclient.ResponseProcessor;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 
 import java.lang.reflect.InvocationHandler;
@@ -10,7 +11,8 @@ import java.util.List;
 public interface ReactiveInvocationHandlerFactory {
     InvocationHandler build(
             ExtendedClientCodecConfigurer codecConfigurer,
-            List<RequestInterceptor> requestInterceptors,
+            List<RequestProcessor> requestProcessors,
+            List<ResponseProcessor> responseProcessors,
             Class<?> target,
             URI uri);
 }
