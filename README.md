@@ -83,15 +83,18 @@ Flux<Account> createAccounts(Account newAccount);
 You can configure request interceptors on every Client. These interceptors will be called on every request created by the client.
 
 ```java
-public class TokenRequestInterceptor implements RequestInterceptor {
-    @Override public void accept(ReactiveRequest request) {
-        request.addHeader("x-token", "encoded-token");
+public class ContentTypeRequestInterceptor implements RequestInterceptor {
+    @Override public ClientRequest accept(ClientRequest clientRequest) {
+        return ClientRequest.from(clientRequest)
+                            .headers(headers -> headers
+                                .set(HttpHeaders.CONTENT_TYPE, "application/json"))
+                            .build();
     }
 }
 ...
 AccountClient accountClient = return ClientBuilder
     .builder()
-    .requestInterceptor(new TokenRequestInterceptor())
+    .requestInterceptor(new ContentTypeRequestInterceptor())
     .build(HelloClient.class, "http://example.com");
 ```
 

@@ -1,6 +1,5 @@
 package com.webfluxclient;
 
-
 import com.webfluxclient.codec.ErrorDecoder;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
 import com.webfluxclient.codec.HttpClientErrorDecoder;
@@ -20,9 +19,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultClientBuilderTest {
@@ -125,7 +128,7 @@ public class DefaultClientBuilderTest {
     @Test
     public void registerDefaultCodecs_withErrorInterceptor(){
         URI targetUri = URI.create("http://example.ca");
-        RequestInterceptor requestInterceptor = request -> {System.out.println(request);};
+        RequestInterceptor requestInterceptor = request -> {System.out.println(request); return request;};
         when(reactiveInvocationHandlerFactory.build(any(ExtendedClientCodecConfigurer.class), requestInterceptorsArgumentCaptor.capture(), eq(TestClient.class), same(targetUri))).thenReturn(new MockInvocationHandler());
     
         createBuilder()
@@ -152,10 +155,8 @@ public class DefaultClientBuilderTest {
     interface TestClient{}
     
     class OverrideHttpClientErrorDecoder extends HttpClientErrorDecoder {
-    
     }
     
     class OverrideHttpServerErrorDecoder extends HttpServerErrorDecoder {
-    
     }
 }
