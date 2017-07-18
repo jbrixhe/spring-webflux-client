@@ -15,7 +15,7 @@ class DefaultClientBuilder implements ClientBuilder {
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestProcessor> requestProcessors;
     private List<ResponseProcessor> responseProcessors;
-    private ClientLogger clientLogger;
+    private Logger logger;
     private LogLevel logLevel;
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
@@ -44,8 +44,8 @@ class DefaultClientBuilder implements ClientBuilder {
     }
 
     @Override
-    public ClientBuilder clientLogger(ClientLogger clientLogger) {
-        this.clientLogger = clientLogger;
+    public ClientBuilder logger(Logger logger) {
+        this.logger = logger;
         return this;
     }
 
@@ -81,7 +81,7 @@ class DefaultClientBuilder implements ClientBuilder {
 
     @Override
     public <T> T build(Class<T> target, URI uri) {
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseProcessors, target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseProcessors, logger, logLevel, target, uri);
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }

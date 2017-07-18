@@ -20,7 +20,7 @@ public interface ClientBuilder {
 
     ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer);
 
-    ClientBuilder clientLogger(ClientLogger clientLogger);
+    ClientBuilder logger(Logger logger);
 
     ClientBuilder logLevel(LogLevel logLevel);
 

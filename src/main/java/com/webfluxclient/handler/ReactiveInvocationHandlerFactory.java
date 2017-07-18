@@ -1,5 +1,7 @@
 package com.webfluxclient.handler;
 
+import com.webfluxclient.LogLevel;
+import com.webfluxclient.Logger;
 import com.webfluxclient.RequestProcessor;
 import com.webfluxclient.ResponseProcessor;
 import com.webfluxclient.codec.ExtendedClientCodecConfigurer;
@@ -13,6 +15,8 @@ public interface ReactiveInvocationHandlerFactory {
             ExtendedClientCodecConfigurer codecConfigurer,
             List<RequestProcessor> requestProcessors,
             List<ResponseProcessor> responseProcessors,
+            Logger logger,
+            LogLevel logLevel,
             Class<?> target,
             URI uri);
 }

@@ -64,13 +64,13 @@ class DefaultExtendedClientCodecConfigurer implements ExtendedClientCodecConfigu
         }
 
         @Override
-        public void jackson2Decoder(Jackson2JsonDecoder jackson2JsonDecoder) {
-            clientDefaultCodecs.jackson2Decoder(jackson2JsonDecoder);
+        public void jackson2JsonDecoder(Jackson2JsonDecoder jackson2JsonDecoder) {
+            clientDefaultCodecs.jackson2JsonDecoder(jackson2JsonDecoder);
         }
 
         @Override
-        public void jackson2Encoder(Jackson2JsonEncoder jackson2JsonEncoder) {
-            clientDefaultCodecs.jackson2Encoder(jackson2JsonEncoder);
+        public void jackson2JsonEncoder(Jackson2JsonEncoder jackson2JsonEncoder) {
+            clientDefaultCodecs.jackson2JsonEncoder(jackson2JsonEncoder);
         }
 
         @Override
