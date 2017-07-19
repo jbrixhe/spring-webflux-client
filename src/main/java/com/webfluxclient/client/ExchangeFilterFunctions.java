@@ -49,27 +49,31 @@ class ExchangeFilterFunctions {
                 .log()
                 .doOnEach(clientRequestSignal -> {
                     ClientRequest request = clientRequestSignal.get();
-                    logger.log(()-> "--> " + request.method() + ' ' + request.url());
-                    logger.log(()-> "Content-Type: " + request.headers().getContentType());
-                    if (logHeaders) {
-                        logger.log("Headers:");
-                        request.headers().forEach((name, values) -> {
-                            if (!HttpHeaders.CONTENT_TYPE.equals(name))
-                                logger.log(()-> " * " + name + ": " + values);
-                        });
+                    if (request != null) {
+                        logger.log(()-> "--> " + request.method() + ' ' + request.url());
+                        logger.log(()-> "Content-Type: " + request.headers().getContentType());
+                        if (logHeaders) {
+                            logger.log("Headers:");
+                            request.headers().forEach((name, values) -> {
+                                if (!HttpHeaders.CONTENT_TYPE.equals(name))
+                                    logger.log(()-> " * " + name + ": " + values);
+                            });
+                        }
+                        logger.log(() -> "--> END " + clientRequest.method());
                     }
-                    logger.log(() -> "--> END " + clientRequest.method());
                 })
                 .flatMap(exchangeFunction::exchange)
                 .doOnEach(clientResponseSignal -> {
                     ClientResponse response = clientResponseSignal.get();
-                    long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
-                    logger.log("<-- " + response.statusCode() + ' ' + clientRequest.method() + ' ' + clientRequest.url() + " (" + tookMs + "ms");
-                    if (logHeaders) {
-                        logger.log("Headers:");
-                        response.headers().asHttpHeaders().forEach((name, values) -> logger.log(()-> " * " + name + ": " + values));
+                    if (response != null) {
+                        long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+                        logger.log("<-- " + response.statusCode() + ' ' + clientRequest.method() + ' ' + clientRequest.url() + " (" + tookMs + "ms");
+                        if (logHeaders) {
+                            logger.log("Headers:");
+                            response.headers().asHttpHeaders().forEach((name, values) -> logger.log(()-> " * " + name + ": " + values));
+                        }
+                        logger.log(() -> "<-- END HTTP " + clientRequest.method());
                     }
-                    logger.log(() -> "<-- END HTTP " + clientRequest.method());
                 });
     }
 }

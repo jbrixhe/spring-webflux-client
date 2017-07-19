@@ -39,16 +39,14 @@ public class DefaultResponseBodyProcessor implements ResponseBodyProcessor {
     
     private <T> Mono<T> toMono(Mono<ClientResponse> monoResponse, Class<T> monoContentType) {
         return monoResponse
-                .flatMap(
-                        response -> bodyToPublisher(response,
+                .flatMap(response -> bodyToPublisher(response,
                                 BodyExtractors.toMono(monoContentType),
                                 ErrorBodyExtractors.toMono(httpErrorReaders)));
     }
     
     private <T> Flux<T> toFlux(Mono<ClientResponse> monoResponse, Class<T> fluxContentType) {
         return monoResponse
-                .flatMapMany(
-                        response -> bodyToPublisher(response,
+                .flatMapMany(response -> bodyToPublisher(response,
                                 BodyExtractors.toFlux(fluxContentType),
                                 ErrorBodyExtractors.toFlux(httpErrorReaders)));
     }

@@ -24,7 +24,7 @@ public class DefaultExchangeFilterFunctionFactory implements ExchangeFilterFunct
             exchangeFilterFunction = requestProcessorFilter(requestProcessor);
         }
 
-        if (logger != null && !LogLevel.NONE.equals(logLevel)) {
+        if (logger != null && logLevel != null) {
             ExchangeFilterFunction loggingExchangeFilterFunction = ExchangeFilterFunctions.loggingFilter(logger, logLevel);
             exchangeFilterFunction = exchangeFilterFunction == null?
                     loggingExchangeFilterFunction :
