@@ -20,6 +20,21 @@ public interface ClientBuilder {
 
     ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer);
 
+    /**
+     * Add a {@link Logger} to the builder.
+     *
+     * @param logger The logger to use.
+     * @return this builder
+     * */
+    ClientBuilder logger(Logger logger);
+
+    /**
+     * Add a {@link LogLevel} to the builder.
+     *
+     * @param logLevel The logLevel to use.
+     * @return this builder
+     * */
+    ClientBuilder logLevel(LogLevel logLevel);
 
     /**
      * Add a {@link RequestProcessor} to the builder.

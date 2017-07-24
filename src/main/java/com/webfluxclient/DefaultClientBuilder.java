@@ -15,6 +15,8 @@ class DefaultClientBuilder implements ClientBuilder {
     private ExtendedClientCodecConfigurer codecConfigurer;
     private List<RequestProcessor> requestProcessors;
     private List<ResponseProcessor> responseProcessors;
+    private Logger logger;
+    private LogLevel logLevel;
 
     DefaultClientBuilder(ReactiveInvocationHandlerFactory reactiveInvocationHandlerFactory) {
         this.reactiveInvocationHandlerFactory = reactiveInvocationHandlerFactory;
@@ -38,6 +40,18 @@ class DefaultClientBuilder implements ClientBuilder {
     @Override
     public ClientBuilder customCodecs(Consumer<ExtendedClientCodecConfigurer.ExtendedCustomCodecs> customCodecsConfigurerConsumer) {
         customCodecsConfigurerConsumer.accept(codecConfigurer.customCodecs());
+        return this;
+    }
+
+    @Override
+    public ClientBuilder logger(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
+
+    @Override
+    public ClientBuilder logLevel(LogLevel logLevel) {
+        this.logLevel = logLevel;
         return this;
     }
 
@@ -67,7 +81,7 @@ class DefaultClientBuilder implements ClientBuilder {
 
     @Override
     public <T> T build(Class<T> target, URI uri) {
-        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseProcessors, target, uri);
+        InvocationHandler invocationHandler = reactiveInvocationHandlerFactory.build(codecConfigurer, requestProcessors, responseProcessors, logger, logLevel, target, uri);
         return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[]{target}, invocationHandler);
     }
 }
