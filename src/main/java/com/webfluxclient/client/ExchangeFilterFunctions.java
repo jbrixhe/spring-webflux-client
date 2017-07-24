@@ -64,7 +64,7 @@ class ExchangeFilterFunctions {
                         logger.log("<-- " + response.statusCode() + ' ' + clientRequest.method() + ' ' + clientRequest.url() + " (" + tookMs + "ms)");
                         if (logHeaders) {
                             logger.log("Headers:");
-                            response.headers().asHttpHeaders().forEach((name, values) -> logger.log(()-> " * " + name + ": " + values));
+                            response.headers().asHttpHeaders().forEach((name, values) -> logger.log(()-> " - " + name + ": " + values));
                         }
                         logger.log(() -> "<-- END HTTP " + clientRequest.method());
                     }
