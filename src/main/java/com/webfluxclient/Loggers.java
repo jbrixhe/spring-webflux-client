@@ -5,7 +5,7 @@ import java.util.logging.Level;
 
 public class Loggers {
 
-    public static Logger javaUtil(String name, Level level) {
+    public static Logger defaults(String name, Level level) {
         return new Logger() {
             private java.util.logging.Logger logger = java.util.logging.Logger.getLogger(name);
 
